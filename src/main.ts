@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { CubeTexture, PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
@@ -9,13 +9,9 @@ const MAX_BALL_AGE = 3;
 let camera: PerspectiveCamera;
 let scene: Scene;
 let renderer: WebGLRenderer;
-let controllerR: XRTargetRaySpace;
-let controllerL: XRTargetRaySpace;
+var controllerR: XRTargetRaySpace;
+var controllerL: XRTargetRaySpace;
 
-let controls;
-
-init();
-animate();
 
 type Ball = {
   direction: Vector3;
@@ -27,6 +23,16 @@ var numBalls = 0;
 
 const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
 var currentMesh = 0;
+
+var orbitControls: OrbitControls;
+var avatar: THREE.Group;
+
+let debugMessage = new THREE.Object3D();
+let debugCanvas = document.createElement('canvas');
+let debugTexture = new Texture(debugCanvas);
+
+init();
+animate();
 
 function init() {
   initScene();
@@ -61,7 +67,7 @@ function init() {
     }
   }
 
-  const onSqueezeStart = (evt: THREE.Event) => {
+  function onSqueezeStart(evt: THREE.Event) {
     const target = evt.target as XRTargetRaySpace;
     if (target) {
       target.userData.isSqueezing = true;
@@ -109,6 +115,7 @@ function init() {
     controllerR.addEventListener('squeeze', () => {
       currentMesh = (currentMesh + 1) % sphereMeshes.length;
       pivotMaterial.color.setHex(sphereMeshes[currentMesh].material.color.getHex());
+      setMessage('CHANGED');
     });
 
     controllerL.addEventListener('selectstart', onSelectStart);
@@ -116,8 +123,8 @@ function init() {
     controllerL.addEventListener('squeezestart', onSqueezeStart);
     controllerL.addEventListener('squeezeend', onSqueezeEnd);
 
-    scene.add(controllerR);
-    scene.add(controllerL);
+    avatar.add(controllerR);
+    avatar.add(controllerL);
 
     controller0.add(mesh.clone());
     controller1.add(mesh.clone());
@@ -136,9 +143,13 @@ function initScene() {
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   camera.position.set(0, 1.6, 3);
 
-  controls = new OrbitControls(camera, container);
-  controls.target.set(0, 1.6, 0);
-  controls.update();
+  avatar = new THREE.Group();
+  avatar.add(camera);
+  scene.add(avatar);
+
+  orbitControls = new OrbitControls(camera, container);
+  orbitControls.target.set(0, 1.6, 0);
+  orbitControls.update();
 
   const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
   const tableMaterial = new THREE.MeshStandardMaterial({
@@ -150,6 +161,27 @@ function initScene() {
   table.position.y = 0.35;
   table.position.z = -0.85;
   scene.add(table);
+
+  { // DEBUGGING
+    debugCanvas.width = 256;
+    debugCanvas.height = 256;
+    const ctx = debugCanvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText('HELLO', 10, 10);
+    }
+    // Create texture from canvas
+    // const tex = new Texture(debugCanvas);
+    debugTexture.needsUpdate = true;
+    const material = new THREE.SpriteMaterial({ map: debugTexture });
+    const sprite = new THREE.Sprite( material );
+    debugMessage = new THREE.Object3D();
+    debugMessage.add(sprite);
+    debugMessage.position.set(0, 1, -1);
+    scene.add(debugMessage);
+  }
+
+  scene.add(debugMessage);
 
   const floorGometry = new THREE.PlaneGeometry(4, 4);
   const floorMaterial = new THREE.MeshStandardMaterial({
@@ -182,6 +214,19 @@ function initScene() {
   document.body.appendChild(VRButton.createButton(renderer));
 }
 
+function setMessage(msg: string | string[]) {
+  const lines = (typeof msg === 'string') ? [msg] : msg;
+  const ctx = debugCanvas.getContext('2d');
+  if (ctx) {
+    ctx.clearRect(0,0,debugCanvas.width, debugCanvas.height);
+    ctx.fillStyle = '#ff0000';
+    for (let i=0; i<lines.length; i++) {
+      ctx.fillText(lines[i], 4, 10 * i + 10);
+    }
+    debugTexture.needsUpdate = true;
+  }
+}
+
 function onWindowResize() {
 
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -196,7 +241,7 @@ function animate() {
 }
 
 var _lastTime = 0;
-function render(time: number, _frame: XRFrame) {
+function render(time: number, frame: XRFrame) {
   if (_lastTime) {
     const dt = (time - _lastTime) * 0.001;
     let i = 0;
@@ -212,6 +257,46 @@ function render(time: number, _frame: XRFrame) {
       else {
         ball.mesh.position.addScaledVector(ball.direction, -dt * 10);
         i++;
+      }
+    }
+
+    if (controllerL) {
+      if (controllerL.userData.isSqueezing) {
+        const direction = new Vector3();
+        controllerL.getWorldDirection(direction);
+        avatar.position.addScaledVector(direction, -dt);
+      }
+
+      for (const source of frame.session.inputSources) {
+        const gamepad = source.gamepad;
+        if (gamepad) {
+          const bTrigger = gamepad.buttons[0].pressed;
+          const vTrigger = gamepad.buttons[0].value;
+          const bGrab = gamepad.buttons[1].pressed;
+          const vGrab = gamepad.buttons[1].value;
+          const bJoy = gamepad.buttons[3].pressed;
+          const bAX = gamepad.buttons[4].pressed;
+          const bBY = gamepad.buttons[5].pressed;
+          const joyX = gamepad.axes[2];
+          const joyY = gamepad.axes[3];
+          setMessage([
+            `trigger: ${bTrigger} (${vTrigger.toFixed(2)})`,
+            `grab: ${bGrab} (${vGrab.toFixed(2)})`,
+            `A/X: ${bAX}`,
+            `B/Y: ${bBY}`,
+            `joystick: (${joyX.toFixed(2)}, ${joyY.toFixed(2)}) ${bJoy ? 'pressed' : ''}`
+          ]);
+        }
+        else {
+          setMessage('no gamepad');
+        }
+        if (gamepad) {
+          if (gamepad.buttons[2].pressed) {
+            const direction = new Vector3();
+            controllerL.getWorldDirection(direction);
+            avatar.position.addScaledVector(direction, -dt);
+          }
+        }
       }
     }
   }
