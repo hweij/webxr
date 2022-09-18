@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import { Color, PerspectiveCamera, Scene, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { TubePainter } from './tube-painter';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 let camera: PerspectiveCamera;
@@ -10,12 +9,12 @@ let renderer: WebGLRenderer;
 let controller1: XRTargetRaySpace;
 let controller2: XRTargetRaySpace;
 
-const cursor = new THREE.Vector3();
-
 let controls;
 
 init();
 animate();
+
+const balls: THREE.Mesh[] = [];
 
 function init() {
     const container = document.createElement( 'div' );
@@ -62,16 +61,6 @@ function init() {
     light.position.set( 0, 4, 0 );
     scene.add( light );
 
-    //
-
-    const painter1 = new TubePainter(new Color(0xff0000));
-    scene.add( painter1.mesh );
-
-    const painter2 = new TubePainter(new Color(0x00ff00));
-    scene.add( painter2.mesh );
-
-    //
-
     renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -82,6 +71,22 @@ function init() {
     document.body.appendChild( VRButton.createButton( renderer ) );
 
     // controllers
+
+    function createBall() {
+        const pivot = controller1.getObjectByName( 'pivot' );
+        if (pivot) {
+            const pos = new Vector3();
+            pivot.getWorldPosition(pos);
+            const geometry = new THREE.SphereGeometry( 0.01);
+            const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+            const sphere = new THREE.Mesh( geometry, material );
+            sphere.userData.direction = new Vector3();
+            controller1.getWorldDirection(sphere.userData.direction);
+            sphere.position.set(pos.x, pos.y, pos.z);
+            scene.add( sphere );
+            balls.push(sphere);    
+        }
+    }
 
     function onSelectStart(evt: THREE.Event): void {
         const target = evt.target as XRTargetRaySpace;
@@ -116,11 +121,11 @@ function init() {
     }
 
     controller1 = renderer.xr.getController( 0 );
+    controller1.addEventListener('select', createBall);
     controller1.addEventListener( 'selectstart', onSelectStart );
     controller1.addEventListener( 'selectend', onSelectEnd );
     controller1.addEventListener( 'squeezestart', onSqueezeStart );
     controller1.addEventListener( 'squeezeend', onSqueezeEnd );
-    controller1.userData.painter = painter1;
     scene.add( controller1 );
 
     controller2 = renderer.xr.getController( 1 );
@@ -128,7 +133,6 @@ function init() {
     controller2.addEventListener( 'selectend', onSelectEnd );
     controller2.addEventListener( 'squeezestart', onSqueezeStart );
     controller2.addEventListener( 'squeezeend', onSqueezeEnd );
-    controller2.userData.painter = painter2;
     scene.add( controller2 );
 
     //
@@ -146,8 +150,6 @@ function init() {
     controller1.add( mesh.clone() );
     controller2.add( mesh.clone() );
 
-    //
-
     window.addEventListener( 'resize', onWindowResize );
 }
 
@@ -160,49 +162,19 @@ function onWindowResize() {
 
 }
 
-//
-
-function handleController( controller: XRTargetRaySpace ) {
-    const userData = controller.userData;
-    const painter = userData.painter as TubePainter;
-
-    const pivot = controller.getObjectByName( 'pivot' );
-
-    if ( userData.isSqueezing === true ) {
-
-        const delta = ( controller.position.y - userData.positionAtSqueezeStart ) * 5;
-        const scale = Math.max( 0.1, userData.scaleAtSqueezeStart + delta );
-
-        pivot?.scale.setScalar( scale );
-        painter.setSize( scale );
-    }
-
-    if (pivot) {
-        cursor.setFromMatrixPosition( pivot.matrixWorld );
-    }
-
-    if ( userData.isSelecting === true ) {
-        painter.lineTo( cursor );
-        painter.update();
-    } else {
-
-        painter.moveTo( cursor );
-
-    }
-
-}
-
 function animate() {
-
     renderer.setAnimationLoop( render );
-
 }
 
-function render() {
-
-    handleController( controller1 );
-    handleController( controller2 );
+var _lastTime = 0;
+function render(time: number, _frame: XRFrame) {
+    if (_lastTime) {
+        const dt = time - _lastTime;
+        for (const ball of balls) {
+            ball.position.addScaledVector(ball.userData.direction, -dt * 0.005);
+        }    
+    }
+    _lastTime = time;
 
     renderer.render( scene, camera );
-
 }
