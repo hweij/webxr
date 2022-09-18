@@ -3,6 +3,9 @@ import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } fr
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
+// Max age in seconds after which the ball is removed
+const MAX_BALL_AGE = 3;
+
 let camera: PerspectiveCamera;
 let scene: Scene;
 let renderer: WebGLRenderer;
@@ -14,7 +17,6 @@ let controls;
 init();
 animate();
 
-const MAX_BALL_AGE = 3;
 type Ball = {
   direction: Vector3;
   mesh: THREE.Mesh;
@@ -22,6 +24,9 @@ type Ball = {
 }
 const balls: Ball[] = [];
 var numBalls = 0;
+
+const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
+var currentMesh = 0;
 
 function init() {
   const container = document.createElement('div');
@@ -45,7 +50,7 @@ function init() {
   });
   const table = new THREE.Mesh(tableGeometry, tableMaterial);
   table.position.y = 0.35;
-  table.position.z = 0.85;
+  table.position.z = -0.85;
   scene.add(table);
 
   const floorGometry = new THREE.PlaneGeometry(4, 4);
@@ -56,6 +61,7 @@ function init() {
   });
   const floor = new THREE.Mesh(floorGometry, floorMaterial);
   floor.rotation.x = - Math.PI / 2;
+  floor.position.y = 0.05;
   scene.add(floor);
 
   const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
@@ -77,10 +83,6 @@ function init() {
 
   document.body.appendChild(VRButton.createButton(renderer));
 
-  // controllers
-
-  const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-
   function createBall() {
     const pivot = controllerR.getObjectByName('pivot');
     if (pivot) {
@@ -89,7 +91,7 @@ function init() {
       const direction = new Vector3();
       controllerR.getWorldDirection(direction);
 
-      const sphere = sphereMesh.clone();
+      const sphere = sphereMeshes[currentMesh].clone();
       sphere.position.set(pos.x, pos.y, pos.z);
       scene.add(sphere);
       balls[numBalls] = { direction: direction, mesh: sphere, age: 0 };
@@ -115,8 +117,6 @@ function init() {
     const target = evt.target as XRTargetRaySpace;
     if (target) {
       target.userData.isSqueezing = true;
-      target.userData.positionAtSqueezeStart = target.position.y;
-      target.userData.scaleAtSqueezeStart = target.scale.x;
     }
   }
 
@@ -142,11 +142,25 @@ function init() {
       controllerL = controller0;
     }
 
+    const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
+    geometry.rotateX(- Math.PI / 2);
+    const material = new THREE.MeshStandardMaterial({ flatShading: true });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), material);
+    pivot.name = 'pivot';
+    pivot.position.z = - 0.05;
+    mesh.add(pivot);
+
     controllerR.addEventListener('selectstart', onSelectStart);
     controllerR.addEventListener('selectend', onSelectEnd);
     controllerR.addEventListener('squeezestart', onSqueezeStart);
     controllerR.addEventListener('squeezeend', onSqueezeEnd);
-    controllerR.addEventListener('select', createBall);
+    controllerR.addEventListener('selectstart', createBall);
+    controllerR.addEventListener('squeeze', () => {
+      currentMesh = (currentMesh + 1) % sphereMeshes.length;
+      material.color.setHex(sphereMeshes[currentMesh].material.color.getHex());
+    });
 
     controllerL.addEventListener('selectstart', onSelectStart);
     controllerL.addEventListener('selectend', onSelectEnd);
@@ -155,15 +169,6 @@ function init() {
 
     scene.add(controllerR);
     scene.add(controllerL);
-    const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
-    geometry.rotateX(- Math.PI / 2);
-    const material = new THREE.MeshStandardMaterial({ flatShading: true });
-    const mesh = new THREE.Mesh(geometry, material);
-
-    const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3));
-    pivot.name = 'pivot';
-    pivot.position.z = - 0.05;
-    mesh.add(pivot);
 
     controller0.add(mesh.clone());
     controller1.add(mesh.clone());
