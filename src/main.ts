@@ -260,8 +260,8 @@ function render(time: number, frame: XRFrame) {
       }
     }
 
-    if (controllerL) {
-      for (const source of frame.session.inputSources) {
+    for (const source of frame.session.inputSources) {
+      if (source.handedness === 'right') {
         const gamepad = source.gamepad;
         if (gamepad) {
           const bTrigger = gamepad.buttons[0].pressed;
