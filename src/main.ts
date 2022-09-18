@@ -18,7 +18,7 @@ type Ball = {
   mesh: THREE.Mesh;
   age: number;
 }
-const balls: Ball[] = [];
+const balls: (Ball | undefined)[] = [];
 var numBalls = 0;
 
 const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
@@ -246,12 +246,12 @@ function render(time: number, frame: XRFrame) {
     const dt = (time - _lastTime) * 0.001;
     let i = 0;
     while (i<numBalls) {
-      const ball = balls[i];
+      const ball = balls[i]!;
       ball.age += dt;
       if (ball.age > MAX_BALL_AGE) {
         scene.remove(ball.mesh);
         balls[i] = balls[numBalls - 1];
-        delete balls[numBalls - 1];
+        balls[numBalls - 1] = undefined;
         numBalls--;
       }
       else {
