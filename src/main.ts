@@ -261,12 +261,6 @@ function render(time: number, frame: XRFrame) {
     }
 
     if (controllerL) {
-      if (controllerL.userData.isSqueezing) {
-        const direction = new Vector3();
-        controllerL.getWorldDirection(direction);
-        avatar.position.addScaledVector(direction, -dt);
-      }
-
       for (const source of frame.session.inputSources) {
         const gamepad = source.gamepad;
         if (gamepad) {
@@ -286,16 +280,22 @@ function render(time: number, frame: XRFrame) {
             `B/Y: ${bBY}`,
             `joystick: (${joyX.toFixed(2)}, ${joyY.toFixed(2)}) ${bJoy ? 'pressed' : ''}`
           ]);
+          if (joyY) {
+            if (bGrab) {
+              avatar.position.addScaledVector(new Vector3(0, joyY, 0), dt);
+            }
+            else {
+              const direction = new Vector3();
+              avatar.getWorldDirection(direction);
+              avatar.position.addScaledVector(direction, -dt * joyY);
+            }
+          }
+          if (joyX) {
+            avatar.rotateY(-joyX * dt);
+          }
         }
         else {
           setMessage('no gamepad');
-        }
-        if (gamepad) {
-          if (gamepad.buttons[2].pressed) {
-            const direction = new Vector3();
-            controllerL.getWorldDirection(direction);
-            avatar.position.addScaledVector(direction, -dt);
-          }
         }
       }
     }
