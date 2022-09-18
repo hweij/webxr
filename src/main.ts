@@ -29,59 +29,7 @@ const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new 
 var currentMesh = 0;
 
 function init() {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x222222);
-
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
-  camera.position.set(0, 1.6, 3);
-
-  controls = new OrbitControls(camera, container);
-  controls.target.set(0, 1.6, 0);
-  controls.update();
-
-  const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
-  const tableMaterial = new THREE.MeshStandardMaterial({
-    color: 0x444444,
-    roughness: 1.0,
-    metalness: 0.0
-  });
-  const table = new THREE.Mesh(tableGeometry, tableMaterial);
-  table.position.y = 0.35;
-  table.position.z = -0.85;
-  scene.add(table);
-
-  const floorGometry = new THREE.PlaneGeometry(4, 4);
-  const floorMaterial = new THREE.MeshStandardMaterial({
-    color: 0x222222,
-    roughness: 1.0,
-    metalness: 0.0
-  });
-  const floor = new THREE.Mesh(floorGometry, floorMaterial);
-  floor.rotation.x = - Math.PI / 2;
-  floor.position.y = 0.05;
-  scene.add(floor);
-
-  const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
-  // grid.material.depthTest = false; // avoid z-fighting
-  scene.add(grid);
-
-  scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
-
-  const light = new THREE.DirectionalLight(0xffffff, 0.5);
-  light.position.set(0, 4, 0);
-  scene.add(light);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.xr.enabled = true;
-  container.appendChild(renderer.domElement);
-
-  document.body.appendChild(VRButton.createButton(renderer));
+  initScene();
 
   function createBall() {
     const pivot = controllerR.getObjectByName('pivot');
@@ -146,8 +94,9 @@ function init() {
     geometry.rotateX(- Math.PI / 2);
     const material = new THREE.MeshStandardMaterial({ flatShading: true });
     const mesh = new THREE.Mesh(geometry, material);
+    const pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
 
-    const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), material);
+    const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
     pivot.name = 'pivot';
     pivot.position.z = - 0.05;
     mesh.add(pivot);
@@ -159,7 +108,7 @@ function init() {
     controllerR.addEventListener('selectstart', createBall);
     controllerR.addEventListener('squeeze', () => {
       currentMesh = (currentMesh + 1) % sphereMeshes.length;
-      material.color.setHex(sphereMeshes[currentMesh].material.color.getHex());
+      pivotMaterial.color.setHex(sphereMeshes[currentMesh].material.color.getHex());
     });
 
     controllerL.addEventListener('selectstart', onSelectStart);
@@ -175,6 +124,62 @@ function init() {
   } );
 
   window.addEventListener('resize', onWindowResize);
+}
+
+function initScene() {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x222222);
+
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
+  camera.position.set(0, 1.6, 3);
+
+  controls = new OrbitControls(camera, container);
+  controls.target.set(0, 1.6, 0);
+  controls.update();
+
+  const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
+  const tableMaterial = new THREE.MeshStandardMaterial({
+    color: 0x444444,
+    roughness: 1.0,
+    metalness: 0.0
+  });
+  const table = new THREE.Mesh(tableGeometry, tableMaterial);
+  table.position.y = 0.35;
+  table.position.z = -0.85;
+  scene.add(table);
+
+  const floorGometry = new THREE.PlaneGeometry(4, 4);
+  const floorMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    roughness: 1.0,
+    metalness: 0.0
+  });
+  const floor = new THREE.Mesh(floorGometry, floorMaterial);
+  floor.rotation.x = - Math.PI / 2;
+  floor.position.y = 0.05;
+  scene.add(floor);
+
+  const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
+  // grid.material.depthTest = false; // avoid z-fighting
+  scene.add(grid);
+
+  scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
+
+  const light = new THREE.DirectionalLight(0xffffff, 0.5);
+  light.position.set(0, 4, 0);
+  scene.add(light);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.xr.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  document.body.appendChild(VRButton.createButton(renderer));
 }
 
 function onWindowResize() {
