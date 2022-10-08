@@ -282,12 +282,12 @@ function render(time: number, frame: XRFrame) {
           ]);
           if (joyY) {
             if (bGrab) {
-              avatar.position.addScaledVector(new Vector3(0, joyY, 0), dt);
+              avatar.position.addScaledVector(new Vector3(0, -joyY, 0), dt);
             }
             else {
               const direction = new Vector3();
               avatar.getWorldDirection(direction);
-              avatar.position.addScaledVector(direction, -dt * joyY);
+              avatar.position.addScaledVector(direction, dt * joyY);
             }
           }
           if (joyX) {
