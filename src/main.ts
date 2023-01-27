@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 import { Balls } from './balls';
+import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 
 let camera: PerspectiveCamera;
@@ -13,13 +14,10 @@ var controllerL: XRTargetRaySpace;
 
 const balls = new Balls();
 const inputs = new Inputs();
+let debugPanel: DebugPanel | undefined;
 
 // var orbitControls: OrbitControls;
 var avatar: THREE.Group;
-
-let debugMessage = new THREE.Object3D();
-let debugCanvas = document.createElement('canvas');
-let debugTexture = new Texture(debugCanvas);
 
 init();
 animate();
@@ -136,26 +134,8 @@ function initScene() {
   table.position.z = -0.85;
   scene.add(table);
 
-  { // DEBUGGING
-    debugCanvas.width = 256;
-    debugCanvas.height = 256;
-    const ctx = debugCanvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = '#ff0000';
-      ctx.fillText('HELLO', 10, 10);
-    }
-    // Create texture from canvas
-    // const tex = new Texture(debugCanvas);
-    debugTexture.needsUpdate = true;
-    const material = new THREE.SpriteMaterial({ map: debugTexture });
-    const sprite = new THREE.Sprite( material );
-    debugMessage = new THREE.Object3D();
-    debugMessage.add(sprite);
-    debugMessage.position.set(0, 1, -1);
-    scene.add(debugMessage);
-  }
-
-  scene.add(debugMessage);
+  debugPanel = new DebugPanel(scene, 256, 256);
+  debugPanel.object3D.position.set(0, 1, -1);
 
   const floorGometry = new THREE.PlaneGeometry(4, 4);
   const floorMaterial = new THREE.MeshStandardMaterial({
@@ -188,19 +168,6 @@ function initScene() {
   document.body.appendChild(VRButton.createButton(renderer));
 }
 
-function setMessage(msg: string | string[]) {
-  const lines = (typeof msg === 'string') ? [msg] : msg;
-  const ctx = debugCanvas.getContext('2d');
-  if (ctx) {
-    ctx.clearRect(0,0,debugCanvas.width, debugCanvas.height);
-    ctx.fillStyle = '#ff0000';
-    for (let i=0; i<lines.length; i++) {
-      ctx.fillText(lines[i], 4, 10 * i + 10);
-    }
-    debugTexture.needsUpdate = true;
-  }
-}
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -222,8 +189,9 @@ function render(time: number, frame: XRFrame) {
     // Update inputs
     if (frame?.session?.inputSources) {
       inputs.update(frame.session.inputSources);
+
       const right = inputs.right;
-      setMessage([
+      debugPanel?.setMessage([
         `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
         `A/X: ${right.ax}`,
