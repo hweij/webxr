@@ -1,28 +1,14 @@
-import { defineConfig } from 'vite';
-import basicSsl from '@vitejs/plugin-basic-ssl';
+import { defineConfig } from 'vite'
+import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    // lib: {
-    //   entry: 'src/app-demo.ts',
-    //   formats: ['es']
-    // },
-    rollupOptions: {
-      // external: /^lit/
-      // input: {
-      //   demo: resolve(__dirname, 'index.html'),
-      //   cms: resolve(__dirname, 'cms.html'),
-      // }
-    }
-  },
   server: {
-    https: true
+    port: 443,
+    https: true,
+    // Uncomment to allow access from network
+    // (or use `npm run dev -- -- host=0.0.0.0`)
+    host: '0.0.0.0',
   },
-  define: {
-    '__APP_VERSION__': JSON.stringify(process.env.npm_package_version),
-  },
-  plugins: [
-    basicSsl()
-  ]
+  plugins: [ mkcert() ]
 })
