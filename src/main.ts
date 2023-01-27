@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 // Max age in seconds after which the ball is removed
@@ -24,7 +24,7 @@ var numBalls = 0;
 const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
 var currentMesh = 0;
 
-var orbitControls: OrbitControls;
+// var orbitControls: OrbitControls;
 var avatar: THREE.Group;
 
 let debugMessage = new THREE.Object3D();
@@ -147,9 +147,9 @@ function initScene() {
   avatar.add(camera);
   scene.add(avatar);
 
-  orbitControls = new OrbitControls(camera, container);
-  orbitControls.target.set(0, 1.6, 0);
-  orbitControls.update();
+  // orbitControls = new OrbitControls(camera, container);
+  // orbitControls.target.set(0, 1.6, 0);
+  // orbitControls.update();
 
   const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
   const tableMaterial = new THREE.MeshStandardMaterial({
@@ -260,42 +260,44 @@ function render(time: number, frame: XRFrame) {
       }
     }
 
-    for (const source of frame.session.inputSources) {
-      if (source.handedness === 'right') {
-        const gamepad = source.gamepad;
-        if (gamepad) {
-          const bTrigger = gamepad.buttons[0].pressed;
-          const vTrigger = gamepad.buttons[0].value;
-          const bGrab = gamepad.buttons[1].pressed;
-          const vGrab = gamepad.buttons[1].value;
-          const bJoy = gamepad.buttons[3].pressed;
-          const bAX = gamepad.buttons[4].pressed;
-          const bBY = gamepad.buttons[5].pressed;
-          const joyX = gamepad.axes[2];
-          const joyY = gamepad.axes[3];
-          setMessage([
-            `trigger: ${bTrigger} (${vTrigger.toFixed(2)})`,
-            `grab: ${bGrab} (${vGrab.toFixed(2)})`,
-            `A/X: ${bAX}`,
-            `B/Y: ${bBY}`,
-            `joystick: (${joyX.toFixed(2)}, ${joyY.toFixed(2)}) ${bJoy ? 'pressed' : ''}`
-          ]);
-          if (joyY) {
-            if (bGrab) {
-              avatar.position.addScaledVector(new Vector3(0, joyY, 0), dt);
+    if (frame?.session) {
+      for (const source of frame.session.inputSources) {
+        if (source.handedness === 'right') {
+          const gamepad = source.gamepad;
+          if (gamepad) {
+            const bTrigger = gamepad.buttons[0].pressed;
+            const vTrigger = gamepad.buttons[0].value;
+            const bGrab = gamepad.buttons[1].pressed;
+            const vGrab = gamepad.buttons[1].value;
+            const bJoy = gamepad.buttons[3].pressed;
+            const bAX = gamepad.buttons[4].pressed;
+            const bBY = gamepad.buttons[5].pressed;
+            const joyX = gamepad.axes[2];
+            const joyY = gamepad.axes[3];
+            setMessage([
+              `trigger: ${bTrigger} (${vTrigger.toFixed(2)})`,
+              `grab: ${bGrab} (${vGrab.toFixed(2)})`,
+              `A/X: ${bAX}`,
+              `B/Y: ${bBY}`,
+              `joystick: (${joyX.toFixed(2)}, ${joyY.toFixed(2)}) ${bJoy ? 'pressed' : ''}`
+            ]);
+            if (joyY) {
+              if (bGrab) {
+                avatar.position.addScaledVector(new Vector3(0, joyY, 0), dt);
+              }
+              else {
+                const direction = new Vector3();
+                avatar.getWorldDirection(direction);
+                avatar.position.addScaledVector(direction, dt * joyY);
+              }
             }
-            else {
-              const direction = new Vector3();
-              avatar.getWorldDirection(direction);
-              avatar.position.addScaledVector(direction, dt * joyY);
+            if (joyX) {
+              avatar.rotateY(-joyX * dt);
             }
           }
-          if (joyX) {
-            avatar.rotateY(-joyX * dt);
+          else {
+            setMessage('no gamepad');
           }
-        }
-        else {
-          setMessage('no gamepad');
         }
       }
     }
