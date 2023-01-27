@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+
 import { Balls } from './balls';
+import { Inputs } from './inputs';
 
 let camera: PerspectiveCamera;
 let scene: Scene;
@@ -10,6 +12,7 @@ var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
 const balls = new Balls();
+const inputs = new Inputs();
 
 // var orbitControls: OrbitControls;
 var avatar: THREE.Group;
@@ -217,45 +220,28 @@ function render(time: number, frame: XRFrame) {
     balls.tick(scene, dt);
 
     // Update inputs
-    if (frame?.session) {
-      for (const source of frame.session.inputSources) {
-        if (source.handedness === 'right') {
-          const gamepad = source.gamepad;
-          if (gamepad) {
-            const bTrigger = gamepad.buttons[0].pressed;
-            const vTrigger = gamepad.buttons[0].value;
-            const bGrab = gamepad.buttons[1].pressed;
-            const vGrab = gamepad.buttons[1].value;
-            const bJoy = gamepad.buttons[3].pressed;
-            const bAX = gamepad.buttons[4].pressed;
-            const bBY = gamepad.buttons[5].pressed;
-            const joyX = gamepad.axes[2];
-            const joyY = gamepad.axes[3];
-            setMessage([
-              `trigger: ${bTrigger} (${vTrigger.toFixed(2)})`,
-              `grab: ${bGrab} (${vGrab.toFixed(2)})`,
-              `A/X: ${bAX}`,
-              `B/Y: ${bBY}`,
-              `joystick: (${joyX.toFixed(2)}, ${joyY.toFixed(2)}) ${bJoy ? 'pressed' : ''}`
-            ]);
-            if (joyY) {
-              if (bGrab) {
-                avatar.position.addScaledVector(new Vector3(0, joyY, 0), dt);
-              }
-              else {
-                const direction = new Vector3();
-                avatar.getWorldDirection(direction);
-                avatar.position.addScaledVector(direction, dt * joyY);
-              }
-            }
-            if (joyX) {
-              avatar.rotateY(-joyX * dt);
-            }
-          }
-          else {
-            setMessage('no gamepad');
-          }
+    if (frame?.session?.inputSources) {
+      inputs.update(frame.session.inputSources);
+      const right = inputs.right;
+      setMessage([
+        `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
+        `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
+        `A/X: ${right.ax}`,
+        `B/Y: ${right.by}`,
+        `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`
+      ]);
+      if (right.thumb.y) {
+        if (right.grab.pressed) {
+          avatar.position.addScaledVector(new Vector3(0, right.thumb.y, 0), dt);
         }
+        else {
+          const direction = new Vector3();
+          avatar.getWorldDirection(direction);
+          avatar.position.addScaledVector(direction, dt * right.thumb.y);
+        }
+      }
+      if (right.thumb.x) {
+        avatar.rotateY(-right.thumb.x * dt);
       }
     }
   }
