@@ -186,7 +186,7 @@ function render(time: number, frame: XRFrame) {
     // Update balls
     balls.tick(scene, dt);
 
-    // Update inputs
+    // Update inputs and show the state
     if (frame?.session?.inputSources) {
       inputs.update(frame.session.inputSources);
 

@@ -14,6 +14,7 @@ var numBalls = 0;
 const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
 var meshIndex = 0;
 
+/** Balls that can be shot into a direction **/
 export class Balls {
   add(scene: Scene, pos: Vector3, direction: Vector3) {
     const sphere = sphereMeshes[meshIndex].clone();

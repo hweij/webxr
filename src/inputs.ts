@@ -27,6 +27,7 @@ function defaultInputValue() {
   };
 }
 
+/** Left and right controller inputs: buttons, thumb */
 export class Inputs {
   left: InputDevice = defaultInputValue()
   right: InputDevice = defaultInputValue();
