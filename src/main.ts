@@ -26,14 +26,11 @@ function init() {
   initScene();
 
   function createBall() {
-    const pivot = controllerR.getObjectByName('pivot');
-    if (pivot) {
       const pos = new Vector3();
-      pivot.getWorldPosition(pos);
+      controllerR.getWorldPosition(pos);
       const direction = new Vector3();
       controllerR.getWorldDirection(direction);
       balls.add(scene, pos, direction);
-    }
   }
 
   function onSelectStart(evt: THREE.Event): void {
