@@ -1,9 +1,7 @@
 import * as THREE from 'three';
 import { PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
-
-// Max age in seconds after which the ball is removed
-const MAX_BALL_AGE = 3;
+import { Balls } from './balls';
 
 let camera: PerspectiveCamera;
 let scene: Scene;
@@ -11,16 +9,7 @@ let renderer: WebGLRenderer;
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
-type Ball = {
-  direction: Vector3;
-  mesh: THREE.Mesh;
-  age: number;
-}
-const balls: (Ball | undefined)[] = [];
-var numBalls = 0;
-
-const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new THREE.SphereGeometry(0.01), new THREE.MeshBasicMaterial({ color: c })));
-var currentMesh = 0;
+const balls = new Balls();
 
 // var orbitControls: OrbitControls;
 var avatar: THREE.Group;
@@ -42,12 +31,7 @@ function init() {
       pivot.getWorldPosition(pos);
       const direction = new Vector3();
       controllerR.getWorldDirection(direction);
-
-      const sphere = sphereMeshes[currentMesh].clone();
-      sphere.position.set(pos.x, pos.y, pos.z);
-      scene.add(sphere);
-      balls[numBalls] = { direction: direction, mesh: sphere, age: 0 };
-      numBalls++;
+      balls.add(scene, pos, direction);
     }
   }
 
@@ -105,9 +89,8 @@ function init() {
     controllerR.addEventListener('squeezeend', onSqueezeEnd);
     controllerR.addEventListener('selectstart', createBall);
     controllerR.addEventListener('squeeze', () => {
-      currentMesh = (currentMesh + 1) % sphereMeshes.length;
-      pivotMaterial.color.setHex(sphereMeshes[currentMesh].material.color.getHex());
-      setMessage('CHANGED');
+      const color = balls.nextColor();
+      pivotMaterial.color.set(color);
     });
 
     controllerL.addEventListener('selectstart', onSelectStart);
@@ -216,12 +199,9 @@ function setMessage(msg: string | string[]) {
 }
 
 function onWindowResize() {
-
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize(window.innerWidth, window.innerHeight);
-
 }
 
 function animate() {
@@ -232,22 +212,11 @@ var _lastTime = 0;
 function render(time: number, frame: XRFrame) {
   if (_lastTime) {
     const dt = (time - _lastTime) * 0.001;
-    let i = 0;
-    while (i<numBalls) {
-      const ball = balls[i]!;
-      ball.age += dt;
-      if (ball.age > MAX_BALL_AGE) {
-        scene.remove(ball.mesh);
-        balls[i] = balls[numBalls - 1];
-        balls[numBalls - 1] = undefined;
-        numBalls--;
-      }
-      else {
-        ball.mesh.position.addScaledVector(ball.direction, -dt * 10);
-        i++;
-      }
-    }
 
+    // Update balls
+    balls.tick(scene, dt);
+
+    // Update inputs
     if (frame?.session) {
       for (const source of frame.session.inputSources) {
         if (source.handedness === 'right') {
