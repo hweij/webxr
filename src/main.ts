@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { PerspectiveCamera, Scene, Texture, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 // Max age in seconds after which the ball is removed
@@ -11,7 +10,6 @@ let scene: Scene;
 let renderer: WebGLRenderer;
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
-
 
 type Ball = {
   direction: Vector3;
@@ -81,19 +79,13 @@ function init() {
     }
   }
 
-  const controller0 = renderer.xr.getController(0);
-  const controller1 = renderer.xr.getController(1);
+  controllerR = renderer.xr.getController(0);
+  controllerL = renderer.xr.getController(1);
 
-  controller0.addEventListener( 'connected', ( event ) => {
-    if (event.data?.handedness !== 'left') {
-      // Controller 0 is the right-hand controller
-      controllerR = controller0;
-      controllerL = controller1;
-    }
-    else {
-      // Controller 1 is the right-hand controller
-      controllerR = controller1;
-      controllerL = controller0;
+  controllerR.addEventListener( 'connected', ( event ) => {
+    if (event.data?.handedness !== 'right') {
+      // Controller 0 is not the right-hand controller: swap them
+      [controllerR, controllerL] = [controllerL, controllerR];
     }
 
     const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
@@ -126,8 +118,8 @@ function init() {
     avatar.add(controllerR);
     avatar.add(controllerL);
 
-    controller0.add(mesh.clone());
-    controller1.add(mesh.clone());
+    controllerR.add(mesh.clone());
+    controllerL.add(mesh.clone());
   } );
 
   window.addEventListener('resize', onWindowResize);
@@ -146,10 +138,6 @@ function initScene() {
   avatar = new THREE.Group();
   avatar.add(camera);
   scene.add(avatar);
-
-  // orbitControls = new OrbitControls(camera, container);
-  // orbitControls.target.set(0, 1.6, 0);
-  // orbitControls.update();
 
   const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
   const tableMaterial = new THREE.MeshStandardMaterial({
