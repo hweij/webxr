@@ -3,8 +3,10 @@ import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } fr
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 import { Balls } from './balls';
+import { ColorBoard } from './color_board';
 import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
+import { WaveTexture } from './wave_texture';
 
 let camera: PerspectiveCamera;
 let scene: Scene;
@@ -15,8 +17,19 @@ var controllerL: XRTargetRaySpace;
 const balls = new Balls();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
+const colorBoard = new ColorBoard(512,512);
+colorBoard.testFill();
+const floorPattern = new ColorBoard(256, 256);
+floorPattern.texture.generateMipmaps = true;
+floorPattern.texture.minFilter = THREE.LinearMipmapLinearFilter;
+floorPattern.texture.magFilter = THREE.LinearFilter;
+floorPattern.texture.wrapS = THREE.RepeatWrapping;
+floorPattern.texture.wrapT = THREE.RepeatWrapping;
+floorPattern.texture.repeat.set(8,8);
+floorPattern.fill((_x,_y) => [0, Math.random() * 128 + 64, 0, 255]);
 
-// var orbitControls: OrbitControls;
+const waveTexture = new WaveTexture(64, 64);
+
 var avatar: THREE.Group;
 
 init();
@@ -121,10 +134,15 @@ function initScene() {
   scene.add(avatar);
 
   const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
-  const tableMaterial = new THREE.MeshStandardMaterial({
-    color: 0x444444,
-    roughness: 1.0,
-    metalness: 0.0
+  // const tableMaterial = new THREE.MeshStandardMaterial({
+  //   color: 0x444444,
+  //   roughness: 1.0,
+  //   metalness: 0.0
+  // });
+  const tableMaterial = new THREE.MeshBasicMaterial({
+    color: 0x777777,
+    // map: colorBoard.texture
+    map: waveTexture.texture
   });
   const table = new THREE.Mesh(tableGeometry, tableMaterial);
   table.position.y = 0.35;
@@ -134,20 +152,24 @@ function initScene() {
   debugPanel = new DebugPanel(scene, 256, 256);
   debugPanel.object3D.position.set(0, 1, -1);
 
-  const floorGometry = new THREE.PlaneGeometry(4, 4);
-  const floorMaterial = new THREE.MeshStandardMaterial({
+  const floorGometry = new THREE.PlaneGeometry(10, 10);
+  // const floorMaterial = new THREE.MeshStandardMaterial({
+  //   color: 0x222222,
+  //   roughness: 1.0,
+  //   metalness: 0.0
+  // });
+  const floorMaterial = new THREE.MeshBasicMaterial({
     color: 0x222222,
-    roughness: 1.0,
-    metalness: 0.0
+    map: floorPattern.texture
   });
   const floor = new THREE.Mesh(floorGometry, floorMaterial);
   floor.rotation.x = - Math.PI / 2;
-  floor.position.y = 0.05;
+  floor.position.y = 0;
   scene.add(floor);
 
-  const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
-  // grid.material.depthTest = false; // avoid z-fighting
-  scene.add(grid);
+  // const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
+  // // grid.material.depthTest = false; // avoid z-fighting
+  // scene.add(grid);
 
   scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
 
@@ -182,6 +204,11 @@ function render(time: number, frame: XRFrame) {
 
     // Update balls
     balls.tick(scene, dt);
+
+    // Update colored cube in center
+    colorBoard.tick(dt);
+
+    waveTexture.tick(dt);
 
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
