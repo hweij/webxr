@@ -17,8 +17,8 @@ var controllerL: XRTargetRaySpace;
 const balls = new Balls();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
-const colorBoard = new ColorBoard(512,512);
-colorBoard.testFill();
+// const colorBoard = new ColorBoard(512,512);
+// colorBoard.testFill();
 const floorPattern = new ColorBoard(256, 256);
 floorPattern.texture.generateMipmaps = true;
 floorPattern.texture.minFilter = THREE.LinearMipmapLinearFilter;
@@ -206,7 +206,7 @@ function render(time: number, frame: XRFrame) {
     balls.tick(scene, dt);
 
     // Update colored cube in center
-    colorBoard.tick(dt);
+    // colorBoard.tick(dt);
 
     waveTexture.tick(dt);
 
