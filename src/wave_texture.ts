@@ -29,7 +29,7 @@ export class WaveTexture {
 
   tick(dt: number) {
     this.wave.tick(dt);
-    // Copy wave data
+    // Copy wave data to texture
     const values = this.wave.getZValues();
 
     let stride = 0;
@@ -37,7 +37,7 @@ export class WaveTexture {
       for (let x = 0; x < this._width; x++) {
         const v = values[x+1][y+1];
 
-        this._data[stride] = Math.min(255, Math.max(0, (v + 1) * 127));
+        this._data[stride] = Math.min(255, Math.max(0, (v + 1.0) * 128));
         this._data[stride + 1] = 0;
         this._data[stride + 2] = 0;
         this._data[stride + 3] = 255;
