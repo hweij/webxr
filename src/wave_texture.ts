@@ -16,21 +16,21 @@ export class WaveTexture {
     this._width = w;
     this._height = h;
     this.wave = new Wave(this._width, this._height);
-    this.wave.setSpeed(40);
+    this.wave.speed = 40;
     const size = this._width * this._height;
     this._data = new Uint8Array(4 * size);
     this.texture = new THREE.DataTexture(this._data, this._width, this._height);
     this.texture.magFilter = THREE.LinearFilter;
 
-    this.wave.initWave(17, 10, 10, true);
-    this.wave.initWave(37, 30, 10, false);
-    this.wave.initWave(53, 45, 10, false);
+    this.wave.drop(17, 10, 10);
+    this.wave.drop(37, 30, 10);
+    this.wave.drop(53, 45, 10);
   }
 
   tick(dt: number) {
     this.wave.tick(dt);
     // Copy wave data to texture
-    const values = this.wave.getZValues();
+    const values = this.wave.values;
 
     let stride = 0;
     for (let y = 0; y < this._height; y++) {

@@ -1,35 +1,34 @@
 export class Wave {
-  WIDTH: number;
-  HEIGHT: number;
-
-  z: Float64Array[];
-  v: Float64Array[];		// velocity and Z-value
-  speed: number;		// time factor
+  /** Propagation speed of the wave */
+  speed = 1.0;
+  /** Wave sustain: 1.0 = forever, 0.0 = extinguish immediately */
   sustain = 1.0;
 
+  private width: number;
+  private height: number;
+  private z: Float64Array[];
+  private v: Float64Array[];		// velocity and potential
+
   constructor(w: number, h: number) {
-    this.WIDTH = w;
-    this.HEIGHT = h;
-    this.v = new Array(this.WIDTH + 2);
+    this.width = w;
+    this.height = h;
+    this.v = new Array(this.width + 2);
     for (let i = 0; i < this.v.length; i++) {
-      this.v[i] = new Float64Array(this.HEIGHT + 2);
+      this.v[i] = new Float64Array(this.height + 2);
     }
-    this.z = new Array(this.WIDTH + 2);
+    this.z = new Array(this.width + 2);
     for (let i = 0; i < this.z.length; i++) {
-      this.z[i] = new Float64Array(this.HEIGHT + 2);
+      this.z[i] = new Float64Array(this.height + 2);
     }
-    this.speed = 1.0;
   }
 
-  initWave(jx: number, jy: number, rMax: number, clear: boolean) {
+  /** Initiate a drop in the wave field */
+  drop(jx: number, jy: number, rMax: number) {
     let wk, r;
 
-    for (let x = 1; x <= this.WIDTH; x++) {
-      for (let y = 1; y <= this.HEIGHT; y++) {
+    for (let x = 1; x <= this.width; x++) {
+      for (let y = 1; y <= this.height; y++) {
         r = Math.sqrt((x - jx) * (x - jx) + (y - jy) * (y - jy));
-        if (clear) {
-          this.z[x][y] = 0;
-        }
         if (r <= rMax) {
           wk = r * 1.57 / rMax;
           this.z[x][y] += 2 * Math.cos(wk) * Math.cos(wk);
@@ -38,38 +37,33 @@ export class Wave {
     }
   }
 
-  clear(level: number) {
-    for (let i = 0; i < this.WIDTH + 2; i++) {
-      for (let j = 0; j < this.HEIGHT + 2; j++) {
-        this.v[i][j] = 0;
-        this.z[i][j] = level;
-      }
+  /** Clear the wave field, with an optional level value */
+  clear(level = 0) {
+    for (let i = 0; i < this.width + 2; i++) {
+      this.v[i].fill(0);
+      this.z[i].fill(level);
+      // for (let j = 0; j < this.height + 2; j++) {
+      //   this.v[i][j] = 0;
+      //   this.z[i][j] = level;
+      // }
     }
   }
 
   tick(dt: number) {
     let i, j;
-    for (i = 1; i <= this.WIDTH; i++) {
-      for (j = 1; j <= this.HEIGHT; j++) {
+    for (i = 1; i <= this.width; i++) {
+      for (j = 1; j <= this.height; j++) {
         this.v[i][j] = this.v[i][j] + ((this.z[i + 1][j] + this.z[i - 1][j] + this.z[i][j + 1] + this.z[i][j - 1]) * 0.25 - this.z[i][j]) * dt;
       }
     }
-    for (i = 1; i <= this.WIDTH; i++) {
-      for (j = 1; j <= this.HEIGHT; j++) {
+    for (i = 1; i <= this.width; i++) {
+      for (j = 1; j <= this.height; j++) {
         this.z[i][j] = (this.z[i][j] + this.v[i][j] * this.speed * dt) * this.sustain;
       }
     }
   }
 
-  setSpeed(speed: number) {
-    this.speed = speed;
-  }
-
-  setSustain(s: number) {
-    this.sustain = s;
-  }
-
-  getZValues(): Float64Array[] {
+  get values(): Float64Array[] {
     return this.z;
   }
 }
