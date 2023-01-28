@@ -47,4 +47,8 @@ export class WaveTexture {
     }
     this.texture.needsUpdate = true;
   }
+
+  set speed(v: number) {
+    this.wave.speed = v;
+  }
 }
