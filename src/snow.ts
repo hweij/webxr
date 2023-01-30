@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Scene, Vector3 } from "three";
+import { Material, Scene, Vector3 } from "three";
 
 const MAX_AGE = 5;
 
@@ -9,7 +9,7 @@ type Flake = {
 }
 const flakes = new Array<Flake | undefined>(1000);
 var numFlakes = 0;
-const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.02), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.02));
 
 /** Balls that can be shot into a direction **/
 export class Snow {
@@ -17,6 +17,7 @@ export class Snow {
 
   private _add(scene: Scene, pos: Vector3) {
     const m = mesh.clone();
+    m.material = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true })
     m.position.set(pos.x, pos.y, pos.z);
     scene.add(m);
     flakes[numFlakes] = { mesh: m, age: 0 };
@@ -36,6 +37,7 @@ export class Snow {
     while (i<numFlakes) {
       const flake = flakes[i]!;
       if (flake.age > 0) {
+        (flake.mesh.material as Material).opacity = 1 - (flake.age / MAX_AGE);
         if (flake.age >= MAX_AGE) {
           scene.remove(flake.mesh);
           flakes[i] = flakes[numFlakes - 1];
