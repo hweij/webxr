@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { Balls } from './balls';
 import { ColorBoard } from './color_board';
@@ -9,6 +10,7 @@ import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
 
 let camera: PerspectiveCamera;
+let controls: OrbitControls;
 let scene: Scene;
 let renderer: WebGLRenderer;
 var controllerR: XRTargetRaySpace;
@@ -31,6 +33,9 @@ floorPattern.fill((_x,_y) => [0, Math.random() * 128 + 64, 0, 255]);
 const waveTexture = new WaveTexture(64, 64);
 
 var avatar: THREE.Group;
+
+/** Set if running in VR mode (VRButton was pressed) */
+let vrEnabled = false;
 
 init();
 animate();
@@ -184,7 +189,13 @@ function initScene() {
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
-  document.body.appendChild(VRButton.createButton(renderer));
+  // For non-VR control
+  controls = new OrbitControls( camera, renderer.domElement );
+  controls.update();
+
+  const vrButton = VRButton.createButton(renderer);
+  vrButton.addEventListener('click', () => vrEnabled = true);
+  document.body.appendChild(vrButton);
 }
 
 function onWindowResize() {
@@ -238,6 +249,10 @@ function render(time: number, frame: XRFrame) {
     }
   }
   _lastTime = time;
+
+  if (!vrEnabled) {
+    controls.update();
+  }
 
   renderer.render(scene, camera);
 }
