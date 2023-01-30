@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Object3D, Scene, Texture } from "three";
+import { Object3D, Texture } from "three";
 
 /** Panel for showing in-scene debug messages */
 export class DebugPanel {

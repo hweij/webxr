@@ -8,6 +8,7 @@ import { ColorBoard } from './color_board';
 import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
+import { Snow } from './snow';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -19,6 +20,7 @@ var controllerL: XRTargetRaySpace;
 
 // Submodules
 const balls = new Balls();
+const snow = new Snow();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
 
@@ -218,6 +220,9 @@ function render(time: number, frame: XRFrame) {
 
     // Update balls
     balls.tick(scene, dt);
+
+    // Update snow
+    snow.tick(scene, dt);
 
     // Update colored cube in center
     // colorBoard.tick(dt);
