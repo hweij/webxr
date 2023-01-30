@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Scene, Texture } from "three";
+import { Object3D, Scene, Texture } from "three";
 
 /** Panel for showing in-scene debug messages */
 export class DebugPanel {
@@ -7,7 +7,7 @@ export class DebugPanel {
   canvas = document.createElement('canvas');
   tex: Texture;
 
-  constructor(scene: Scene, width: number, height: number) {
+  constructor(parent: Object3D, width: number, height: number) {
     this.canvas.width = width;
     this.canvas.height = height;
     this.tex =  new Texture(this.canvas);
@@ -15,7 +15,7 @@ export class DebugPanel {
     const sprite = new THREE.Sprite( material );
     this.object3D = new THREE.Object3D();
     this.object3D.add(sprite);
-    scene.add(this.object3D);
+    parent.add(this.object3D);
     this.setMessage('debug');
   }
 

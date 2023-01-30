@@ -13,12 +13,15 @@ let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
 let renderer: WebGLRenderer;
+
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
+// Submodules
 const balls = new Balls();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
+
 // const colorBoard = new ColorBoard(512,512);
 // colorBoard.testFill();
 const floorPattern = new ColorBoard(256, 256);
@@ -154,8 +157,8 @@ function initScene() {
   table.position.z = -0.85;
   scene.add(table);
 
-  debugPanel = new DebugPanel(scene, 256, 256);
-  debugPanel.object3D.position.set(0, 1, -1);
+  debugPanel = new DebugPanel(camera, 256, 256);
+  debugPanel.object3D.position.set(0, 0, -2);
 
   const floorGometry = new THREE.PlaneGeometry(10, 10);
   // const floorMaterial = new THREE.MeshStandardMaterial({
