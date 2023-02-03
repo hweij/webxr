@@ -11,7 +11,9 @@ const flakes = new Array<Flake | undefined>(1000);
 var numFlakes = 0;
 const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.02));
 
-/** Balls that can be shot into a direction **/
+const down = new Vector3(0, -1, 0);
+
+/** Snow flakes falling down **/
 export class Snow {
   time = 0;
 
@@ -32,7 +34,6 @@ export class Snow {
         this._add(scene, new Vector3(Math.random() * 10 - 5, 3, Math.random() * 10 - 5));
       }
     }
-    const direction = new Vector3(0, -1, 0);
     let i = 0;
     while (i<numFlakes) {
       const flake = flakes[i]!;
@@ -57,7 +58,7 @@ export class Snow {
         else {
           flake.mesh.rotateX(Math.random() - 0.5);
           flake.mesh.rotateZ(Math.random() - 0.5);
-          flake.mesh.position.addScaledVector(direction, dt);
+          flake.mesh.position.addScaledVector(down, dt);
         }
         i++;
       }

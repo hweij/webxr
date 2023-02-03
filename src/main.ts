@@ -9,6 +9,7 @@ import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
 import { Snow } from './snow';
+import { Snow2 } from './snow2';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -21,6 +22,7 @@ var controllerL: XRTargetRaySpace;
 // Submodules
 const balls = new Balls();
 const snow = new Snow();
+let snow2 = new Snow2();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
 
@@ -187,6 +189,8 @@ function initScene() {
   light.position.set(0, 4, 0);
   scene.add(light);
 
+  snow2.setParent(scene);
+
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -223,6 +227,8 @@ function render(time: number, frame: XRFrame) {
 
     // Update snow
     snow.tick(scene, dt);
+
+    snow2.tick(dt);
 
     // Update colored cube in center
     // colorBoard.tick(dt);
