@@ -16,7 +16,7 @@ varying float vAlpha;
 
 void main() {
   float h = offset.y - (time - tCreated);
-  vec3 vPosition = vec3(offset.x, max(0.0, h), offset.z) + position;
+  vec3 vPosition = vec3(offset.x, max(0.01, h), offset.z) + position;
   vAlpha = clamp((h + 10.0) * 0.1, 0.0, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
 }
