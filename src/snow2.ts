@@ -4,7 +4,7 @@ import { Object3D } from "three";
 import { snowMaterial } from './snow2-shaders';
 
 // const MAX_AGE = 5;
-const MAX_FLAKES = 1000;
+const MAX_FLAKES = 10000;
 
 // var numFlakes = 0;
 
@@ -22,6 +22,9 @@ geometry.setAttribute('position', new THREE.Float32BufferAttribute(flakeGeometry
 
 const mesh = new THREE.Mesh(geometry, snowMaterial);
 
+// Culling for instanced mesh culls all or none (not per instance)
+mesh.frustumCulled = false;
+
 /** Snow flakes falling down **/
 export class Snow2 {
   time = 0;
@@ -31,7 +34,7 @@ export class Snow2 {
   constructor() {
     for (let i=0; i<MAX_FLAKES; i++) {
       this.offsets.push(Math.random() * 10 - 5, 2.0, Math.random() * 10 - 5);
-      this.created.push(this.time);
+      this.created.push(this.time + (Math.random() * 5));
     }
     geometry.setAttribute( 'offset', new THREE.InstancedBufferAttribute( new Float32Array( this.offsets ), 3 ) );
     geometry.setAttribute( 'tCreated', new THREE.InstancedBufferAttribute( new Float32Array( this.created ), 1 ) );
