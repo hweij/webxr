@@ -4,29 +4,31 @@ import { Object3D } from "three";
 import { snowMaterial } from './snow2-shaders';
 
 const FALL_TIME = 10;
-const MELT_TIME = 10;
+const MELT_TIME = 30;
 const CYCLE_TIME = FALL_TIME + MELT_TIME;
 
 const MAX_FLAKES = 10000;
 
 // var numFlakes = 0;
 
-/** Flake geometry, a quad */
+/** Flake geometry, a quad of 2x2 cm */
+const W = 0.01;
+const Y = 0.002;
 const flakeGeometryPositions = [
-  -0.01, 0, -0.01,
-  -0.01, 0,  0.01,
-   0.01, 0,  0.01,
-   0.01, 0,  0.01,
-   0.01, 0, -0.01,
-  -0.01, 0, -0.01,
+  -W, -Y, -W,
+  -W,  Y,  W,
+   W, -Y,  W,
+   W, -Y,  W,
+   W,  Y, -W,
+  -W, -Y, -W,
  ];
 const flakeGeometryUV = [
-  0.0, 0.0,
-  0.0, 1.0,
-  1.0, 1.0,
-  1.0, 1.0,
-  1.0, 0.0,
-  0.0, 0.0,
+  0, 0,
+  0, 1,
+  1, 1,
+  1, 1,
+  1, 0,
+  0, 0,
 ];
 
 /** Geometry, the same for all flakes */
