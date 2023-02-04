@@ -157,7 +157,7 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x222222);
 
-  physicalWorld = new Object3D();
+  physicalWorld = new THREE.Group();
   scene.add(physicalWorld);
 
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
