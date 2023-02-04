@@ -270,24 +270,7 @@ function render(time: number, frame: XRFrame) {
 
     tick(dt);
 
-    // Ray intersect from right controller
-    const rPos = new Vector3();
-    const rDir = new Vector3();
-    controllerR.getWorldPosition(rPos);
-    controllerR.getWorldDirection(rDir);
-    // Reverse direction, apparently it points the oposite way
-    rDir.multiplyScalar(-1);
-+
-    raycaster.set(rPos, rDir);
-    const intersects = raycaster.intersectObjects(physicalWorld.children);
-    if (intersects?.length) {
-      const p = intersects[0].point;
-      teleportMarker.position.set(p.x, p.y, p.z);
-      teleportMarker.visible = true;
-    }
-    else {
-      teleportMarker.visible = false;
-    }
+    checkTeleport();
 
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
@@ -301,16 +284,16 @@ function render(time: number, frame: XRFrame) {
         `B/Y: ${right.by}`,
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`
       ]);
-      if (right.thumb.y) {
-        if (right.grab.pressed) {
-          avatar.position.addScaledVector(new Vector3(0, right.thumb.y, 0), dt);
-        }
-        else {
-          const direction = new Vector3();
-          avatar.getWorldDirection(direction);
-          avatar.position.addScaledVector(direction, dt * right.thumb.y);
-        }
-      }
+      // if (right.thumb.y) {
+      //   if (right.grab.pressed) {
+      //     avatar.position.addScaledVector(new Vector3(0, right.thumb.y, 0), dt);
+      //   }
+      //   else {
+      //     const direction = new Vector3();
+      //     avatar.getWorldDirection(direction);
+      //     avatar.position.addScaledVector(direction, dt * right.thumb.y);
+      //   }
+      // }
       if (right.thumb.x) {
         avatar.rotateY(-right.thumb.x * dt);
       }
@@ -323,4 +306,25 @@ function render(time: number, frame: XRFrame) {
   }
 
   renderer.render(scene, camera);
+}
+
+function checkTeleport() {
+  if (inputs.right.thumb.y < -0.5) {
+    // Ray intersect from right controller
+    const rPos = new Vector3();
+    const rDir = new Vector3();
+    controllerR.getWorldPosition(rPos);
+    controllerR.getWorldDirection(rDir);
+    // Reverse direction, apparently it points the oposite way
+    rDir.multiplyScalar(-1);
+    raycaster.set(rPos, rDir);
+    const intersects = raycaster.intersectObjects(physicalWorld.children);
+    if (intersects?.length) {
+      const p = intersects[0].point;
+      teleportMarker.position.set(p.x, p.y, p.z);
+      teleportMarker.visible = true;
+      return; // Success
+    }
+  }
+  teleportMarker.visible = false;
 }
