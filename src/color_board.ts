@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { Texture } from "three";
+import { GameObject } from "./game_object";
 
-export class ColorBoard {
+export class ColorBoard implements GameObject {
   texture: Texture;
 
   _width: number;

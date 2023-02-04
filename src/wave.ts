@@ -1,4 +1,6 @@
-export class Wave {
+import { GameObject } from "./game_object";
+
+export class Wave implements GameObject {
   /** Propagation speed of the wave */
   speed = 1.0;
   /** Wave sustain: 1.0 = forever, 0.0 = extinguish immediately */

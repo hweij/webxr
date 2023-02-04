@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Object3D } from "three";
+import { GameObject } from './game_object';
 
 import { snowMaterial } from './snow2-shaders';
 
@@ -43,7 +44,7 @@ const mesh = new THREE.Mesh(geometry, snowMaterial);
 mesh.frustumCulled = false;
 
 /** Snow flakes falling down **/
-export class Snow2 {
+export class Snow2 implements GameObject {
   time = 0;
   offsets: number[] = [];
   created: number[] = [];

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Scene, Vector3 } from "three";
+import { GameObject } from './game_object';
 
 // Max age in seconds after which the ball is removed
 const MAX_BALL_AGE = 3;
@@ -15,7 +16,7 @@ const sphereMeshes = [0xffffff, 0x00ff00, 0xff0000].map(c => new THREE.Mesh(new 
 var meshIndex = 0;
 
 /** Balls that can be shot into a direction **/
-export class Balls {
+export class Balls implements GameObject {
   add(scene: Scene, pos: Vector3, direction: Vector3) {
     const sphere = sphereMeshes[meshIndex].clone();
     sphere.position.set(pos.x, pos.y, pos.z);
@@ -24,13 +25,13 @@ export class Balls {
     numBalls++;
   }
 
-  tick(scene: Scene, dt: number) {
+  tick(dt: number) {
     let i = 0;
     while (i<numBalls) {
       const ball = balls[i]!;
       ball.age += dt;
       if (ball.age > MAX_BALL_AGE) {
-        scene.remove(ball.mesh);
+        ball.mesh.parent?.remove(ball.mesh);
         balls[i] = balls[numBalls - 1];
         balls[numBalls - 1] = undefined;
         numBalls--;

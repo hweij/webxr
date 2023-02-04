@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { Texture } from "three";
+import { GameObject } from "./game_object";
 
 import { Wave } from "./wave";
 
-export class WaveTexture {
+export class WaveTexture implements GameObject {
   texture: Texture;
 
   _width: number;
