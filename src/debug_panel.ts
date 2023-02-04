@@ -11,7 +11,7 @@ export class DebugPanel {
     this.canvas.width = width;
     this.canvas.height = height;
     this.tex =  new Texture(this.canvas);
-    const material = new THREE.SpriteMaterial({ map: this.tex });
+    const material = new THREE.SpriteMaterial({ map: this.tex, depthTest: false });
     const sprite = new THREE.Sprite( material );
     this.object3D = new THREE.Object3D();
     this.object3D.add(sprite);
