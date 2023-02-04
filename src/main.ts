@@ -8,7 +8,7 @@ import { ColorBoard } from './color_board';
 import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
-import { Snow } from './snow';
+// import { Snow } from './snow';
 import { Snow2 } from './snow2';
 
 let camera: PerspectiveCamera;
@@ -21,7 +21,7 @@ var controllerL: XRTargetRaySpace;
 
 // Submodules
 const balls = new Balls();
-const snow = new Snow();
+// const snow = new Snow();
 let snow2 = new Snow2();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
@@ -226,7 +226,7 @@ function render(time: number, frame: XRFrame) {
     balls.tick(scene, dt);
 
     // Update snow
-    snow.tick(scene, dt);
+    // snow.tick(scene, dt);
 
     snow2.tick(dt);
 
