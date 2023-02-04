@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -10,19 +10,26 @@ import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 import { Snow2 } from './snow2';
+import { GameObject } from './game_object';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
+/** Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting. */
+let physicalWorld: Object3D;
 let renderer: WebGLRenderer;
 
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
+const raycaster = new THREE.Raycaster();
+
+var gameObjects: GameObject[] = [];
+
 // Submodules
-const balls = new Balls();
+// const balls = new Balls();
 // const snow = new Snow();
-let snow2 = new Snow2();
+// let snow2 = new Snow2();
 const inputs = new Inputs();
 let debugPanel: DebugPanel | undefined;
 
@@ -37,8 +44,6 @@ floorPattern.texture.wrapT = THREE.RepeatWrapping;
 floorPattern.texture.repeat.set(8,8);
 floorPattern.fill((_x,_y) => [0, Math.random() * 128 + 64, 0, 255]);
 
-const waveTexture = new WaveTexture(64, 64);
-
 var avatar: THREE.Group;
 
 /** Set if running in VR mode (VRButton was pressed) */
@@ -47,8 +52,19 @@ let vrEnabled = false;
 init();
 animate();
 
+function addGameObject<T extends GameObject>(obj: T) {
+  gameObjects.push(obj);
+  return obj;
+}
+
 function init() {
   initScene();
+
+  raycaster.camera = camera;
+  raycaster.near = camera.near;
+  raycaster.far = camera.far;
+
+  const balls = addGameObject(new Balls());
 
   function createBall() {
       const pos = new Vector3();
@@ -131,6 +147,8 @@ function init() {
   window.addEventListener('resize', onWindowResize);
 }
 
+var teleportMarker: THREE.Mesh;
+
 function initScene() {
   const container = document.createElement('div');
   document.body.appendChild(container);
@@ -138,12 +156,17 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x222222);
 
+  physicalWorld = new Object3D();
+  scene.add(physicalWorld);
+
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   camera.position.set(0, 1.6, 3);
 
   avatar = new THREE.Group();
   avatar.add(camera);
   scene.add(avatar);
+
+  const waveTexture = addGameObject(new WaveTexture(64, 64));
 
   const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
   // const tableMaterial = new THREE.MeshStandardMaterial({
@@ -159,7 +182,16 @@ function initScene() {
   const table = new THREE.Mesh(tableGeometry, tableMaterial);
   table.position.y = 0.35;
   table.position.z = -0.85;
-  scene.add(table);
+  physicalWorld.add(table);
+
+  const teleportMarkerGeo = new THREE.SphereGeometry(0.1);
+  const teleportMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff00ff,
+    roughness: 1.0,
+    metalness: 0.0
+  });
+  teleportMarker = new THREE.Mesh(teleportMarkerGeo, teleportMaterial);
+  scene.add(teleportMarker);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
@@ -177,7 +209,7 @@ function initScene() {
   const floor = new THREE.Mesh(floorGometry, floorMaterial);
   floor.rotation.x = - Math.PI / 2;
   floor.position.y = 0;
-  scene.add(floor);
+  physicalWorld.add(floor);
 
   // const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
   // // grid.material.depthTest = false; // avoid z-fighting
@@ -189,6 +221,7 @@ function initScene() {
   light.position.set(0, 4, 0);
   scene.add(light);
 
+  const snow2 = addGameObject(new Snow2());
   snow2.setParent(scene);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -217,23 +250,37 @@ function animate() {
   renderer.setAnimationLoop(render);
 }
 
+function tick(dt: number) {
+  for (const obj of gameObjects) {
+    obj.tick(dt);
+  }
+}
+
 var _lastTime = 0;
 function render(time: number, frame: XRFrame) {
   if (_lastTime) {
     const dt = (time - _lastTime) * 0.001;
 
-    // Update balls
-    balls.tick(scene, dt);
+    tick(dt);
 
-    // Update snow
-    // snow.tick(scene, dt);
-
-    snow2.tick(dt);
-
-    // Update colored cube in center
-    // colorBoard.tick(dt);
-
-    waveTexture.tick(dt);
+    // Ray intersect from right controller
+    const rPos = new Vector3();
+    const rDir = new Vector3();
+    controllerR.getWorldPosition(rPos);
+    controllerR.getWorldDirection(rDir);
+    // Reverse direction, apparently it points the oposite way
+    rDir.multiplyScalar(-1);
++
+    raycaster.set(rPos, rDir);
+    const intersects = raycaster.intersectObjects(physicalWorld.children);
+    if (intersects?.length) {
+      const p = intersects[0].point;
+      teleportMarker.position.set(p.x, p.y, p.z);
+      teleportMarker.visible = true;
+    }
+    else {
+      teleportMarker.visible = false;
+    }
 
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
