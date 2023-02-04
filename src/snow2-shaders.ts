@@ -3,8 +3,6 @@ import * as THREE from 'three';
 import vert from './snow2.vert?raw';
 import frag from './snow2.frag?raw';
 
-console.log(vert);
-
 export const snowMaterial = new THREE.RawShaderMaterial( {
   uniforms: {
     'time': { value: 1.0 }

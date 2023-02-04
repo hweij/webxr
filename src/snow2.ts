@@ -60,7 +60,6 @@ export class Snow2 implements GameObject {
 
   setParent(parent: Object3D) {
     parent.add(mesh);
-    console.log('Parent set for snow 2');
   }
 
   tick(dt: number) {
