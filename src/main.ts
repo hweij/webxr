@@ -74,6 +74,12 @@ function init() {
       balls.add(scene, pos, direction);
   }
 
+  function teleport() {
+    if (teleportMarker.visible) {
+      teleportMarker.getWorldPosition(avatar.position);
+    }
+  }
+
   function onSelectStart(evt: THREE.Event): void {
     const target = evt.target as XRTargetRaySpace;
     if (target) {
@@ -126,7 +132,8 @@ function init() {
     controllerR.addEventListener('selectend', onSelectEnd);
     controllerR.addEventListener('squeezestart', onSqueezeStart);
     controllerR.addEventListener('squeezeend', onSqueezeEnd);
-    controllerR.addEventListener('selectstart', createBall);
+//    controllerR.addEventListener('selectstart', createBall);
+    controllerR.addEventListener('selectstart', teleport);
     controllerR.addEventListener('squeeze', () => {
       const color = balls.nextColor();
       pivotMaterial.color.set(color);
