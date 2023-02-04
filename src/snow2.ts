@@ -3,7 +3,10 @@ import { Object3D } from "three";
 
 import { snowMaterial } from './snow2-shaders';
 
-// const MAX_AGE = 5;
+const FALL_TIME = 10;
+const MELT_TIME = 10;
+const CYCLE_TIME = FALL_TIME + MELT_TIME;
+
 const MAX_FLAKES = 10000;
 
 // var numFlakes = 0;
@@ -33,8 +36,8 @@ export class Snow2 {
 
   constructor() {
     for (let i=0; i<MAX_FLAKES; i++) {
-      this.offsets.push(Math.random() * 10 - 5, 2.0, Math.random() * 10 - 5);
-      this.created.push(this.time + (Math.random() * 5));
+      this.offsets.push(Math.random() * 10 - 5, FALL_TIME, Math.random() * 10 - 5);
+      this.created.push(this.time + (CYCLE_TIME * i / MAX_FLAKES));
     }
     geometry.setAttribute( 'offset', new THREE.InstancedBufferAttribute( new Float32Array( this.offsets ), 3 ) );
     geometry.setAttribute( 'tCreated', new THREE.InstancedBufferAttribute( new Float32Array( this.created ), 1 ) );

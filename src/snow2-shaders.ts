@@ -1,36 +1,9 @@
 import * as THREE from 'three';
 
-const vert = `
-precision highp float;
+import vert from './snow2.vert?raw';
+import frag from './snow2.frag?raw';
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-
-uniform float time;
-
-attribute vec3 position;
-attribute vec3 offset;
-attribute float tCreated;
-
-varying float vAlpha;
-
-void main() {
-  float h = offset.y - (time - tCreated);
-  vec3 vPosition = vec3(offset.x, max(0.01, h), offset.z) + position;
-  vAlpha = clamp((h + 10.0) * 0.1, 0.0, 1.0);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
-}
-`;
-
-const frag = `
-precision highp float;
-
-varying float vAlpha;
-
-void main() {
-  gl_FragColor = vec4(0.0, 1.0, 1.0, vAlpha);
-}
-`;
+console.log(vert);
 
 export const snowMaterial = new THREE.RawShaderMaterial( {
   uniforms: {
