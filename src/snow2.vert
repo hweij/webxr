@@ -6,10 +6,12 @@ uniform mat4 projectionMatrix;
 uniform float time;
 
 attribute vec3 position;
+attribute vec2 uv;
 attribute vec3 offset;
 attribute float tCreated;
 
 varying float vAlpha;
+varying vec2 vUv;
 
 void main() {
   float h = offset.y - mod(time - tCreated, 20.0);
@@ -27,6 +29,7 @@ void main() {
   vec3 rotY = vec3((rotZ.x * cy) - (rotZ.z * sy), rotZ.y, (rotZ.x * sy) + (rotZ.z * cy));
 
   vec3 vPosition = vec3(offset.x, max(0.01, h), offset.z) + rotY;
-  vAlpha = clamp((h + 10.0) * 0.1, 0.0, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
+  vAlpha = clamp((h + 10.0) * 0.1, 0.0, 1.0);
+  vUv = uv;
 }

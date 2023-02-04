@@ -11,17 +11,29 @@ const MAX_FLAKES = 10000;
 
 // var numFlakes = 0;
 
-/** Flake geometry */
+/** Flake geometry, a quad */
 const flakeGeometryPositions = [
-  0.01, 0, 0.01,
-  -0.01, 0, 0.01,
-  0, 0, -0.01
+  -0.01, 0, -0.01,
+  -0.01, 0,  0.01,
+   0.01, 0,  0.01,
+   0.01, 0,  0.01,
+   0.01, 0, -0.01,
+  -0.01, 0, -0.01,
+ ];
+const flakeGeometryUV = [
+  0.0, 0.0,
+  0.0, 1.0,
+  1.0, 1.0,
+  1.0, 1.0,
+  1.0, 0.0,
+  0.0, 0.0,
 ];
 
 /** Geometry, the same for all flakes */
 const geometry = new THREE.InstancedBufferGeometry();
 geometry.instanceCount = MAX_FLAKES;
 geometry.setAttribute('position', new THREE.Float32BufferAttribute(flakeGeometryPositions, 3));
+geometry.setAttribute('uv', new THREE.Float32BufferAttribute(flakeGeometryUV, 2));
 
 const mesh = new THREE.Mesh(geometry, snowMaterial);
 
