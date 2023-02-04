@@ -74,12 +74,6 @@ function init() {
       balls.add(scene, pos, direction);
   }
 
-  function teleport() {
-    if (teleportMarker.visible) {
-      teleportMarker.getWorldPosition(avatar.position);
-    }
-  }
-
   function onSelectStart(evt: THREE.Event): void {
     const target = evt.target as XRTargetRaySpace;
     if (target) {
@@ -132,8 +126,8 @@ function init() {
     controllerR.addEventListener('selectend', onSelectEnd);
     controllerR.addEventListener('squeezestart', onSqueezeStart);
     controllerR.addEventListener('squeezeend', onSqueezeEnd);
-//    controllerR.addEventListener('selectstart', createBall);
-    controllerR.addEventListener('selectstart', teleport);
+    controllerR.addEventListener('selectstart', createBall);
+//    controllerR.addEventListener('selectstart', teleport);
     controllerR.addEventListener('squeeze', () => {
       const color = balls.nextColor();
       pivotMaterial.color.set(color);
@@ -167,7 +161,7 @@ function initScene() {
   scene.add(physicalWorld);
 
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
-  camera.position.set(0, 1.6, 3);
+  camera.position.set(0, 1.8, 3);
 
   avatar = new THREE.Group();
   avatar.add(camera);
@@ -284,16 +278,6 @@ function render(time: number, frame: XRFrame) {
         `B/Y: ${right.by}`,
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`
       ]);
-      // if (right.thumb.y) {
-      //   if (right.grab.pressed) {
-      //     avatar.position.addScaledVector(new Vector3(0, right.thumb.y, 0), dt);
-      //   }
-      //   else {
-      //     const direction = new Vector3();
-      //     avatar.getWorldDirection(direction);
-      //     avatar.position.addScaledVector(direction, dt * right.thumb.y);
-      //   }
-      // }
       if (right.thumb.x) {
         avatar.rotateY(-right.thumb.x * dt);
       }
@@ -306,6 +290,12 @@ function render(time: number, frame: XRFrame) {
   }
 
   renderer.render(scene, camera);
+}
+
+function teleport() {
+  if (teleportMarker.visible) {
+    teleportMarker.getWorldPosition(avatar.position);
+  }
 }
 
 function checkTeleport() {
@@ -323,8 +313,15 @@ function checkTeleport() {
       const p = intersects[0].point;
       teleportMarker.position.set(p.x, p.y, p.z);
       teleportMarker.visible = true;
-      return; // Success
+    }
+    else {
+      teleportMarker.visible = false;
     }
   }
-  teleportMarker.visible = false;
+  else {
+    if (teleportMarker.visible && (inputs.right.thumb.y > -0.1)) {
+      teleport();
+      teleportMarker.visible = false;
+    }
+  }
 }
