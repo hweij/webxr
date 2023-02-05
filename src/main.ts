@@ -9,7 +9,7 @@ import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
-import { Snow2 } from './snow2';
+import { SnowGpu } from './snow_gpu';
 import { GameObject } from './game_object';
 
 let camera: PerspectiveCamera;
@@ -222,7 +222,7 @@ function initScene() {
   light.position.set(0, 4, 0);
   scene.add(light);
 
-  const snow2 = addGameObject(new Snow2());
+  const snow2 = addGameObject(new SnowGpu());
   snow2.setParent(scene);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
