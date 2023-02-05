@@ -45,6 +45,8 @@ floorPattern.fill((_x,_y) => [0, Math.random() * 128 + 64, 0, 255]);
 
 var avatar: THREE.Group;
 
+var teleport: Teleport;
+
 /** Set if running in VR mode (VRButton was pressed) */
 let vrEnabled = false;
 
@@ -139,7 +141,7 @@ function init() {
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
 
-    addGameObject(new Teleport(scene, physicalWorld, inputs, controllerR, camera));
+    teleport = new Teleport(scene, camera);
   } );
 
   window.addEventListener('resize', onWindowResize);
@@ -248,8 +250,6 @@ function render(time: number, frame: XRFrame) {
   if (_lastTime) {
     const dt = (time - _lastTime) * 0.001;
 
-    tick(dt);
-
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
       inputs.update(frame.session.inputSources);
@@ -266,6 +266,10 @@ function render(time: number, frame: XRFrame) {
         avatar.rotateY(-right.thumb.x * dt);
       }
     }
+
+    tick(dt);
+
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar, physicalWorld, controllerR);
   }
   _lastTime = time;
 
