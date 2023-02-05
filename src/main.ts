@@ -270,7 +270,7 @@ function render(time: number, frame: XRFrame) {
 
     tick(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar, physicalWorld, controllerR);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
   }
   _lastTime = time;
 

@@ -18,7 +18,7 @@ export class Teleport {
     this._raycaster.far = camera.far;
   }
 
-  teleportOnThumb(thumbY: number, avatar: Group, physicalWorld: Group, controller: XRTargetRaySpace) {
+  teleportOnThumb(thumbY: number, target: Vector3, physicalWorld: Group, controller: XRTargetRaySpace) {
     if (thumbY < -0.5) {
       // Ray intersect from right controller
       const rPos = new Vector3();
@@ -40,16 +40,8 @@ export class Teleport {
     }
     else {
       if (this._teleportMarker.visible && (thumbY > -0.1)) {
-        this.teleport(avatar);
+        this._teleportMarker.getWorldPosition(target);
         this._teleportMarker.visible = false;
-      }
-    }
-  }
-
-  teleport(avatar: Group) {
-    if (this._teleportMarker.visible) {
-      if (avatar) {
-        this._teleportMarker.getWorldPosition(avatar.position);
       }
     }
   }
