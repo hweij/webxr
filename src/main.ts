@@ -262,9 +262,10 @@ function render(time: number, frame: XRFrame) {
         `B/Y: ${right.by}`,
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`
       ]);
-      if (right.thumb.x) {
-        avatar.rotateY(-right.thumb.x * dt);
-      }
+      // This will only make you dizzy
+      // if (right.thumb.x) {
+      //   avatar.rotateY(-right.thumb.x * dt);
+      // }
     }
 
     tick(dt);
