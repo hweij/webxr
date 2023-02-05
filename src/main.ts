@@ -141,7 +141,7 @@ function init() {
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
 
-    teleport = new Teleport(scene, camera);
+    teleport = new Teleport(scene, camera, controllerR);
   } );
 
   window.addEventListener('resize', onWindowResize);
