@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -11,18 +11,17 @@ import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 import { SnowGpu } from './snow_gpu';
 import { GameObject } from './game_object';
+import { Teleport } from './teleport';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
 /** Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting. */
-let physicalWorld: Object3D;
+let physicalWorld: Group;
 let renderer: WebGLRenderer;
 
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
-
-const raycaster = new THREE.Raycaster();
 
 var gameObjects: GameObject[] = [];
 
@@ -59,10 +58,6 @@ function addGameObject<T extends GameObject>(obj: T) {
 
 function init() {
   initScene();
-
-  raycaster.camera = camera;
-  raycaster.near = camera.near;
-  raycaster.far = camera.far;
 
   const balls = addGameObject(new Balls());
 
@@ -143,12 +138,12 @@ function init() {
 
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
+
+    addGameObject(new Teleport(scene, physicalWorld, inputs, controllerR, camera));
   } );
 
   window.addEventListener('resize', onWindowResize);
 }
-
-var teleportMarker: THREE.Mesh;
 
 function initScene() {
   const container = document.createElement('div');
@@ -184,15 +179,6 @@ function initScene() {
   table.position.y = 0.35;
   table.position.z = -0.85;
   physicalWorld.add(table);
-
-  const teleportMarkerGeo = new THREE.SphereGeometry(0.1);
-  const teleportMaterial = new THREE.MeshStandardMaterial({
-    color: 0xff00ff,
-    roughness: 1.0,
-    metalness: 0.0
-  });
-  teleportMarker = new THREE.Mesh(teleportMarkerGeo, teleportMaterial);
-  scene.add(teleportMarker);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
@@ -264,8 +250,6 @@ function render(time: number, frame: XRFrame) {
 
     tick(dt);
 
-    checkTeleport();
-
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
       inputs.update(frame.session.inputSources);
@@ -292,36 +276,3 @@ function render(time: number, frame: XRFrame) {
   renderer.render(scene, camera);
 }
 
-function teleport() {
-  if (teleportMarker.visible) {
-    teleportMarker.getWorldPosition(avatar.position);
-  }
-}
-
-function checkTeleport() {
-  if (inputs.right.thumb.y < -0.5) {
-    // Ray intersect from right controller
-    const rPos = new Vector3();
-    const rDir = new Vector3();
-    controllerR.getWorldPosition(rPos);
-    controllerR.getWorldDirection(rDir);
-    // Reverse direction, apparently it points the oposite way
-    rDir.multiplyScalar(-1);
-    raycaster.set(rPos, rDir);
-    const intersects = raycaster.intersectObjects(physicalWorld.children);
-    if (intersects?.length) {
-      const p = intersects[0].point;
-      teleportMarker.position.set(p.x, p.y, p.z);
-      teleportMarker.visible = true;
-    }
-    else {
-      teleportMarker.visible = false;
-    }
-  }
-  else {
-    if (teleportMarker.visible && (inputs.right.thumb.y > -0.1)) {
-      teleport();
-      teleportMarker.visible = false;
-    }
-  }
-}
