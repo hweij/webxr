@@ -1,64 +1,105 @@
 import * as THREE from 'three';
-import { Group, Mesh, PerspectiveCamera, Scene, Vector3, XRTargetRaySpace } from 'three';
+import { DoubleSide, Euler, Group, Mesh, Scene, Vector3, XRTargetRaySpace } from 'three';
 
 export class Teleport {
   _raycaster = new THREE.Raycaster();
-  _teleportMarker: Mesh;
-  _rayMesh: Mesh;
+  _marker: Mesh;
+  _ray: Mesh;
 
-  constructor(scene: Scene, camera: PerspectiveCamera, rayBase: Group) {
-    const rayLength = 10.0;
-    const teleportMarkerGeo = new THREE.SphereGeometry(0.1);
-    const teleportMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff00ff
-    });
-    this._teleportMarker = new THREE.Mesh(teleportMarkerGeo, teleportMaterial);
-    scene.add(this._teleportMarker);
+  constructor(scene: Scene) {
+    this._ray = createRayMesh();
+    this._ray.visible = false;
+    scene.add(this._ray);
 
-    const rayMeshGeo = new THREE.CylinderGeometry(0.005, 0.005, rayLength);
-    const rayMeshMaterial = new THREE.MeshBasicMaterial({
-      color: 0xcccccc
-    });
-    this._rayMesh = new THREE.Mesh(rayMeshGeo, rayMeshMaterial);
-    this._rayMesh.rotateX(Math.PI / 2);
-    this._rayMesh.translateY(-rayLength * 0.5);
-    this._rayMesh.visible = false;
-    rayBase.add(this._rayMesh);
+    // Create the teleport target marker
+    this._marker = createMarkerMesh();
+    scene.add(this._marker);
 
-    this._raycaster.camera = camera;
-    this._raycaster.near = camera.near;
-    this._raycaster.far = camera.far;
+    // Ray caster init
+    this._raycaster.near = 0.1;
+    this._raycaster.far = 10.0;
   }
 
+  /** Call this to detect and teleport based on the thumb stick position (push forward) */
   teleportOnThumb(thumbY: number, target: Vector3, physicalWorld: Group, controller: XRTargetRaySpace) {
     if (thumbY < -0.5) {
-      this._rayMesh.visible = true;
+      this._ray.visible = true;
+      controller.getWorldPosition(this._ray.position);
       // Ray intersect from right controller
-      const rPos = new Vector3();
-      const rDir = new Vector3();
-      controller.getWorldPosition(rPos);
-      controller.getWorldDirection(rDir);
+      const rPos = controller.getWorldPosition(new Vector3());
+      const rDir = controller.getWorldDirection(new Vector3());
+      this._ray.setRotationFromEuler(new Euler(controller.rotation.x, controller.rotation.y, 0));
       // Reverse direction, apparently it points the opposite way
       rDir.multiplyScalar(-1);
       this._raycaster.set(rPos, rDir);
       const intersects = this._raycaster.intersectObjects(physicalWorld.children);
       if (intersects?.length) {
         const p = intersects[0].point;
-        this._teleportMarker.position.set(p.x, p.y, p.z);
-        this._teleportMarker.visible = true;
+        this._marker.position.set(p.x, p.y, p.z);
+        this._marker.visible = true;
       }
       else {
-        this._teleportMarker.visible = false;
+        this._marker.visible = false;
       }
     }
     else {
       if (thumbY > -0.1) {
-        if (this._teleportMarker.visible) {
-          this._teleportMarker.getWorldPosition(target);
-          this._teleportMarker.visible = false;
+        if (this._marker.visible) {
+          this._marker.getWorldPosition(target);
+          this._marker.visible = false;
         }
-        this._rayMesh.visible = false;
+        this._ray.visible = false;
       }
     }
   }
+}
+
+function createRayMesh() {
+  /** Length of the cross "legs" */
+  const S = -10;
+  const W = 0.02;
+  const Z = 0.0;
+  const geometry = new THREE.BufferGeometry();
+  // X marks the spot
+  const vertices = new Float32Array( [
+    -W, Z, S,
+     W, Z, S,
+     W, Z, 0,
+     W, Z, 0,
+    -W, Z, 0,
+    -W, Z, S
+  ] );
+
+  geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+  const material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: DoubleSide } );
+  return new THREE.Mesh( geometry, material );
+}
+
+function createMarkerMesh() {
+  /** Length of the cross "legs" */
+  const S = 0.1;
+  const W = 0.02;
+  const Z = 0.01;
+  const geometry = new THREE.BufferGeometry();
+  // X marks the spot
+  const vertices = new Float32Array( [
+    // Horizontal
+    -S, Z,  W,
+     S, Z,  W,
+     S, Z, -W,
+     S, Z, -W,
+    -S, Z, -W,
+    -S, Z,  W,
+    // Vertical
+    -W, Z,  S,
+     W, Z,  S,
+     W, Z, -S,
+     W, Z, -S,
+    -W, Z, -S,
+    -W, Z,  S
+  ] );
+
+  geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+  const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+  return new THREE.Mesh( geometry, material );
 }

@@ -116,7 +116,7 @@ function init() {
 
     const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
     pivot.name = 'pivot';
-    pivot.position.z = - 0.05;
+    pivot.position.z = -0.05;
     mesh.add(pivot);
 
     controllerR.addEventListener('selectstart', onSelectStart);
@@ -141,7 +141,7 @@ function init() {
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
 
-    teleport = new Teleport(scene, camera, controllerR);
+    teleport = new Teleport(scene);
   } );
 
   window.addEventListener('resize', onWindowResize);
