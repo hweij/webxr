@@ -34,9 +34,23 @@ export class Teleport {
       this._raycaster.set(rPos, rDir);
       const intersects = this._raycaster.intersectObjects(physicalWorld.children);
       if (intersects?.length) {
-        const p = intersects[0].point;
-        this._marker.position.set(p.x, p.y, p.z);
-        this._marker.visible = true;
+        const intersect = intersects[0];
+        if (intersect.face) {
+          // This can be optimized later
+          const nv = intersect.face.normal;
+          var normalMatrix = new THREE.Matrix3(); // create once and reuse
+          var worldNormal = new THREE.Vector3(); // create once and reuse
+          normalMatrix.getNormalMatrix( intersect.object.matrixWorld );
+          worldNormal.copy( nv ).applyMatrix3( normalMatrix );
+          if (worldNormal.angleTo(new Vector3(0, 1, 0)) < 0.4) {
+            const p = intersect.point;
+            this._marker.position.set(p.x, p.y, p.z);
+            this._marker.visible = true;
+          }
+          else {
+            this._marker.visible = false;
+          }
+        }
       }
       else {
         this._marker.visible = false;
