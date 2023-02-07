@@ -22,8 +22,8 @@ export class Teleport {
 
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
   teleportOnThumb(thumbY: number, target: Vector3, physicalWorld: Group, controller: XRTargetRaySpace) {
+    let rayLength = 10;
     if (thumbY < -0.5) {
-
       this._ray.visible = true;
       // Ray intersect from right controller
       const rPos = controller.getWorldPosition(new Vector3());
@@ -53,6 +53,7 @@ export class Teleport {
             const p = intersect.point;
             this._marker.position.set(p.x, p.y, p.z);
             this._marker.visible = true;
+            rayLength = p.distanceTo(rPos);
           }
           else {
             this._marker.visible = false;
@@ -72,11 +73,12 @@ export class Teleport {
         this._ray.visible = false;
       }
     }
+    this._ray.scale.z = rayLength;
   }
 }
 
 function createRayMesh() {
-  const S = 10;
+  const S = 1;
   const W = 0.005;
   const Z = 0.0;
   const geometry = new THREE.BufferGeometry();
