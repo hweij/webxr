@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DoubleSide, Euler, Group, Mesh, Scene, Vector3, XRTargetRaySpace } from 'three';
+import { DoubleSide, Group, Matrix4, Mesh, Quaternion, Scene, Vector3, XRTargetRaySpace } from 'three';
 
 export class Teleport {
   _raycaster = new THREE.Raycaster();
@@ -23,12 +23,19 @@ export class Teleport {
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
   teleportOnThumb(thumbY: number, target: Vector3, physicalWorld: Group, controller: XRTargetRaySpace) {
     if (thumbY < -0.5) {
+
       this._ray.visible = true;
-      controller.getWorldPosition(this._ray.position);
       // Ray intersect from right controller
       const rPos = controller.getWorldPosition(new Vector3());
       const rDir = controller.getWorldDirection(new Vector3());
-      this._ray.setRotationFromEuler(new Euler(controller.rotation.x, controller.rotation.y, 0));
+
+      // Adjust beam position and direction
+      controller.getWorldPosition(this._ray.position);
+      const mm = new Matrix4();
+      mm.lookAt(new Vector3(), rDir, new Vector3(0,1,0));
+      const q = new Quaternion().setFromRotationMatrix(mm);
+      this._ray.setRotationFromQuaternion(q);
+
       // Reverse direction, apparently it points the opposite way
       rDir.multiplyScalar(-1);
       this._raycaster.set(rPos, rDir);
@@ -69,9 +76,8 @@ export class Teleport {
 }
 
 function createRayMesh() {
-  /** Length of the cross "legs" */
-  const S = -10;
-  const W = 0.02;
+  const S = 10;
+  const W = 0.005;
   const Z = 0.0;
   const geometry = new THREE.BufferGeometry();
   // X marks the spot
@@ -85,7 +91,7 @@ function createRayMesh() {
   ] );
 
   geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-  const material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: DoubleSide } );
+  const material = new THREE.MeshBasicMaterial( { color: 0xcccccc, side: DoubleSide, transparent: true, opacity: 0.5 } );
   return new THREE.Mesh( geometry, material );
 }
 
@@ -114,6 +120,6 @@ function createMarkerMesh() {
   ] );
 
   geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-  const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+  const material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
   return new THREE.Mesh( geometry, material );
 }

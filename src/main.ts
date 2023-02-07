@@ -255,12 +255,14 @@ function render(time: number, frame: XRFrame) {
       inputs.update(frame.session.inputSources);
 
       const right = inputs.right;
+      const dir = controllerR.getWorldDirection(new THREE.Vector3());
       debugPanel?.setMessage([
         `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
         `A/X: ${right.ax}`,
         `B/Y: ${right.by}`,
-        `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`
+        `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
+        `direction: ${dir.x.toFixed(1)}, ${dir.y.toFixed(1)}, ${dir.z.toFixed(1)}`
       ]);
       // This will only make you dizzy
       // if (right.thumb.x) {
