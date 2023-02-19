@@ -191,7 +191,7 @@ function initScene() {
   { // Lighting
     scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
     const light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.set(0, 4, 0);
+    light.position.set(0.5, 1, 0.5);
     scene.add(light);
   }
 
