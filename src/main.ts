@@ -40,8 +40,8 @@ floorPattern.texture.minFilter = THREE.LinearMipmapLinearFilter;
 floorPattern.texture.magFilter = THREE.LinearFilter;
 floorPattern.texture.wrapS = THREE.RepeatWrapping;
 floorPattern.texture.wrapT = THREE.RepeatWrapping;
-floorPattern.texture.repeat.set(8,8);
-floorPattern.fill((_x,_y) => [0, Math.random() * 128 + 64, 0, 255]);
+floorPattern.texture.repeat.set(8, 8);
+floorPattern.fill((_x, _y) => [0, Math.random() * 128 + 64, 0, 255]);
 
 var avatar: THREE.Group;
 
@@ -64,11 +64,11 @@ function init() {
   const balls = addGameObject(new Balls());
 
   function createBall() {
-      const pos = new Vector3();
-      controllerR.getWorldPosition(pos);
-      const direction = new Vector3();
-      controllerR.getWorldDirection(direction);
-      balls.add(scene, pos, direction);
+    const pos = new Vector3();
+    controllerR.getWorldPosition(pos);
+    const direction = new Vector3();
+    controllerR.getWorldDirection(direction);
+    balls.add(scene, pos, direction);
   }
 
   function onSelectStart(evt: THREE.Event): void {
@@ -102,7 +102,7 @@ function init() {
   controllerR = renderer.xr.getController(0);
   controllerL = renderer.xr.getController(1);
 
-  controllerR.addEventListener( 'connected', ( event ) => {
+  controllerR.addEventListener('connected', (event) => {
     if (event.data?.handedness !== 'right') {
       // Controller 0 is not the right-hand controller: swap them
       [controllerR, controllerL] = [controllerL, controllerR];
@@ -124,7 +124,7 @@ function init() {
     controllerR.addEventListener('squeezestart', onSqueezeStart);
     controllerR.addEventListener('squeezeend', onSqueezeEnd);
     controllerR.addEventListener('selectstart', createBall);
-//    controllerR.addEventListener('selectstart', teleport);
+    //    controllerR.addEventListener('selectstart', teleport);
     controllerR.addEventListener('squeeze', () => {
       const color = balls.nextColor();
       pivotMaterial.color.set(color);
@@ -142,7 +142,7 @@ function init() {
     controllerL.add(mesh.clone());
 
     teleport = new Teleport(scene);
-  } );
+  });
 
   window.addEventListener('resize', onWindowResize);
 }
@@ -157,61 +157,42 @@ function initScene() {
   physicalWorld = new THREE.Group();
   scene.add(physicalWorld);
 
+  /** Camera */
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
+  // Initialize at 1.8m height (only for non-VR)
   camera.position.set(0, 1.8, 3);
 
+  /** Avatar, for VR use */
   avatar = new THREE.Group();
   avatar.add(camera);
   scene.add(avatar);
 
+  /** Animated lava texture */
   const waveTexture = addGameObject(new WaveTexture(64, 64));
 
-  const tableGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
-  // const tableMaterial = new THREE.MeshStandardMaterial({
-  //   color: 0x444444,
-  //   roughness: 1.0,
-  //   metalness: 0.0
-  // });
-  const tableMaterial = new THREE.MeshBasicMaterial({
-    color: 0x777777,
-    // map: colorBoard.texture
-    map: waveTexture.texture
-  });
-  const table = new THREE.Mesh(tableGeometry, tableMaterial);
-  table.position.y = 0.35;
-  table.position.z = -0.85;
-  physicalWorld.add(table);
+  /** Lava box, uses wave texture */
+  const lavaBox = createBox(waveTexture.texture);
+  lavaBox.position.y = 0.35;
+  lavaBox.position.z = -0.85;
+  physicalWorld.add(lavaBox);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
 
-  const floorGometry = new THREE.PlaneGeometry(10, 10);
-  // const floorMaterial = new THREE.MeshStandardMaterial({
-  //   color: 0x222222,
-  //   roughness: 1.0,
-  //   metalness: 0.0
-  // });
-  const floorMaterial = new THREE.MeshBasicMaterial({
-    color: 0x222222,
-    map: floorPattern.texture
-  });
-  const floor = new THREE.Mesh(floorGometry, floorMaterial);
-  floor.rotation.x = - Math.PI / 2;
-  floor.position.y = 0;
+  /** Floor with a pattern */
+  const floor = createFloor(floorPattern.texture);
   physicalWorld.add(floor);
 
-  // const grid = new THREE.GridHelper(10, 20, 0x111111, 0x111111);
-  // // grid.material.depthTest = false; // avoid z-fighting
-  // scene.add(grid);
+  { // Lighting
+    scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
+    const light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(0, 4, 0);
+    scene.add(light);
+  }
 
-  scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
-
-  const light = new THREE.DirectionalLight(0xffffff, 0.5);
-  light.position.set(0, 4, 0);
-  scene.add(light);
-
-  const snow2 = addGameObject(new SnowGpu());
-  snow2.setParent(scene);
+  /** Snow (GPU-version) */
+  const snow = addGameObject(new SnowGpu());
+  snow.setParent(scene);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -220,13 +201,15 @@ function initScene() {
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
-  // For non-VR control
-  controls = new OrbitControls( camera, renderer.domElement );
+  /** For non-VR control */
+  controls = new OrbitControls(camera, renderer.domElement);
   controls.update();
 
-  const vrButton = VRButton.createButton(renderer);
-  vrButton.addEventListener('click', () => vrEnabled = true);
-  document.body.appendChild(vrButton);
+  { // Button to switch to VR mode
+    const vrButton = VRButton.createButton(renderer);
+    vrButton.addEventListener('click', () => vrEnabled = true);
+    document.body.appendChild(vrButton);
+  }
 }
 
 function onWindowResize() {
@@ -283,3 +266,23 @@ function render(time: number, frame: XRFrame) {
   renderer.render(scene, camera);
 }
 
+function createBox(tex: THREE.Texture) {
+  const geo = new THREE.BoxGeometry(0.5, 0.8, 0.5);
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x777777,
+    map: tex
+  });
+  return new THREE.Mesh(geo, mat);
+}
+
+function createFloor(tex: THREE.Texture) {
+  const geo = new THREE.PlaneGeometry(10, 10);
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x222222,
+    map: tex
+  });
+  const floor = new THREE.Mesh(geo, mat);
+  floor.rotation.x = - Math.PI / 2;
+  floor.position.y = 0;
+  return floor;
+}
