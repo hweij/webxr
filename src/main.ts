@@ -12,6 +12,7 @@ import { WaveTexture } from './wave_texture';
 import { SnowGpu } from './snow_gpu';
 import { GameObject } from './game_object';
 import { Teleport } from './teleport';
+import { Office } from './rooms/office/office';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -175,6 +176,10 @@ function initScene() {
   lavaBox.position.y = 0.35;
   lavaBox.position.z = -0.85;
   physicalWorld.add(lavaBox);
+
+  /** Office room */
+  const office = new Office();
+  office.setParent(physicalWorld);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
