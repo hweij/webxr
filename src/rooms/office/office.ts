@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Quaternion, Vector3 } from 'three';
+import { Vector3 } from 'three';
 
 import { GameObject } from "../../game_object";
 
@@ -53,6 +53,34 @@ export class Office implements GameObject {
             matOutside, matInside,
             new Vector3(WIDTH / 2, 0, -DEPTH / 2),
             new Vector3(0, 180, 0));
+        // Left
+        this.createWall([
+            0, 0, 0, HEIGHT, DEPTH, HEIGHT, DEPTH, 0],
+            [[1, 1, 2, 1, 2, 2, 1, 2]],
+            matOutside, matInside,
+            new Vector3(-WIDTH / 2, 0, -DEPTH / 2),
+            new Vector3(0, -90, 0));
+        // Right
+        this.createWall([
+            0, 0, 0, HEIGHT, DEPTH, HEIGHT, DEPTH, 0],
+            [[1, 1, 2, 1, 2, 2, 1, 2]],
+            matOutside, matInside,
+            new Vector3(WIDTH / 2, 0, DEPTH / 2),
+            new Vector3(0, 90, 0));
+        // Roof
+        this.createWall([
+            0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
+            [],
+            matOutside, matInside,
+            new Vector3(-WIDTH / 2, HEIGHT, DEPTH / 2),
+            new Vector3(-90, 0, 0));
+        // Floor
+        this.createWall([
+            0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
+            [],
+            matOutside, matInside,
+            new Vector3(-WIDTH / 2, 0.01, -DEPTH / 2),
+            new Vector3(90, 0, 0));
     }
 
     createWall(points: number[], holes: number[][], matFront: THREE.Material, matBack: THREE.Material, pos: Vector3, rot?: Vector3) {
