@@ -175,6 +175,7 @@ function initScene() {
   /** Office room */
   const office = new Office();
   office.setParent(physicalWorld);
+  addGameObject(office);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);

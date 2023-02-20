@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 
 import { GameObject } from "../../game_object";
+import { WallClock } from '../../objects/wall_clock';
 import { createWall } from '../util';
 import { Desk } from './desk';
 
@@ -23,6 +24,7 @@ const referenceMaterial = new THREE.MeshBasicMaterial({
 
 export class Office implements GameObject {
     group = new THREE.Group;
+    clock: WallClock;
 
     constructor() {
         const boxMesh = new THREE.Mesh(boxGeo, referenceMaterial);
@@ -31,13 +33,17 @@ export class Office implements GameObject {
         const desk = new Desk();
         desk.setParent(this.group);
 
+        this.clock = new WallClock();
+        this.clock.mesh.position.set(0, 2, -2);
+        this.group.add(this.clock.mesh);
+
         this._createWalls();
 
         this.textureTest();
     }
 
     tick(_dt: number) {
-
+        this.clock.tick(_dt);
     }
 
     setParent(p: THREE.Group) {
