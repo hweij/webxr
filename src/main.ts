@@ -7,7 +7,7 @@ import { Balls } from './balls';
 import { ColorBoard } from './color_board';
 import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
-import { WaveTexture } from './wave_texture';
+// import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 import { SnowGpu } from './snow_gpu';
 import { GameObject } from './game_object';
@@ -27,14 +27,9 @@ var controllerL: XRTargetRaySpace;
 var gameObjects: GameObject[] = [];
 
 // Submodules
-// const balls = new Balls();
-// const snow = new Snow();
-// let snow2 = new Snow2();
 const inputs = new Inputs();
-let debugPanel: DebugPanel | undefined;
+let debugPanel: DebugPanel;
 
-// const colorBoard = new ColorBoard(512,512);
-// colorBoard.testFill();
 const floorPattern = new ColorBoard(256, 256);
 floorPattern.texture.generateMipmaps = true;
 floorPattern.texture.minFilter = THREE.LinearMipmapLinearFilter;
@@ -169,13 +164,13 @@ function initScene() {
   scene.add(avatar);
 
   /** Animated lava texture */
-  const waveTexture = addGameObject(new WaveTexture(64, 64));
+  // const waveTexture = addGameObject(new WaveTexture(64, 64));
 
   /** Lava box, uses wave texture */
-  const lavaBox = createBox(waveTexture.texture);
-  lavaBox.position.y = 0.35;
-  lavaBox.position.z = -0.85;
-  physicalWorld.add(lavaBox);
+  // const lavaBox = createBox(waveTexture.texture);
+  // lavaBox.position.y = 0.35;
+  // lavaBox.position.z = -0.85;
+  // physicalWorld.add(lavaBox);
 
   /** Office room */
   const office = new Office();
@@ -252,10 +247,6 @@ function render(time: number, frame: XRFrame) {
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
         `direction: ${dir.x.toFixed(1)}, ${dir.y.toFixed(1)}, ${dir.z.toFixed(1)}`
       ]);
-      // This will only make you dizzy
-      // if (right.thumb.x) {
-      //   avatar.rotateY(-right.thumb.x * dt);
-      // }
     }
 
     tick(dt);
@@ -271,14 +262,14 @@ function render(time: number, frame: XRFrame) {
   renderer.render(scene, camera);
 }
 
-function createBox(tex: THREE.Texture) {
-  const geo = new THREE.BoxGeometry(0.5, 0.8, 0.5);
-  const mat = new THREE.MeshBasicMaterial({
-    color: 0x777777,
-    map: tex
-  });
-  return new THREE.Mesh(geo, mat);
-}
+// function createBox(tex: THREE.Texture) {
+//   const geo = new THREE.BoxGeometry(0.5, 0.8, 0.5);
+//   const mat = new THREE.MeshBasicMaterial({
+//     color: 0x777777,
+//     map: tex
+//   });
+//   return new THREE.Mesh(geo, mat);
+// }
 
 function createFloor(tex: THREE.Texture) {
   const geo = new THREE.PlaneGeometry(10, 10);
