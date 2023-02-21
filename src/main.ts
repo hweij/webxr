@@ -264,15 +264,6 @@ function render(time: number, frame: XRFrame) {
   renderer.render(scene, camera);
 }
 
-// function createBox(tex: THREE.Texture) {
-//   const geo = new THREE.BoxGeometry(0.5, 0.8, 0.5);
-//   const mat = new THREE.MeshBasicMaterial({
-//     color: 0x777777,
-//     map: tex
-//   });
-//   return new THREE.Mesh(geo, mat);
-// }
-
 function createFloor(tex: THREE.Texture) {
   const geo = new THREE.PlaneGeometry(10, 10);
   const mat = new THREE.MeshBasicMaterial({
