@@ -15,26 +15,26 @@ const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc, side: THREE.
 /** Inside wall, default material */
 const matInside = new THREE.MeshLambertMaterial({ color: 0xeeddcc, side: THREE.FrontSide });
 
-const boxGeo = new THREE.BoxGeometry(WIDTH, HEIGHT, DEPTH);
-boxGeo.translate(0, HEIGHT / 2, 0);
-const referenceMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff00ff,
-    wireframe: true
-});
+// const boxGeo = new THREE.BoxGeometry(WIDTH, HEIGHT, DEPTH);
+// boxGeo.translate(0, HEIGHT / 2, 0);
+// const referenceMaterial = new THREE.MeshBasicMaterial({
+//     color: 0xff00ff,
+//     wireframe: true
+// });
 
 export class Office implements GameObject {
     group = new THREE.Group;
     clock: WallClock;
 
     constructor() {
-        const boxMesh = new THREE.Mesh(boxGeo, referenceMaterial);
-        this.group.add(boxMesh);
+        // const boxMesh = new THREE.Mesh(boxGeo, referenceMaterial);
+        // this.group.add(boxMesh);
 
         const desk = new Desk();
         desk.setParent(this.group);
 
         this.clock = new WallClock();
-        this.clock.mesh.position.set(0, 2, -2);
+        this.clock.mesh.position.set(0, 2, -1.99);
         this.group.add(this.clock.mesh);
 
         this._createWalls();
