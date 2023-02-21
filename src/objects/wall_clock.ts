@@ -16,7 +16,7 @@ export class WallClock implements GameObject {
         const ring = this._createOuterRing();
 
         // Back plate
-        const plateGeo = new THREE.CircleGeometry(0.15);
+        const plateGeo = new THREE.CircleGeometry(0.13);
         plateGeo.translate(0, 0, 0.03);
         const plateMat = new THREE.MeshLambertMaterial({ color: '#ffffff' });
         const plate = new THREE.Mesh(plateGeo, plateMat);
