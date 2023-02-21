@@ -35,12 +35,15 @@ export class WallClock implements GameObject {
 
     tick(_dt: number) {
         const now = this.date;
+        const lastSeconds = now.getSeconds();
         now.setTime(Date.now());
         const s = now.getSeconds();
-        const m = now.getMinutes();
-        this.dialSeconds.rotation.z = -s * Math.PI / 30;
-        this.dialMinutes.rotation.z = -(s / 60 + m) * Math.PI / 30;
-        this.dialHours.rotation.z = -((s/3600) + (m/60) + now.getHours()) * Math.PI / 6;
+        if (s !== lastSeconds) {
+            const m = now.getMinutes();
+            this.dialSeconds.rotation.z = -s * Math.PI / 30;
+            this.dialMinutes.rotation.z = -(s / 60 + m) * Math.PI / 30;
+            this.dialHours.rotation.z = -((s/3600) + (m/60) + now.getHours()) * Math.PI / 6;    
+        }
     }
 
     _createOuterRing() {

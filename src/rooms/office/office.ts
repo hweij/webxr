@@ -15,31 +15,19 @@ const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc, side: THREE.
 /** Inside wall, default material */
 const matInside = new THREE.MeshLambertMaterial({ color: 0xeeddcc, side: THREE.FrontSide });
 
-// const boxGeo = new THREE.BoxGeometry(WIDTH, HEIGHT, DEPTH);
-// boxGeo.translate(0, HEIGHT / 2, 0);
-// const referenceMaterial = new THREE.MeshBasicMaterial({
-//     color: 0xff00ff,
-//     wireframe: true
-// });
-
 export class Office implements GameObject {
     group = new THREE.Group;
     clock: WallClock;
 
     constructor() {
-        // const boxMesh = new THREE.Mesh(boxGeo, referenceMaterial);
-        // this.group.add(boxMesh);
-
         const desk = new Desk();
         desk.setParent(this.group);
 
         this.clock = new WallClock();
-        this.clock.mesh.position.set(0, 2, -1.99);
+        this.clock.mesh.position.set(1, 2, -1.99);
         this.group.add(this.clock.mesh);
 
         this._createWalls();
-
-        // this.textureTest();
     }
 
     tick(_dt: number) {
@@ -95,27 +83,27 @@ export class Office implements GameObject {
             new Vector3(90, 0, 0)));
     }
 
-    textureTest() {
-        const loader = new THREE.TextureLoader();
+    // textureTest() {
+    //     const loader = new THREE.TextureLoader();
 
-        // load a resource
-        loader.load(
-            // resource URL
-            '/textures/shopping_mall.jpg',
+    //     // load a resource
+    //     loader.load(
+    //         // resource URL
+    //         '/textures/shopping_mall.jpg',
         
-            // onLoad callback
-            function ( texture ) {
-                // in this example we create the material when the texture is loaded
-                matInside.map = texture;
-                matInside.needsUpdate = true;
-           },
+    //         // onLoad callback
+    //         function ( texture ) {
+    //             // in this example we create the material when the texture is loaded
+    //             matInside.map = texture;
+    //             matInside.needsUpdate = true;
+    //        },
         
-            // onProgress callback currently not supported
-            undefined,
+    //         // onProgress callback currently not supported
+    //         undefined,
         
-            // onError callback
-            function ( _err ) {
-                console.error( 'An error happened.' );
-            }
-        );}
+    //         // onError callback
+    //         function ( _err ) {
+    //             console.error( 'An error happened.' );
+    //         }
+    //     );}
 }
