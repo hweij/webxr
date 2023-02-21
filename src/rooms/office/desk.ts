@@ -17,6 +17,8 @@ export class Desk implements GameObject {
 
     constructor() {
         const deskMesh = new THREE.Mesh(deskGeo, deskMaterial);
+        deskMesh.layers.disable(0);
+        deskMesh.layers.enable(3);
         this.group.add(deskMesh)
     }
     

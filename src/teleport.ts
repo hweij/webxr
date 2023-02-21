@@ -1,16 +1,12 @@
 import * as THREE from 'three';
-import { DoubleSide, Matrix4, Mesh, Quaternion, Scene, Vector3, XRTargetRaySpace } from 'three';
-
-export const TELEPORT_LAYER = 3;
+import { DoubleSide, Group, Matrix4, Mesh, Quaternion, Scene, Vector3, XRTargetRaySpace } from 'three';
 
 export class Teleport {
   _raycaster = new THREE.Raycaster();
   _marker: Mesh;
   _ray: Mesh;
-  _scene: Scene;
 
   constructor(scene: Scene) {
-    this._scene = scene;
     this._ray = createRayMesh();
     this._ray.visible = false;
     scene.add(this._ray);
@@ -20,17 +16,12 @@ export class Teleport {
     scene.add(this._marker);
 
     // Ray caster init
-    this._raycaster.layers.set(TELEPORT_LAYER);
     this._raycaster.near = 0.1;
     this._raycaster.far = 10.0;
   }
 
-  static includeTarget(obj: THREE.Object3D) {
-    obj.layers.enable(TELEPORT_LAYER);
-  }
-
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
-  teleportOnThumb(thumbY: number, target: Vector3, controller: XRTargetRaySpace) {
+  teleportOnThumb(thumbY: number, target: Vector3, physicalWorld: Group, controller: XRTargetRaySpace) {
     let rayLength = 10;
     if (thumbY < -0.5) {
       this._ray.visible = true;
@@ -48,7 +39,7 @@ export class Teleport {
       // Reverse direction, apparently it points the opposite way
       rDir.multiplyScalar(-1);
       this._raycaster.set(rPos, rDir);
-      const intersects = this._raycaster.intersectObjects(this._scene.children);
+      const intersects = this._raycaster.intersectObjects(physicalWorld.children);
       if (intersects?.length) {
         const intersect = intersects[0];
         if (intersect.face) {
