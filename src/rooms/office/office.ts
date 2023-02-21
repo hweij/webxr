@@ -11,9 +11,9 @@ const DEPTH = 4;
 const HEIGHT = 2.4;
 
 /** Outside wall default material */
-const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc });
+const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc, side: THREE.FrontSide });
 /** Inside wall, default material */
-const matInside = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide });
+const matInside = new THREE.MeshLambertMaterial({ color: 0xeeddcc, side: THREE.FrontSide });
 
 const boxGeo = new THREE.BoxGeometry(WIDTH, HEIGHT, DEPTH);
 boxGeo.translate(0, HEIGHT / 2, 0);
@@ -39,7 +39,7 @@ export class Office implements GameObject {
 
         this._createWalls();
 
-        this.textureTest();
+        // this.textureTest();
     }
 
     tick(_dt: number) {

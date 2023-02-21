@@ -156,7 +156,7 @@ function initScene() {
   /** Camera */
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   // Initialize at 1.8m height (only for non-VR)
-  camera.position.set(0, 1.8, 3);
+  camera.position.set(0, 1.8, 1);
 
   /** Avatar, for VR use */
   avatar = new THREE.Group();
@@ -204,6 +204,7 @@ function initScene() {
 
   /** For non-VR control */
   controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 1.8, 0)
   controls.update();
 
   { // Button to switch to VR mode
