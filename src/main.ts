@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -17,8 +17,6 @@ import { Office } from './rooms/office/office';
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
-/** Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting. */
-let physicalWorld: Group;
 let renderer: WebGLRenderer;
 
 var controllerR: XRTargetRaySpace;
@@ -150,9 +148,6 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x222222);
 
-  physicalWorld = new THREE.Group();
-  scene.add(physicalWorld);
-
   /** Camera */
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   // Initialize at 1.8m height (only for non-VR)
@@ -174,7 +169,7 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  office.setParent(physicalWorld);
+  office.setParent(scene);
   addGameObject(office);
 
   debugPanel = new DebugPanel(camera, 256, 256);
@@ -182,7 +177,7 @@ function initScene() {
 
   /** Floor with a pattern */
   const floor = createFloor(floorPattern.texture);
-  physicalWorld.add(floor);
+  scene.add(floor);
 
   { // Lighting
     scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
@@ -253,7 +248,7 @@ function render(time: number, frame: XRFrame) {
 
     tick(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, controllerR);
   }
   _lastTime = time;
 
@@ -282,5 +277,7 @@ function createFloor(tex: THREE.Texture) {
   const floor = new THREE.Mesh(geo, mat);
   floor.rotation.x = - Math.PI / 2;
   floor.position.y = 0;
+  // Make it a teleport target
+  Teleport.includeTarget(floor);
   return floor;
 }

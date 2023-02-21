@@ -46,7 +46,7 @@ export class Office implements GameObject {
         this.clock.tick(_dt);
     }
 
-    setParent(p: THREE.Group) {
+    setParent(p: THREE.Group | THREE.Scene) {
         p.add(this.group);
     }
 

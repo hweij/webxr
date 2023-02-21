@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Vector3 } from "three";
+import { Teleport } from "../teleport";
 
 export function createWall(points: number[], holes: number[][], matFront: THREE.Material, matBack: THREE.Material, pos: Vector3, rot?: Vector3) {
     const group = new THREE.Group();
@@ -28,12 +29,13 @@ export function createWall(points: number[], holes: number[][], matFront: THREE.
         euler = new THREE.Euler(rot.x * f, rot.y * f, rot.z * f);
     }
     const outside = new THREE.Mesh(geometry, matFront);
+    Teleport.includeTarget(outside);
     group.add(outside);
 
     const inside = new THREE.Mesh(geometry, matBack);
     // Mirror, so it shows on the other side (and normals match as well)
     inside.scale.z = -1;
-    // inside.position.set(0, 0, -0.1);
+    Teleport.includeTarget(inside);
     group.add(inside);
 
     if (euler) {
