@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { Vector3 } from "three";
-import { Teleport } from "../teleport";
 
 export function createWall(points: number[], holes: number[][], matFront: THREE.Material, matBack: THREE.Material, pos: Vector3, rot?: Vector3) {
     const group = new THREE.Group();
