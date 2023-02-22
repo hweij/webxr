@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Object3D } from "three";
-import { GameObject } from './game_object';
+import { GameObject } from '../game_object';
 
 import vert from './snow_gpu.vert?raw';
 import frag from './snow_gpu.frag?raw';
@@ -10,7 +10,7 @@ const FALL_TIME = 10;
 /** The time it takes a flake to melt */
 const MELT_TIME = 30;
 /** Number of flakes in play */
-const NUM_FLAKES = 10000;
+export const NUM_FLAKES = 10000;
 
 export const snowMaterial = new THREE.RawShaderMaterial( {
   uniforms: {
@@ -52,6 +52,16 @@ geometry.instanceCount = NUM_FLAKES;
 geometry.setAttribute('position', new THREE.Float32BufferAttribute(flakeGeometryPositions, 3));
 geometry.setAttribute('uv', new THREE.Float32BufferAttribute(flakeGeometryUV, 2));
 
+// Set default snow flake target positions
+const instancepos = new Float32Array(NUM_FLAKES * 3);
+for (let i=0; i< NUM_FLAKES; i++) {
+  const offs = i * 3;
+  instancepos[offs] = Math.random() * 10 - 5;
+  instancepos[offs + 1] = 0.01;
+  instancepos[offs + 2] = Math.random() * 10 - 5;
+}
+geometry.setAttribute( 'instancepos', new THREE.InstancedBufferAttribute( instancepos, 3 ) );
+
 const mesh = new THREE.Mesh(geometry, snowMaterial);
 // Make visible, but not to ray caster by changing layers
 // mesh.layers.disable(0);
@@ -72,5 +82,9 @@ export class SnowGpu implements GameObject {
     this.time += dt;
 
     snowMaterial.uniforms.time.value = this.time;
+  }
+
+  setTargetPositions(pos: Float32Array) {
+    geometry.setAttribute( 'instancepos', new THREE.InstancedBufferAttribute( pos, 3 ) );    
   }
 }

@@ -79,7 +79,7 @@ export class Office implements GameObject {
             0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
             [],
             matOutside, matInside,
-            new Vector3(-WIDTH / 2, 0.01, -DEPTH / 2),
+            new Vector3(-WIDTH / 2, 0.31, -DEPTH / 2),
             new Vector3(90, 0, 0)));
     }
 
