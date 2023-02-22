@@ -31,14 +31,20 @@ export class WallClock implements GameObject {
         this.dialHours = this._createDial(-0.02, 0.08, 0.004);
 
         this.group.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
+
+        this.updateTime(true);
     }
 
     tick(_dt: number) {
+        this.updateTime();
+    }
+
+    updateTime(force = false) {
         const now = this.date;
         const lastSeconds = now.getSeconds();
         now.setTime(Date.now());
         const s = now.getSeconds();
-        if (s !== lastSeconds) {
+        if ((s !== lastSeconds) || force) {
             const m = now.getMinutes();
             this.dialSeconds.rotation.z = -s * Math.PI / 30;
             this.dialMinutes.rotation.z = -(s / 60 + m) * Math.PI / 30;
