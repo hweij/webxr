@@ -13,10 +13,12 @@ import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
 import { GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
+import { Radio } from './objects/radio';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
+
 /**
  * Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting.
  * Note: in addition, we can use layers to prevent raytracing hits. This has been disabled for now since it needs to bedeon
@@ -169,6 +171,9 @@ function initScene() {
   avatar.add(camera);
   scene.add(avatar);
 
+  // TEST TEST: audio
+  let radio: Radio;
+
   /** Animated lava texture */
   // const waveTexture = addGameObject(new WaveTexture(64, 64));
 
@@ -244,6 +249,16 @@ function initScene() {
     const vrButton = VRButton.createButton(renderer);
     vrButton.addEventListener('click', () => vrEnabled = true);
     document.body.appendChild(vrButton);
+
+    const play = document.createElement("button");
+    play.innerText = "Play";
+    play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
+    play.onclick = () => {
+      if (!radio) {
+        radio = new Radio(scene, camera);
+      }
+    };
+    document.body.appendChild(play);
   }
 }
 

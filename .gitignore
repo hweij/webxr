@@ -25,3 +25,6 @@ dist-ssr
 
 # Lock files
 .~lock*
+
+# Resources, not for github
+public/music
