@@ -180,7 +180,8 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  office.setParent(physicalWorld);
+  physicalWorld.add(office.mesh);
+  office.mesh.position.set(0, 0.01, 0);
   addGameObject(office);
 
   debugPanel = new DebugPanel(camera, 256, 256);
@@ -224,7 +225,7 @@ function initScene() {
       instancepos[offs + 1] = y + 0.01;
       instancepos[offs + 2] = rpos.z;
     }
-    snow.setTargetPositions(instancepos);  
+    snow.setTargetPositions(instancepos);
   }
 
   renderer = new THREE.WebGLRenderer({ antialias: true });

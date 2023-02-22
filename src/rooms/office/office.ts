@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three';
+import { Vector3 } from 'three';
 
 import { GameObject } from "../../game_object";
 import { WallClock } from '../../objects/wall_clock';
@@ -13,7 +13,7 @@ const HEIGHT = 2.4;
 /** Outside wall default material */
 const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc, side: THREE.FrontSide });
 /** Inside wall, default material */
-const matInside = new THREE.MeshLambertMaterial({ color: 0xeeddcc, side: THREE.FrontSide });
+const matInside = new THREE.MeshLambertMaterial({ color: 0xdddddd, side: THREE.FrontSide });
 
 export class Office implements GameObject {
     group = new THREE.Group;
@@ -32,10 +32,6 @@ export class Office implements GameObject {
 
     tick(_dt: number) {
         this.clock.tick(_dt);
-    }
-
-    setParent(p: THREE.Group | THREE.Scene) {
-        p.add(this.group);
     }
 
     _createWalls() {
@@ -80,9 +76,13 @@ export class Office implements GameObject {
             0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
             [],
             matOutside, matInside,
-            new Vector3(-WIDTH / 2, 0.01, -DEPTH / 2),
+            new Vector3(-WIDTH / 2, 0.00, -DEPTH / 2),
             new Vector3(90, 0, 0));
         this.group.add(floor);
+    }
+
+    get mesh() {
+        return this.group;
     }
 
     // textureTest() {
