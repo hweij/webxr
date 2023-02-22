@@ -53,6 +53,9 @@ geometry.setAttribute('position', new THREE.Float32BufferAttribute(flakeGeometry
 geometry.setAttribute('uv', new THREE.Float32BufferAttribute(flakeGeometryUV, 2));
 
 const mesh = new THREE.Mesh(geometry, snowMaterial);
+// Make visible, but not to ray caster by changing layers
+// mesh.layers.disable(0);
+// mesh.layers.enable(3);
 
 // Culling for instanced mesh culls all or none (not per instance), so we disable it.
 mesh.frustumCulled = false;

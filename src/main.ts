@@ -17,7 +17,11 @@ import { Office } from './rooms/office/office';
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
 let scene: Scene;
-/** Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting. */
+/**
+ * Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting.
+ * Note: in addition, we can use layers to prevent raytracing hits. This has been disabled for now since it needs to bedeon
+ * in a clean way.
+ */
 let physicalWorld: Group;
 let renderer: WebGLRenderer;
 
@@ -157,6 +161,8 @@ function initScene() {
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   // Initialize at 1.8m height (only for non-VR)
   camera.position.set(0, 1.8, 1);
+  // Layer 3 is used for objects that should be visible, but not raycasted
+  // camera.layers.enable(3);
 
   /** Avatar, for VR use */
   avatar = new THREE.Group();
@@ -249,12 +255,16 @@ function render(time: number, frame: XRFrame) {
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
         `direction: ${dir.x.toFixed(1)}, ${dir.y.toFixed(1)}, ${dir.z.toFixed(1)}`
       ]);
+
+      // Layer hack: enable layer three in the webxr cameras
+      // checkVrCameraLayers(3);
     }
 
     tick(dt);
 
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
   }
+
   _lastTime = time;
 
   if (!vrEnabled) {
@@ -275,3 +285,19 @@ function createFloor(tex: THREE.Texture) {
   floor.position.y = 0;
   return floor;
 }
+
+// function checkVrCameraLayers(layer: number) {
+//   // Layer hack
+//   const xr = renderer.xr;
+//   const cams = xr.getCamera();
+//   if (!cams.layers.isEnabled(layer)) {
+//     if (cams.cameras.length) {
+//       // configure main xr camera
+//       cams.layers.enable(layer);
+//       // configure left eye camera
+//       cams.cameras[0].layers.enable(layer);
+//       // configure right eye camera
+//       cams.cameras[1].layers.enable(layer)
+//     }  
+//   }
+// }
