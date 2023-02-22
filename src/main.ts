@@ -202,6 +202,10 @@ function initScene() {
   snow.setParent(scene);
   // Set snow targets by using raycasting to the ground
   {
+    
+    // Update matrix for ray tracing to work correctly
+    physicalWorld.updateMatrixWorld();
+
     const instancepos = new Float32Array(NUM_FLAKES * 3);
     const rc = new Raycaster();
     rc.near = 0.1;

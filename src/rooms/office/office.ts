@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Vector3 } from 'three';
+import { MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three';
 
 import { GameObject } from "../../game_object";
 import { WallClock } from '../../objects/wall_clock';
@@ -68,19 +68,21 @@ export class Office implements GameObject {
             new Vector3(WIDTH / 2, 0, DEPTH / 2),
             new Vector3(0, 90, 0)));
         // Roof
-        this.group.add(createWall([
+        const roof = createWall([
             0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
             [],
             matOutside, matInside,
             new Vector3(-WIDTH / 2, HEIGHT, DEPTH / 2),
-            new Vector3(-90, 0, 0)));
+            new Vector3(-90, 0, 0));
+        this.group.add(roof);
         // Floor
-        this.group.add(createWall([
+        const floor = createWall([
             0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
             [],
             matOutside, matInside,
-            new Vector3(-WIDTH / 2, 0.31, -DEPTH / 2),
-            new Vector3(90, 0, 0)));
+            new Vector3(-WIDTH / 2, 0.01, -DEPTH / 2),
+            new Vector3(90, 0, 0));
+        this.group.add(floor);
     }
 
     // textureTest() {
