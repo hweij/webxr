@@ -21,7 +21,8 @@ export class Office implements GameObject {
 
     constructor() {
         const desk = new Desk();
-        desk.setParent(this.group);
+        desk.mesh.position.set(1.5, 0, -0.9);
+        this.group.add(desk.mesh);
 
         this.clock = new WallClock();
         this.clock.mesh.position.set(1, 2, -1.99);

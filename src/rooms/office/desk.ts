@@ -37,10 +37,10 @@ export class Desk implements GameObject {
 
     }
 
-    setParent(p: THREE.Group) {
-        p.add(this.group);
+    get mesh() {
+        return this.group;
     }
-
+    
     _addLeg(x: number, y: number) {
         const mesh = new THREE.Mesh(legGeo, legMaterial);
         mesh.position.x = x;
