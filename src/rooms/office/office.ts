@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 
 import { GameObject } from "../../game_object";
+import { PatientMonitor } from '../../objects/patient_monitor';
 import { WallClock } from '../../objects/wall_clock';
 import { createWall } from '../util';
 import { Desk } from './desk';
@@ -18,6 +19,7 @@ const matInside = new THREE.MeshLambertMaterial({ color: 0xdddddd, side: THREE.F
 export class Office implements GameObject {
     group = new THREE.Group;
     clock: WallClock;
+    patientMonitor: PatientMonitor;
 
     constructor() {
         const desk = new Desk();
@@ -27,6 +29,10 @@ export class Office implements GameObject {
         this.clock = new WallClock();
         this.clock.mesh.position.set(1, 2, -1.99);
         this.group.add(this.clock.mesh);
+
+        this.patientMonitor = new PatientMonitor();
+        this.patientMonitor.mesh.position.set(1.6, 1.0, -0.9);
+        this.group.add(this.patientMonitor.mesh);
 
         this._createWalls();
     }
