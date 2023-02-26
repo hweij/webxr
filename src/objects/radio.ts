@@ -1,34 +1,54 @@
 import * as THREE from "three";
 import { Camera, Scene } from "three";
 
+// Some radio URLs
+// https://garfnet.org.uk/cms/tables/radio-frequencies/internet-radio-player/
+
+const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
+// Seem doesn't seem to work (CORS)
+// const soundUrl = 'https://dancewave.online/dance.mp3';
+
 export class Radio {
     constructor(scene: Scene, camera: Camera) {
         // create an AudioListener and add it to the camera
         const listener = new THREE.AudioListener();
-        camera.add( listener );
+        camera.add(listener);
 
         // create a global audio source
-        const sound = new THREE.PositionalAudio( listener );
+        const sound = new THREE.PositionalAudio(listener);
 
-        // load a sound and set it as the Audio object's buffer
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load( '/music/Laurent Garnier - Man with the Red Face.mp3', function( buffer ) {
-            sound.setBuffer( buffer );
-            sound.setRefDistance( 1 );
-            sound.setRolloffFactor(4);
-            sound.setLoop( true );
-            sound.setVolume( 0.5 );
-            sound.play();
-        });
+        this.connectViaElement(sound, soundUrl);
+
 
         // create an object for the sound to play from
-        const sphere = new THREE.SphereGeometry( 0.2, 32, 16 );
-        const material = new THREE.MeshPhongMaterial( { color: 0xff2200 } );
-        const mesh = new THREE.Mesh( sphere, material );
+        const sphere = new THREE.SphereGeometry(0.2, 32, 16);
+        const material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
+        const mesh = new THREE.Mesh(sphere, material);
         mesh.position.set(1, 1, -1);
-        scene.add( mesh );
+        scene.add(mesh);
 
         // finally add the sound to the mesh
-        mesh.add( sound );
+        mesh.add(sound);
+    }
+
+    connectViaLoader(sound: THREE.PositionalAudio) {
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load(soundUrl, function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setRefDistance(1);
+            sound.setRolloffFactor(4);
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+            sound.play();
+        });
+    }
+
+    connectViaElement(audio: THREE.PositionalAudio, url: string) {
+        const mediaElement = new Audio(url);
+        // mediaElement.crossOrigin = "anonymous";
+        mediaElement.play();
+
+        audio.setMediaElementSource(mediaElement);
     }
 }
