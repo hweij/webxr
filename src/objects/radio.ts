@@ -3,10 +3,9 @@ import { Camera, Scene } from "three";
 
 // Some radio URLs
 // https://garfnet.org.uk/cms/tables/radio-frequencies/internet-radio-player/
+const soundUrl = 'https://stream.live.vc.bbcmedia.co.uk/bbc_1xtra';
 
-const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
-// Seem doesn't seem to work (CORS)
-// const soundUrl = 'https://dancewave.online/dance.mp3';
+// const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
 
 export class Radio {
     constructor(scene: Scene, camera: Camera) {
@@ -46,6 +45,8 @@ export class Radio {
 
     connectViaElement(audio: THREE.PositionalAudio, url: string) {
         const mediaElement = new Audio(url);
+        // To allow cross-origin source
+        mediaElement.crossOrigin = "anonymous";
         // mediaElement.crossOrigin = "anonymous";
         mediaElement.play();
 
