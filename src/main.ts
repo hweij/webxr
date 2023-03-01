@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -14,6 +14,7 @@ import { GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
+import { createLandscape } from './util';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -196,6 +197,16 @@ function initScene() {
   const floor = createFloor(floorPattern.texture);
   physicalWorld.add(floor);
 
+  let landscape;
+  { // TEST TEST
+    const geo = createLandscape(10, 10, 40);
+    landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc"}));
+    landscape.rotation.x = -Math.PI/2;
+    landscape.position.set(0, 1, -1);
+    scene.add(landscape);
+    // landscape.updateMatrixWorld();
+  }
+
   { // Lighting
     scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
     const light = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -208,7 +219,7 @@ function initScene() {
   snow.setParent(scene);
   // Set snow targets by using raycasting to the ground
   {
-    
+
     // Update matrix for ray tracing to work correctly
     physicalWorld.updateMatrixWorld();
 
@@ -340,6 +351,6 @@ function createFloor(tex: THREE.Texture) {
 //       cams.cameras[0].layers.enable(layer);
 //       // configure right eye camera
 //       cams.cameras[1].layers.enable(layer)
-//     }  
+//     }
 //   }
 // }
