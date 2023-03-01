@@ -203,6 +203,9 @@ function initScene() {
     landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc"}));
     landscape.rotation.x = -Math.PI/2;
     landscape.position.set(0, 1, -1);
+    // Note: when adding this to the physical world, the calculation of the
+    // snow drop positions takes very lon (1 raycast per flake).
+    // physicalWorld.add(landscape);
     scene.add(landscape);
     // landscape.updateMatrixWorld();
   }
