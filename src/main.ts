@@ -15,6 +15,7 @@ import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
 import { createLandscape } from './util';
+import { Graph } from './objects/graph';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -197,17 +198,27 @@ function initScene() {
   const floor = createFloor(floorPattern.texture);
   physicalWorld.add(floor);
 
-  let landscape;
-  { // TEST TEST
-    const geo = createLandscape(10, 10, 40);
-    landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc"}));
-    landscape.rotation.x = -Math.PI/2;
-    landscape.position.set(0, 1, -1);
-    // Note: when adding this to the physical world, the calculation of the
-    // snow drop positions takes very lon (1 raycast per flake).
-    // physicalWorld.add(landscape);
-    scene.add(landscape);
-    // landscape.updateMatrixWorld();
+  // let landscape;
+  // { // TEST TEST
+  //   const geo = createLandscape(10, 10, 40);
+  //   landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc"}));
+  //   landscape.rotation.x = -Math.PI/2;
+  //   landscape.position.set(0, 1, -1);
+  //   // Note: when adding this to the physical world, the calculation of the
+  //   // snow drop positions takes very lon (1 raycast per flake).
+  //   // physicalWorld.add(landscape);
+  //   scene.add(landscape);
+  //   // landscape.updateMatrixWorld();
+  // }
+
+  { // Graph test
+    const graph = new Graph(0.01, 0xff0000);
+    graph.mesh.position.set(0, 1, -1.5);
+    scene.add(graph.mesh);
+
+    const graph2 = new Graph(0.01, 0x00ff00);
+    graph2.mesh.position.set(0, 1.6, -1.5);
+    scene.add(graph2.mesh);
   }
 
   { // Lighting
