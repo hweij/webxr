@@ -28,3 +28,4 @@ dist-ssr
 
 # Resources, not for github
 public/music
+local_only
