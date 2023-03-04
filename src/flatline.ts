@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, Shape, ShapeGeometry, Vector2, Vector3 } from "three";
+import { BufferAttribute, BufferGeometry, DoubleSide, Mesh, MeshBasicMaterial,Vector2 } from "three";
 
 export function getOutlinePoints(p1: Vector2, p2: Vector2, p3: Vector2, w: number) {
   const w2 = w * 0.5; // Half width
@@ -34,30 +34,13 @@ export function getOutlinePoints(p1: Vector2, p2: Vector2, p3: Vector2, w: numbe
   console.log(`c = ${c.toFixed(3)} s = ${s.toFixed(3)} ti = ${ti.toFixed(3)} pInner = (${inner.x.toFixed(3)}, ${inner.y.toFixed(3)}) pOuter = (${outer.x.toFixed(3)}, ${outer.y.toFixed(3)}), pa = (${pa.x.toFixed(3)}, ${pa.y.toFixed(3)}), pb = (${pb.x.toFixed(3)}, ${pb.y.toFixed(3)})`);
 
   return { inner, outer, pa, pb };
-  // Find the inner crossing
-  //
-  // p - n1 + v1 * t1 = p - n2 + v2 * t2
-  //
-  // v1 * t1 - n1 = v2 * t2 - n2
-  //
-  // v1x * t1 - v1y = v2x * t2 - v2y
-  // v1y * t1 + v1x = v2y * t2 + v2x
-  //
-  // v1x + v1y = (v2y - v2x) * t2 + v2x + v2y
-  //
-  // (v1x + v1y) - (v2x + v2y) = (v2y - v2x) * t2
-  //
-  // t2 = (v1x + v1y - v2x - v2y) / (v2y - v2x)
-  //
-  // vy1 + v2x * t2 - v2y + v1x = v2y * t2 + v2x
-  //
-  // t2 = ((v2x + v2y) - (v1x - v1y)) / (v2x - v2y);
 }
 
 export function createFlatLine() {
   const indices = [] as number[];
   const positions = [] as number[];
 
+  /** Test points */
   const points = [
     new Vector2(0.0, 0.0),
     new Vector2(0.1, 0.4),
