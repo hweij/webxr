@@ -11,7 +11,7 @@ export function getOutlinePoints(p1: Vector2, p2: Vector2, p3: Vector2, w: numbe
   const nav = new Vector2(av.y, -av.x);
 
   const c = v1.dot(av); // Cosine of the half angle
-  const c2 = n1.dot(nav);
+  const c2 = Math.sqrt(1 - (c * c));
   const ti = 1 / c;
   const tj = 1 / c2;
 
