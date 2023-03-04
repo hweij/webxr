@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -16,6 +16,7 @@ import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
 import { createLandscape } from './util';
 import { Graph } from './objects/graph';
+import { createFlatLine, getOutlinePoints } from './flatline';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -191,6 +192,12 @@ function initScene() {
   office.mesh.position.set(0, 0.01, 0);
   addGameObject(office);
 
+  // TEST LINES
+  getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
+  const flatLine = createFlatLine();
+  flatLine.position.set(0, 1.0, -1.5)
+  scene.add(flatLine);
+
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
 
@@ -199,27 +206,27 @@ function initScene() {
   physicalWorld.add(floor);
 
   // let landscape;
-  // { // TEST TEST
+  // { // LANDSCAPE TEST
   //   const geo = createLandscape(10, 10, 40);
-  //   landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc"}));
+  //   landscape = new Mesh(geo, new MeshLambertMaterial({color: "#ffcccc", flatShading: true }));
   //   landscape.rotation.x = -Math.PI/2;
   //   landscape.position.set(0, 1, -1);
   //   // Note: when adding this to the physical world, the calculation of the
-  //   // snow drop positions takes very lon (1 raycast per flake).
+  //   // snow drop positions takes very long (1 raycast per flake).
   //   // physicalWorld.add(landscape);
   //   scene.add(landscape);
   //   // landscape.updateMatrixWorld();
   // }
 
-  { // Graph test
-    const graph = new Graph(0.01, 0xff0000);
-    graph.mesh.position.set(0, 1, -1.5);
-    scene.add(graph.mesh);
+  // { // Graph test
+  //   const graph = new Graph(0.01, 0xff0000);
+  //   graph.mesh.position.set(0, 1, -1.5);
+  //   scene.add(graph.mesh);
 
-    const graph2 = new Graph(0.01, 0x00ff00);
-    graph2.mesh.position.set(0, 1.6, -1.5);
-    scene.add(graph2.mesh);
-  }
+  //   const graph2 = new Graph(0.01, 0x00ff00);
+  //   graph2.mesh.position.set(0, 1.6, -1.5);
+  //   scene.add(graph2.mesh);
+  // }
 
   { // Lighting
     scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
