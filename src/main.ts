@@ -55,9 +55,6 @@ var avatar: THREE.Group;
 
 var teleport: Teleport;
 
-/** Set if running in VR mode (VRButton was pressed) */
-let vrEnabled = false;
-
 init();
 animate();
 
@@ -302,7 +299,6 @@ function initScene() {
 
   { // Button to switch to VR mode
     const vrButton = VRButton.createButton(renderer);
-    vrButton.addEventListener('click', () => vrEnabled = true);
     document.body.appendChild(vrButton);
 
     const play = document.createElement("button");
@@ -352,17 +348,11 @@ function render(time: number, frame: XRFrame) {
         `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
         `direction: ${dir.x.toFixed(1)}, ${dir.y.toFixed(1)}, ${dir.z.toFixed(1)}`
       ]);
-
-      // Layer hack: enable layer three in the webxr cameras
-      // checkVrCameraLayers(3);
     }
 
     tick(dt);
 
-    if (!vrEnabled) {
-      // TEST TEST: update movement
-      movementControl.update(dt);
-    }
+    movementControl.update(dt);
 
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
   }
@@ -383,19 +373,3 @@ function createFloor(tex: THREE.Texture) {
   floor.position.y = 0;
   return floor;
 }
-
-// function checkVrCameraLayers(layer: number) {
-//   // Layer hack
-//   const xr = renderer.xr;
-//   const cams = xr.getCamera();
-//   if (!cams.layers.isEnabled(layer)) {
-//     if (cams.cameras.length) {
-//       // configure main xr camera
-//       cams.layers.enable(layer);
-//       // configure left eye camera
-//       cams.cameras[0].layers.enable(layer);
-//       // configure right eye camera
-//       cams.cameras[1].layers.enable(layer)
-//     }
-//   }
-// }
