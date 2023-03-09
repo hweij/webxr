@@ -299,6 +299,7 @@ function initScene() {
 
   { // Button to switch to VR mode
     const vrButton = VRButton.createButton(renderer);
+    vrButton.addEventListener('click', () => movementControl.enableCameraControl = false);
     document.body.appendChild(vrButton);
 
     const play = document.createElement("button");
