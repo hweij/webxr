@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { Balls } from './balls';
 import { ColorBoard } from './color_board';
@@ -18,11 +17,13 @@ import { createLandscape } from './util';
 import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { loadVitals } from './wfdb/wfdb';
+import { MovementControl } from './movement_control';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
-let controls: OrbitControls;
 let scene: Scene;
+
+let movementControl: MovementControl;
 
 /**
  * Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting.
@@ -297,9 +298,7 @@ function initScene() {
   container.appendChild(renderer.domElement);
 
   /** For non-VR control */
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 1.8, 0)
-  controls.update();
+  movementControl = new MovementControl(avatar, camera, renderer.domElement);
 
   { // Button to switch to VR mode
     const vrButton = VRButton.createButton(renderer);
@@ -360,14 +359,15 @@ function render(time: number, frame: XRFrame) {
 
     tick(dt);
 
+    if (!vrEnabled) {
+      // TEST TEST: update movement
+      movementControl.update(dt);
+    }
+
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
   }
 
   _lastTime = time;
-
-  if (!vrEnabled) {
-    controls.update();
-  }
 
   renderer.render(scene, camera);
 }
