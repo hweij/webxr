@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -16,7 +16,8 @@ import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
 import { createLandscape } from './util';
 import { Graph } from './objects/graph';
-import { createFlatLine, getOutlinePoints } from './flatline';
+import { createGraphLine } from './graphline/graphline';
+// import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
 let controls: OrbitControls;
@@ -193,10 +194,15 @@ function initScene() {
   addGameObject(office);
 
   // TEST LINES
-  getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
-  const flatLine = createFlatLine();
-  flatLine.position.set(0, 1.0, -1.5)
-  scene.add(flatLine);
+  // getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
+  // const flatLine = createFlatLine();
+  // flatLine.position.set(0, 1.0, -1.5)
+  // scene.add(flatLine);
+
+  // getGraphLinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
+  const graphLine = createGraphLine();
+  graphLine.position.set(0, 1.0, -1.5)
+  scene.add(graphLine);
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
