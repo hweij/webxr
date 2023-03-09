@@ -19,15 +19,17 @@ export class MovementControl {
     this._keyMap.set(ev.key, false);
   }
 
-  readonly _mouseDownHandler = (ev: MouseEvent) => {
+  readonly _pointerDownHandler = (ev: PointerEvent) => {
     this._keyMap.set("mouse" + ev.button, true);
+    this._domElement.setPointerCapture(ev.pointerId);
   }
 
-  readonly _mouseUpHandler = (ev: MouseEvent) => {
+  readonly _pointerUpHandler = (ev: PointerEvent) => {
     this._keyMap.set("mouse" + ev.button, false);
+    this._domElement.releasePointerCapture(ev.pointerId);
   }
 
-  readonly _mouseMoveHandler = (ev: MouseEvent) => {
+  readonly _pointerMoveHandler = (ev: PointerEvent) => {
     const maxTilt = Math.PI * 0.5 - 0.001;
     if (this.enableCameraControl) {
       if (this._keyMap.get("mouse0")) {
@@ -53,9 +55,9 @@ export class MovementControl {
 
     window.addEventListener("keydown", this._keyDownHandler);
     window.addEventListener("keyup", this._keyUpHandler);
-    this._domElement.addEventListener("mousedown", this._mouseDownHandler);
-    this._domElement.addEventListener("mouseup", this._mouseUpHandler);
-    this._domElement.addEventListener("mousemove", this._mouseMoveHandler);
+    this._domElement.addEventListener("pointerdown", this._pointerDownHandler);
+    this._domElement.addEventListener("pointerup", this._pointerUpHandler);
+    this._domElement.addEventListener("pointermove", this._pointerMoveHandler);
   }
 
   /**
@@ -64,8 +66,9 @@ export class MovementControl {
   dispose() {
     window.removeEventListener("keydown", this._keyDownHandler);
     window.removeEventListener("keyup", this._keyUpHandler);
-    this._domElement.removeEventListener("mousedown", this._mouseDownHandler);
-    this._domElement.removeEventListener("mouseup", this._mouseUpHandler);
+    this._domElement.removeEventListener("pointerdown", this._pointerDownHandler);
+    this._domElement.removeEventListener("pointerup", this._pointerUpHandler);
+    this._domElement.removeEventListener("pointermove", this._pointerMoveHandler);
   }
 
   _keyPressed(key: string) {
