@@ -44,29 +44,26 @@ function getGraphLinePoints(p: Vector2, pPrev: Vector2 | undefined, pNext: Vecto
   return { right, left };
 }
 
-export function createGraphLine() {
+export function createGraphLine(dataSet?: number[], lineWidth = 0.01, dt = 0.001, maxSamples = -1) {
   /** Test points */
   const points = [];
-  for (let i=0; i<=1000; i++) {
-    const x = i * 0.001;
-    const y = Math.sin(x * Math.PI * 10) * 0.5 + 0.5;
-    points.push(new Vector2(x, y));
+  if (!dataSet) {
+    for (let i=0; i<=1000; i++) {
+      const x = i * dt;
+      const y = Math.sin(x * Math.PI * 10) * 0.5 + 0.5;
+      points.push(new Vector2(x, y));
+    }
   }
-  // const points = [
-  //   new Vector2(0.0, 0.0),
-  //   new Vector2(0.1, 0.4),
-  //   new Vector2(0.2, 0.7),
-  //   new Vector2(0.3, 0.9),
-  //   new Vector2(0.4, 1.0),
-  //   new Vector2(0.5, 0.95),
-  //   new Vector2(0.6, 0.7),
-  //   new Vector2(0.7, 0.4),
-  //   new Vector2(0.79, 0.0),
-  //   new Vector2(0.81, 0.0),
-  //   new Vector2(0.9, 0.4),
-  //   new Vector2(1.0, 0.7),
-  //   new Vector2(1.0, 0.9),
-  // ];
+  else {
+    // Push the data set
+    const n = (maxSamples > 0) ? Math.min(dataSet.length, maxSamples) : dataSet.length;
+    for (let i=0; i<=n; i++) {
+      const x = i * dt;
+      const y = dataSet[i];
+      points.push(new Vector2(x, y));
+    }
+    console.log(`Created graph line with ${n} values`);
+  }
 
   const indices = [] as number[];
   const positions = new Float32Array(6 * points.length);
@@ -76,7 +73,7 @@ export function createGraphLine() {
   if (points.length >= 2) {
     let offset = 0;
     for (let i=0; i<points.length; i++) {
-      const p = getGraphLinePoints(points[i], points[i-1], points[i+1], 0.01);
+      const p = getGraphLinePoints(points[i], points[i-1], points[i+1], lineWidth);
       if (p) {
         positions.set([p.left.x, p.left.y, 0], offset);
         positions.set([p.right.x, p.right.y, 0], offset + 3);

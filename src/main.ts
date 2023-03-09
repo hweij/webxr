@@ -17,6 +17,7 @@ import { Radio } from './objects/radio';
 import { createLandscape } from './util';
 import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
+import { loadVitals } from './wfdb/wfdb';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
@@ -200,9 +201,26 @@ function initScene() {
   // scene.add(flatLine);
 
   // getGraphLinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
-  const graphLine = createGraphLine();
-  graphLine.position.set(0, 1.0, -1.5)
-  scene.add(graphLine);
+  {
+    // const graphLine = createGraphLine();
+    async function loadData() {
+      const vitals = await loadVitals(`/wfdb/bidmc01.hea`);
+      if (!vitals) {
+          return;
+      }
+      const { header, signals, signalMap, annotations } = vitals;
+
+      console.log(header);
+      console.log(`Converted to ${signals.length} values`);
+
+      const data = Array.from(signals[2].map(v => v * 0.2));
+      const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
+
+      graphLine.position.set(0, 1.0, -1.5)
+      scene.add(graphLine);
+    }
+    loadData();
+  }
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
