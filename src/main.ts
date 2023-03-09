@@ -211,11 +211,12 @@ function initScene() {
       console.log(header);
       console.log(`Converted to ${signals.length} values`);
 
-      const data = Array.from(signals[2].map(v => v * 0.2));
-      const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
-
-      graphLine.position.set(0, 1.0, -1.5)
-      scene.add(graphLine);
+      for (let i=0; i<signals.length; i++) {
+        const data = Array.from(signals[i].map(v => v * 0.1));
+        const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
+        graphLine.position.set(0, i * 0.3 + 0.5, -1.5)
+        scene.add(graphLine);
+      }
     }
     loadData();
   }
