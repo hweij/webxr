@@ -12,6 +12,10 @@ export class GameObject3D implements GameObject {
     _children: GameObject3D[] = [];
     _object3D: Object3D | null = null;
 
+    get object3D() {
+        return this._object3D;
+    }
+
     addChild(c: GameObject3D) {
         const cp = c._parent;
         if (cp && (cp != this)) {
