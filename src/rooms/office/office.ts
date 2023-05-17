@@ -32,8 +32,8 @@ export class Office extends GameObject3D {
         this.addChild(this.clock);
 
         this.patientMonitor = new PatientMonitor();
-        this.patientMonitor.mesh.position.set(1.6, 1.0, -0.9);
-        this._object3D.add(this.patientMonitor.mesh);
+        this.patientMonitor.object3D?.position.set(1.6, 1.0, -0.9);
+        this.addChild(this.patientMonitor);
 
         this._createWalls();
     }
