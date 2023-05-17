@@ -22,17 +22,17 @@ export class Office extends GameObject3D {
 
     constructor() {
         super();
-        this._object3D = new THREE.Group();
+        this._node = new THREE.Group();
         const desk = new Desk();
         desk.mesh.position.set(1.5, 0, -0.9);
-        this._object3D.add(desk.mesh);
+        this._node.add(desk.mesh);
 
         this.clock = new WallClock();
-        this.clock.object3D!.position.set(1, 2, -1.99);
+        this.clock.node!.position.set(1, 2, -1.99);
         this.addChild(this.clock);
 
         this.patientMonitor = new PatientMonitor();
-        this.patientMonitor.object3D?.position.set(1.6, 1.0, -0.9);
+        this.patientMonitor.node?.position.set(1.6, 1.0, -0.9);
         this.addChild(this.patientMonitor);
 
         this._createWalls();
@@ -43,7 +43,7 @@ export class Office extends GameObject3D {
     }
 
     _createWalls() {
-        const obj = this._object3D!;
+        const obj = this._node!;
         // Front
         obj.add(createWall([
             0, 0, 0, HEIGHT, WIDTH, HEIGHT, WIDTH, 0,

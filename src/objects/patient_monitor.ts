@@ -11,18 +11,18 @@ export class PatientMonitor extends GameObject3D {
 
     constructor() {
         super();
-        this._object3D = new Group();
+        this._node = new Group();
         {   // Screen
             const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
             const mat = new MeshBasicMaterial({color: '#000000'});
             this.screen = new Mesh(geo, mat);
-            this._object3D.add(this.screen);
+            this._node.add(this.screen);
         }
         {   // Casing
             const bezelGeo = createBezelGeometry(SCREEN_WIDTH + (2 * BEZEL_WIDTH), SCREEN_HEIGHT + (2 * BEZEL_WIDTH), 0.08, BEZEL_WIDTH);
             bezelGeo.translate(0, 0, -0.035);
             const bezel = new Mesh(bezelGeo, new MeshLambertMaterial({color: '#eeddcc'}));
-            this._object3D.add(bezel);
+            this._node.add(bezel);
         }
     }
 }

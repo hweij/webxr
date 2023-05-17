@@ -12,7 +12,7 @@ export class WallClock extends GameObject3D {
 
     constructor() {
         super();
-        this._object3D = new THREE.Group();
+        this._node = new THREE.Group();
         // Casing (ring)
         const ring = this._createOuterRing();
 
@@ -31,7 +31,7 @@ export class WallClock extends GameObject3D {
         this.dialMinutes = this._createDial(-0.02, 0.12, 0.004);
         this.dialHours = this._createDial(-0.02, 0.08, 0.004);
 
-        this._object3D.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
+        this._node.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
 
         this.updateTime(true);
     }

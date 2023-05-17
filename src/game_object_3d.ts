@@ -10,10 +10,11 @@ import { GameObject } from "./game_object";
 export class GameObject3D implements GameObject {
     _parent: GameObject3D | null = null;
     _children: GameObject3D[] = [];
-    _object3D: Object3D | null = null;
+    /** Internal 3D object node, MUST be set in subclass */
+    _node!: Object3D;
 
-    get object3D() {
-        return this._object3D;
+    get node() {
+        return this._node;
     }
 
     addChild(c: GameObject3D) {
@@ -25,10 +26,8 @@ export class GameObject3D implements GameObject {
         if (cp != this) {
             this._children.push(c);
             // Update three
-            if (c._object3D) {
-                this._object3D?.add(c._object3D);
-                c._object3D.userData.gameObject3D = this;
-            }
+            this._node.add(c._node);
+            c._node.userData.gameObject3D = this;
         }
     }
     removeChild(c: GameObject3D) {
@@ -36,10 +35,8 @@ export class GameObject3D implements GameObject {
             const idx = this._children.indexOf(c);
             this._children.splice(idx, 1);
             // update three
-            if (c._object3D) {
-                this._object3D?.remove(c._object3D);
-                delete c._object3D.userData.gameObject3D;
-            }
+            this._node.remove(c._node);
+            delete c._node.userData.gameObject3D;
             c._parent = null;
         }
     }
