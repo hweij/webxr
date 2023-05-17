@@ -12,19 +12,8 @@ export class GameObject3D implements GameObject {
     _children: GameObject3D[] = [];
     _object3D: Object3D | null = null;
 
-    get parent() {
-        return this._parent;
-    }
-    /** Returns a list of children. Do not modify the array directly. */
-    get children() {
-        return this._children;
-    }
-    get object3D() {
-        return this._object3D;
-    }
-
     addChild(c: GameObject3D) {
-        const cp = c.parent;
+        const cp = c._parent;
         if (cp && (cp != this)) {
             // Remove from old parent
             cp.removeChild(c);
@@ -39,7 +28,7 @@ export class GameObject3D implements GameObject {
         }
     }
     removeChild(c: GameObject3D) {
-        if (c.parent == this) {
+        if (c._parent == this) {
             const idx = this._children.indexOf(c);
             this._children.splice(idx, 1);
             // update three
