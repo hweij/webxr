@@ -188,8 +188,8 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  physicalWorld.add(office.mesh);
-  office.mesh.position.set(0, 0.01, 0);
+  physicalWorld.add(office.object3D!);
+  office.object3D!.position.set(0, 0.01, 0);
   addGameObject(office);
 
   // TEST LINES

@@ -2,16 +2,17 @@ import * as THREE from 'three';
 
 import { ExtrudeGeometry, Group, MeshBasicMaterial, MeshLambertMaterial, ShapeGeometry } from 'three';
 
-import { GameObject } from '../game_object';
+import { GameObject3D } from '../game_object_3d';
 
-export class WallClock implements GameObject {
-    group: Group = new THREE.Group();
+export class WallClock extends GameObject3D {
     dialSeconds: THREE.Mesh;
     dialMinutes: THREE.Mesh;
     dialHours: THREE.Mesh;
     date = new Date();
 
     constructor() {
+        super();
+        this._object3D = new THREE.Group();
         // Casing (ring)
         const ring = this._createOuterRing();
 
@@ -30,12 +31,12 @@ export class WallClock implements GameObject {
         this.dialMinutes = this._createDial(-0.02, 0.12, 0.004);
         this.dialHours = this._createDial(-0.02, 0.08, 0.004);
 
-        this.group.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
+        this._object3D.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
 
         this.updateTime(true);
     }
 
-    tick(_dt: number) {
+    override tick(_dt: number) {
         this.updateTime();
     }
 
@@ -110,9 +111,5 @@ export class WallClock implements GameObject {
         const mat = new MeshBasicMaterial({color: '#000000'});
         geo.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
         return new THREE.Mesh(geo, mat);
-    }
-
-    get mesh() {
-        return this.group;
     }
 }

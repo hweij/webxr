@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 
-import { GameObject } from "../../game_object";
 import { PatientMonitor } from '../../objects/patient_monitor';
 import { WallClock } from '../../objects/wall_clock';
 import { createWall } from '../util';
 import { Desk } from './desk';
+import { GameObject3D } from '../../game_object_3d';
 
 const WIDTH = 6;
 const DEPTH = 4;
@@ -16,23 +16,24 @@ const matOutside = new THREE.MeshLambertMaterial({ color: 0xcccccc, side: THREE.
 /** Inside wall, default material */
 const matInside = new THREE.MeshLambertMaterial({ color: 0xdddddd, side: THREE.FrontSide });
 
-export class Office implements GameObject {
-    group = new THREE.Group;
+export class Office extends GameObject3D {
     clock: WallClock;
     patientMonitor: PatientMonitor;
 
     constructor() {
+        super();
+        this._object3D = new THREE.Group();
         const desk = new Desk();
         desk.mesh.position.set(1.5, 0, -0.9);
-        this.group.add(desk.mesh);
+        this._object3D.add(desk.mesh);
 
         this.clock = new WallClock();
-        this.clock.mesh.position.set(1, 2, -1.99);
-        this.group.add(this.clock.mesh);
+        this.clock.object3D!.position.set(1, 2, -1.99);
+        this.addChild(this.clock);
 
         this.patientMonitor = new PatientMonitor();
         this.patientMonitor.mesh.position.set(1.6, 1.0, -0.9);
-        this.group.add(this.patientMonitor.mesh);
+        this._object3D.add(this.patientMonitor.mesh);
 
         this._createWalls();
     }
@@ -42,29 +43,30 @@ export class Office implements GameObject {
     }
 
     _createWalls() {
+        const obj = this._object3D!;
         // Front
-        this.group.add(createWall([
+        obj.add(createWall([
             0, 0, 0, HEIGHT, WIDTH, HEIGHT, WIDTH, 0,
             1.9, 0, 1.9, 2, 1, 2, 1, 0],
             [[3, 1, 4, 1, 4, 2, 3, 2]],
             matOutside, matInside,
             new Vector3(-WIDTH / 2, 0, DEPTH / 2)));
         // Back
-        this.group.add(createWall([
+        obj.add(createWall([
             0, 0, 0, HEIGHT, WIDTH, HEIGHT, WIDTH, 0],
             [[3, 1, 4, 1, 4, 2, 3, 2]],
             matOutside, matInside,
             new Vector3(WIDTH / 2, 0, -DEPTH / 2),
             new Vector3(0, 180, 0)));
         // Left
-        this.group.add(createWall([
+        obj.add(createWall([
             0, 0, 0, HEIGHT, DEPTH, HEIGHT, DEPTH, 0],
             [[1, 1, 2, 1, 2, 2, 1, 2]],
             matOutside, matInside,
             new Vector3(-WIDTH / 2, 0, -DEPTH / 2),
             new Vector3(0, -90, 0)));
         // Right
-        this.group.add(createWall([
+        obj.add(createWall([
             0, 0, 0, HEIGHT, DEPTH, HEIGHT, DEPTH, 0],
             [[1, 1, 2, 1, 2, 2, 1, 2]],
             matOutside, matInside,
@@ -77,7 +79,7 @@ export class Office implements GameObject {
             matOutside, matInside,
             new Vector3(-WIDTH / 2, HEIGHT, DEPTH / 2),
             new Vector3(-90, 0, 0));
-        this.group.add(roof);
+        obj.add(roof);
         // Floor
         const floor = createWall([
             0, 0, 0, DEPTH, WIDTH, DEPTH, WIDTH, 0],
@@ -85,11 +87,7 @@ export class Office implements GameObject {
             matOutside, matInside,
             new Vector3(-WIDTH / 2, 0.00, -DEPTH / 2),
             new Vector3(90, 0, 0));
-        this.group.add(floor);
-    }
-
-    get mesh() {
-        return this.group;
+        obj.add(floor);
     }
 
     // textureTest() {
