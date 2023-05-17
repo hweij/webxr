@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { ExtrudeGeometry, Group, MeshBasicMaterial, MeshLambertMaterial, ShapeGeometry } from 'three';
+import { ExtrudeGeometry, MeshBasicMaterial, MeshLambertMaterial, ShapeGeometry } from 'three';
 
 import { GameObject3D } from '../game_object_3d';
 

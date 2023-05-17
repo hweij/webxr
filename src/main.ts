@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 import { Balls } from './balls';
@@ -13,7 +13,6 @@ import { GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
-import { createLandscape } from './util';
 import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { loadVitals } from './wfdb/wfdb';
@@ -206,7 +205,7 @@ function initScene() {
       if (!vitals) {
           return;
       }
-      const { header, signals, signalMap, annotations } = vitals;
+      const { header, signals } = vitals;
 
       console.log(header);
       console.log(`Converted to ${signals.length} values`);
