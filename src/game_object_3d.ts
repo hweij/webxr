@@ -42,8 +42,10 @@ export class GameObject3D implements GameObject {
     }
 
     // Interface GameObject
-    tick(_dt: number) {
-        // Override this in subclass
+    tick(dt: number) {
+        for (const c of this._children) {
+            c.tick(dt);
+        }
     }
 
     /** Cleans up resources, if needed. */

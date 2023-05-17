@@ -38,10 +38,6 @@ export class Office extends GameObject3D {
         this._createWalls();
     }
 
-    tick(_dt: number) {
-        this.clock.tick(_dt);
-    }
-
     _createWalls() {
         const obj = this._node!;
         // Front
