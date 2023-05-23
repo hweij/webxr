@@ -4,9 +4,11 @@ export class WaveCanvas {
     _lineWidth: number;
     _dotImage: HTMLCanvasElement;
     _color: string;
-    // Position tracking
+    /** Last plotted x position */
     _x = 0;
+    /** Last plotted y position */
     _y = 0;
+    /** Target x to move towards (but not overshoot) */
     _xTarget = 0;
 
     constructor(canvas: HTMLCanvasElement, lineWidth = 1, color = "red") {
@@ -23,7 +25,7 @@ export class WaveCanvas {
     }
 
     putSample(dx: number, v: number) {
-        const newX =  (this._xTarget + dx) % this._canvas.width;
+        const newX = (this._xTarget + dx) % this._canvas.width;
         if (newX < this._xTarget) {
             this.moveTo(newX, v);
             this._drawDot(newX, v);
@@ -31,7 +33,7 @@ export class WaveCanvas {
         else {
             this.lineTo(newX, v);
         }
-        this._xTarget = newX;   
+        this._xTarget = newX;
     }
 
     lineTo(x: number, y: number) {
@@ -46,11 +48,11 @@ export class WaveCanvas {
             // Correct target point to prevent overshoot
             x = x - dx;
             y = y - dy;
-                while (this._x <= x) {
-                    this._x += dx;
-                    this._y += dy;
+            while (this._x <= x) {
+                this._x += dx;
+                this._y += dy;
                 this._drawDot(this._x, this._y);
-                    change = true;
+                change = true;
             }
         }
         return change;
