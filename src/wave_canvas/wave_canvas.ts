@@ -4,6 +4,7 @@ export class WaveCanvas {
     _lineWidth: number;
     _dotImage: HTMLCanvasElement;
     _color: string;
+    _pixPerSecond: number;
     /** Last plotted x position */
     _x = 0;
     /** Last plotted y position */
@@ -11,7 +12,7 @@ export class WaveCanvas {
     /** Target x to move towards (but not overshoot) */
     _xTarget = 0;
 
-    constructor(canvas: HTMLCanvasElement, lineWidth = 1, color = "red") {
+    constructor(canvas: HTMLCanvasElement, lineWidth = 1, color = "red", pixPerSecond = 40) {
         this._canvas = canvas;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -20,11 +21,13 @@ export class WaveCanvas {
         this._ctx = ctx;
         this._lineWidth = lineWidth;
         this._color = color;
+        this._pixPerSecond = pixPerSecond;
         this._dotImage = document.createElement("canvas");
         this._prepareDot();
     }
 
-    putSample(dx: number, v: number) {
+    putSample(dt: number, v: number) {
+        const dx = dt * this._pixPerSecond;
         const newX = (this._xTarget + dx) % this._canvas.width;
         if (newX < this._xTarget) {
             this.moveTo(newX, v);

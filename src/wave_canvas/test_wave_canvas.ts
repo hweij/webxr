@@ -11,25 +11,24 @@ if (canvasList && canvasList.length) {
         c.style.backgroundColor = "black";
     }
     let tLast = performance.now();
-    let xpos = 0;
+    let t = 0;
 
     const waveCanvasList: WaveCanvas[] = new Array(canvasList.length);
     for (let i=0; i<canvasList.length; i++) {
-        waveCanvasList[i] = new WaveCanvas(canvasList[i], lineWidth, colors[i % colors.length]);
-        waveCanvasList[i].moveTo(0,signalFunction(xpos, i));
+        waveCanvasList[i] = new WaveCanvas(canvasList[i], lineWidth, colors[i % colors.length], pixPerSecond);
+        waveCanvasList[i].moveTo(0,signalFunction(t, i));
     }
 
     let timer = 0;
 
     const tick = () => {
         const tNext = performance.now();
-        const dt = tNext - tLast;
+        const dt = (tNext - tLast) * 0.001;
         tLast = tNext;
-        const dx = dt / pixPerSecond;
-        xpos += dx;
+        t += dt;
         for (let i=0; i<waveCanvasList.length; i++) {
             const wc = waveCanvasList[i];
-            wc.putSample(dx, signalFunction(xpos, i)); 
+            wc.putSample(dt, signalFunction(t, i)); 
         }
         // console.log("Ex speed = " + (performance.now() - tNext).toFixed(2));
     }
@@ -37,9 +36,9 @@ if (canvasList && canvasList.length) {
     timer = window.setInterval(tick, 16);
 }
 
-function signalFunction(x: number, rowIndex: number) {
+function signalFunction(t: number, rowIndex: number) {
     const mid = canvasList[rowIndex]!.height / 2;
     const amp = mid - (lineWidth / 2)
-    const v = Math.sin(x * 0.1 + rowIndex);
+    const v = Math.sin(t + rowIndex);
     return (v * v * v) * amp + mid;
 }
