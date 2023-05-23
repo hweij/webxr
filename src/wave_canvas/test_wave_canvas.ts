@@ -8,27 +8,29 @@ const canvas = document.body.querySelector("canvas");
 if (canvas) {
     // Set black background
     canvas.style.backgroundColor = "black";
-    let t = performance.now();
+    let tAbs = performance.now();
     let x = 0;
+    let t = 0;
 
     const waveCanvas = new WaveCanvas(canvas, lineWidth, color);
-    waveCanvas.moveTo(x,signalFunction(x));
+    waveCanvas.moveTo(x,signalFunction(t));
 
     let timer = 0;
 
     const tick = () => {
         const tNext = performance.now();
-        const dt = tNext - t;
-        t = tNext;
-        x += (dt / pixPerSecond);
-        if (x < canvas.width) {
-            waveCanvas.lineTo(x, signalFunction(x));
+        const dt = tNext - tAbs;
+        tAbs = tNext;
+        const dx = dt / pixPerSecond;
+        t += dx;
+        const newX =  (x + dx) % canvas.width;
+        if (newX < x) {
+            waveCanvas.moveTo(newX, signalFunction(t));
         }
         else {
-            // Stop timer
-            window.clearInterval(timer);
-            timer = 0;
+            waveCanvas.lineTo(newX, signalFunction(t));
         }
+        x = newX;
     }
 
     timer = window.setInterval(tick, 16);
