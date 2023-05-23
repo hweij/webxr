@@ -16,7 +16,7 @@ if (canvasList && canvasList.length) {
 
     const waveCanvasList: WaveCanvas[] = new Array(canvasList.length);
     for (let i=0; i<canvasList.length; i++) {
-        waveCanvasList[i] = new WaveCanvas(canvasList[i], lineWidth, colors[i % colors.length], pixPerSecond);
+        waveCanvasList[i] = new WaveCanvas(canvasList[i], { lineWidth: lineWidth, color: colors[i % colors.length], pixPerSecond: pixPerSecond });
         waveCanvasList[i].moveTo(0,signalFunction(t, i));
     }
 

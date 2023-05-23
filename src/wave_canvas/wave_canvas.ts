@@ -1,12 +1,22 @@
+export type WaveOptions = {
+    pixPerSecond?: number;
+    lineWidth?: number;
+    gapWidth?: number;
+    color?: string;
+}
+
 export class WaveCanvas {
     _canvas: HTMLCanvasElement;
     _ctx: CanvasRenderingContext2D;
-    _lineWidth: number;
     _dotImage: HTMLCanvasElement;
-    _color: string;
+    /**Pixels per seconds, determines the horizontal speed of the graph */
     _pixPerSecond: number;
     /** Width of gap between old and new signal */
-    _gapWidth = 10;
+    _gapWidth: number;
+    /** Thickness of the graph line in pixels */
+    _lineWidth: number;
+    /** Color of the graph line */
+    _color: string;
     /** Last plotted x position */
     _x = 0;
     /** Last plotted y position */
@@ -14,16 +24,17 @@ export class WaveCanvas {
     /** Target x to move towards (but not overshoot) */
     _xTarget = 0;
 
-    constructor(canvas: HTMLCanvasElement, lineWidth = 1, color = "red", pixPerSecond = 40) {
+    constructor(canvas: HTMLCanvasElement, options: WaveOptions = {}) {
         this._canvas = canvas;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
             throw new Error('Cannot get canvas context');
         }
         this._ctx = ctx;
-        this._lineWidth = lineWidth;
-        this._color = color;
-        this._pixPerSecond = pixPerSecond;
+        this._pixPerSecond = options.pixPerSecond || 40;
+        this._gapWidth = options.gapWidth || 20;
+        this._lineWidth = options.lineWidth || 1;
+        this._color = options.color || "white";
         this._dotImage = document.createElement("canvas");
         this._prepareDot();
     }
