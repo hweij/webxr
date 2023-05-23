@@ -5,6 +5,8 @@ export class WaveCanvas {
     _dotImage: HTMLCanvasElement;
     _color: string;
     _pixPerSecond: number;
+    /** Width of gap between old and new signal */
+    _gapWidth = 10;
     /** Last plotted x position */
     _x = 0;
     /** Last plotted y position */
@@ -27,6 +29,7 @@ export class WaveCanvas {
     }
 
     putSample(dt: number, v: number) {
+        const clearFrom = Math.floor(this._x + this._gapWidth);
         const dx = dt * this._pixPerSecond;
         const newX = (this._xTarget + dx) % this._canvas.width;
         if (newX < this._xTarget) {
@@ -37,6 +40,31 @@ export class WaveCanvas {
             this.lineTo(newX, v);
         }
         this._xTarget = newX;
+        const clearTo = Math.floor(this._x + this._gapWidth);
+        if (clearTo !== clearFrom) {
+            if (clearTo <= this._canvas.width) {
+                if (clearFrom < clearTo) {
+                    // Simple case
+                    this._ctx.clearRect(clearFrom, 0, clearTo - clearFrom, this._canvas.height);
+                }
+                else {
+                    // Next clear has wrapped
+                    this._ctx.clearRect(0, 0, clearTo, this._canvas.height);
+                }
+            }
+            else {
+                // Clear-to at the right of the graph
+                // Right side clear
+                const wr = this._canvas.width - clearFrom;
+                if (wr > 0) {
+                    this._ctx.clearRect(clearFrom, 0, wr, this._canvas.height);
+                }
+                const wl = clearTo - this._canvas.width;
+                if (wl > 0) {
+                    this._ctx.clearRect(0, 0, wl, this._canvas.height);
+                }
+            }    
+        }
     }
 
     lineTo(x: number, y: number) {
@@ -62,6 +90,7 @@ export class WaveCanvas {
     }
 
     moveTo(x: number, y: number) {
+        this._xTarget = x;
         this._x = x;
         this._y = y;
     }
