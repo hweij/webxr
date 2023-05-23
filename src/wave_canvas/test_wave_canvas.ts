@@ -1,19 +1,26 @@
 import { WaveCanvas } from "./wave_canvas";
 
 const lineWidth = 2;
-const color = "red";
+const colors = ["red", "green", "blue", "yellow", "white", "cyan", "magenta"];
 const pixPerSecond = 25;
 
-const canvas = document.body.querySelector("canvas");
-if (canvas) {
+const canvasList = document.body.querySelectorAll("canvas");
+if (canvasList && canvasList.length) {
     // Set black background
-    canvas.style.backgroundColor = "black";
+    for (const c of canvasList) {
+        c.style.backgroundColor = "black";
+    }
     let tAbs = performance.now();
-    let x = 0;
+    let x: number[];
     let t = 0;
 
-    const waveCanvas = new WaveCanvas(canvas, lineWidth, color);
-    waveCanvas.moveTo(x,signalFunction(t));
+    const waveCanvasList: WaveCanvas[] = new Array(canvasList.length);
+    x = new Array(canvasList.length);
+    for (let i=0; i<canvasList.length; i++) {
+        x[i] = 0;
+        waveCanvasList[i] = new WaveCanvas(canvasList[i], lineWidth, colors[i % colors.length]);
+        waveCanvasList[i].moveTo(x[i],signalFunction(t, i));
+    }
 
     let timer = 0;
 
@@ -23,22 +30,26 @@ if (canvas) {
         tAbs = tNext;
         const dx = dt / pixPerSecond;
         t += dx;
-        const newX =  (x + dx) % canvas.width;
-        if (newX < x) {
-            waveCanvas.moveTo(newX, signalFunction(t));
+        for (let i=0; i<waveCanvasList.length; i++) {
+            const xi = x[i];
+            const newX =  (xi + dx) % canvasList[i].width;
+            if (newX < xi) {
+                waveCanvasList[i].moveTo(newX, signalFunction(t, i));
+            }
+            else {
+                waveCanvasList[i].lineTo(newX, signalFunction(t, i));
+            }
+            x[i] = newX;    
         }
-        else {
-            waveCanvas.lineTo(newX, signalFunction(t));
-        }
-        x = newX;
+        // console.log("Ex speed = " + (performance.now() - tNext).toFixed(2));
     }
 
     timer = window.setInterval(tick, 16);
 }
 
-function signalFunction(x: number) {
-    const mid = canvas!.height / 2;
+function signalFunction(x: number, rowIndex: number) {
+    const mid = canvasList[rowIndex]!.height / 2;
     const amp = mid - (lineWidth / 2)
-    const v = Math.sin(x * 0.1);
+    const v = Math.sin(x * 0.1 + rowIndex);
     return (v * v * v) * amp + mid;
 }
