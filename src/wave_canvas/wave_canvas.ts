@@ -18,6 +18,7 @@ export class WaveCanvas {
     lineTo(x: number, y: number) {
         let dx = x - this._x;
         let dy = y - this._y;
+        let change = false;
         if (dx > 0) {
             // Normalize to length = 1
             const len = Math.sqrt((dx * dx) + (dy * dy));
@@ -31,10 +32,12 @@ export class WaveCanvas {
                 while (this._x <= x) {
                     this._x += dx;
                     this._y += dy;
-                    this._drawDot(ctx, this._x, this._y)
+                    this._drawDot(ctx, this._x, this._y);
+                    change = true;
                 }
             }
         }
+        return change;
     }
 
     moveTo(x: number, y: number) {
