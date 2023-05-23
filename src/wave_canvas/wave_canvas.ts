@@ -1,18 +1,37 @@
 export class WaveCanvas {
     _canvas: HTMLCanvasElement;
+    _ctx: CanvasRenderingContext2D;
     _lineWidth: number;
     _dotImage: HTMLCanvasElement;
     _color: string;
     // Position tracking
     _x = 0;
     _y = 0;
+    _xTarget = 0;
 
     constructor(canvas: HTMLCanvasElement, lineWidth = 1, color = "red") {
         this._canvas = canvas;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            throw new Error('Cannot get canvas context');
+        }
+        this._ctx = ctx;
         this._lineWidth = lineWidth;
         this._color = color;
         this._dotImage = document.createElement("canvas");
         this._prepareDot();
+    }
+
+    putSample(dx: number, v: number) {
+        const newX =  (this._xTarget + dx) % this._canvas.width;
+        if (newX < this._xTarget) {
+            this.moveTo(newX, v);
+            this._drawDot(newX, v);
+        }
+        else {
+            this.lineTo(newX, v);
+        }
+        this._xTarget = newX;   
     }
 
     lineTo(x: number, y: number) {
@@ -27,14 +46,11 @@ export class WaveCanvas {
             // Correct target point to prevent overshoot
             x = x - dx;
             y = y - dy;
-            const ctx = this._canvas.getContext("2d");
-            if (ctx) {
                 while (this._x <= x) {
                     this._x += dx;
                     this._y += dy;
-                    this._drawDot(ctx, this._x, this._y);
+                this._drawDot(this._x, this._y);
                     change = true;
-                }
             }
         }
         return change;
@@ -59,8 +75,8 @@ export class WaveCanvas {
         }
     }
 
-    _drawDot(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    _drawDot(x: number, y: number) {
         const r = this._lineWidth * 0.5;
-        ctx.drawImage(this._dotImage, x - r, y - r);
+        this._ctx.drawImage(this._dotImage, x - r, y - r);
     }
 }

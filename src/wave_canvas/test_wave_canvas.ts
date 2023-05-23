@@ -11,15 +11,12 @@ if (canvasList && canvasList.length) {
         c.style.backgroundColor = "black";
     }
     let tAbs = performance.now();
-    let x: number[];
     let t = 0;
 
     const waveCanvasList: WaveCanvas[] = new Array(canvasList.length);
-    x = new Array(canvasList.length);
     for (let i=0; i<canvasList.length; i++) {
-        x[i] = 0;
         waveCanvasList[i] = new WaveCanvas(canvasList[i], lineWidth, colors[i % colors.length]);
-        waveCanvasList[i].moveTo(x[i],signalFunction(t, i));
+        waveCanvasList[i].moveTo(0,signalFunction(t, i));
     }
 
     let timer = 0;
@@ -31,15 +28,8 @@ if (canvasList && canvasList.length) {
         const dx = dt / pixPerSecond;
         t += dx;
         for (let i=0; i<waveCanvasList.length; i++) {
-            const xi = x[i];
-            const newX =  (xi + dx) % canvasList[i].width;
-            if (newX < xi) {
-                waveCanvasList[i].moveTo(newX, signalFunction(t, i));
-            }
-            else {
-                waveCanvasList[i].lineTo(newX, signalFunction(t, i));
-            }
-            x[i] = newX;    
+            const wc = waveCanvasList[i];
+            wc.putSample(dx, signalFunction(t, i)); 
         }
         // console.log("Ex speed = " + (performance.now() - tNext).toFixed(2));
     }
