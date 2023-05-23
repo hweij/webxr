@@ -6,6 +6,8 @@ const pixPerSecond = 25;
 
 const canvas = document.body.querySelector("canvas");
 if (canvas) {
+    // Set black background
+    canvas.style.backgroundColor = "black";
     let t = performance.now();
     let x = 0;
 
