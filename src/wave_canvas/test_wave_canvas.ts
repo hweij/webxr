@@ -1,11 +1,15 @@
 import { WaveCanvas } from "./wave_canvas";
 
+const lineWidth = 2;
+const color = "red";
+const pixPerSecond = 25;
+
 const canvas = document.body.querySelector("canvas");
 if (canvas) {
     let t = performance.now();
     let x = 0;
 
-    const waveCanvas = new WaveCanvas(canvas, 2, "red");
+    const waveCanvas = new WaveCanvas(canvas, lineWidth, color);
     waveCanvas.moveTo(x,signalFunction(x));
 
     let timer = 0;
@@ -14,7 +18,7 @@ if (canvas) {
         const tNext = performance.now();
         const dt = tNext - t;
         t = tNext;
-        x += (dt * 0.04);
+        x += (dt / pixPerSecond);
         if (x < canvas.width) {
             waveCanvas.lineTo(x, signalFunction(x));
         }
@@ -29,6 +33,8 @@ if (canvas) {
 }
 
 function signalFunction(x: number) {
+    const mid = canvas!.height / 2;
+    const amp = mid - (lineWidth / 2)
     const v = Math.sin(x * 0.1);
-    return (v * v * v) * 50 + 55;
+    return (v * v * v) * amp + mid;
 }
