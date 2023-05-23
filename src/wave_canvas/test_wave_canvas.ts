@@ -2,8 +2,9 @@ import { WaveCanvas } from "./wave_canvas";
 
 const lineWidth = 2;
 const colors = ["red", "green", "blue", "yellow", "white", "cyan", "magenta"];
-const pixPerSecond = 25;
+const pixPerSecond = 40;
 
+// Find all canvasses and use them to display a wave
 const canvasList = document.body.querySelectorAll("canvas");
 if (canvasList && canvasList.length) {
     // Set black background
@@ -39,6 +40,6 @@ if (canvasList && canvasList.length) {
 function signalFunction(t: number, rowIndex: number) {
     const mid = canvasList[rowIndex]!.height / 2;
     const amp = mid - (lineWidth / 2)
-    const v = Math.sin(t + rowIndex);
+    const v = Math.sin(t * 2 + rowIndex);
     return (v * v * v) * amp + mid;
 }
