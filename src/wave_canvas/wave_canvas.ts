@@ -1,10 +1,12 @@
 export type WaveOptions = {
+    offsetX?: number;
+    offsetY?: number;
+    width?: number;
+    height?: number;
     pixPerSecond?: number;
     lineWidth?: number;
     gapWidth?: number;
     color?: string;
-    canvasWidth?: number;
-    canvasHeight?: number;
 }
 
 // Maximimum valid time delta
@@ -31,21 +33,16 @@ export class WaveCanvas {
     /** Target x to move towards. We interpolate up to this point with _x and _y but never pass it. */
     _xTarget = 0;
 
+    _offsetX: number;
+    _offsetY: number;
+    _width: number;
+    _height: number;
+
     /**
      * @param canvas Optional canvas. If none specified, a new canvas will be created.
      * @param options Wave options
      */
-    constructor(canvas: HTMLCanvasElement | null = null, options: WaveOptions = {}) {
-        if (!canvas) {
-            // Create a new canvas element if none specified
-            canvas = document.createElement("canvas");
-            if (options.canvasWidth) {
-                canvas.width = options.canvasWidth;
-            }
-            if (options.canvasHeight) {
-                canvas.height = options.canvasHeight;
-            }
-        }
+    constructor(canvas: HTMLCanvasElement, options: WaveOptions = {}) {
         this._canvas = canvas;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -56,6 +53,10 @@ export class WaveCanvas {
         this._gapWidth = options.gapWidth || 20;
         this._lineWidth = options.lineWidth || 1;
         this._color = options.color || "white";
+        this._offsetX = options.offsetX || 0;
+        this._offsetY = options.offsetY || 0;
+        this._width = options.width || canvas.width;
+        this._height = options.height || canvas.height;
         this._dotImage = document.createElement("canvas");
         this._prepareDot();
     }
@@ -70,6 +71,13 @@ export class WaveCanvas {
      * @param v Value at given time
      */
     putSample(t: number, v: number) {
+        this._ctx.save();
+
+        // Clip area to prevent outside of the dedicated box
+        this._ctx.beginPath();
+        this._ctx.rect(this._offsetX, this._offsetY, this._width, this._height);
+        this._ctx.clip();
+
         let changed = false;
         let dt = t - this._t;
         this._t = t;
@@ -77,12 +85,12 @@ export class WaveCanvas {
             dt = 0;
         }
         const dx = dt * this._pixPerSecond;
-        const newX = (this._xTarget + dx) % this._canvas.width;
+        const newX = (this._xTarget + dx) % this._width;
 
         const clearFrom = Math.floor(this._x + this._gapWidth);
         if (newX < this._xTarget) {
             this.moveTo(newX, v);
-            this._drawDot(newX, v);
+            this._drawDot(this._offsetX + newX, this._offsetY + v);
             changed = true;
         }
         else {
@@ -91,29 +99,30 @@ export class WaveCanvas {
         this._xTarget = newX;
         const clearTo = Math.floor(this._x + this._gapWidth);
         if (clearTo !== clearFrom) {
-            if (clearTo <= this._canvas.width) {
+            if (clearTo <= this._width) {
                 if (clearFrom < clearTo) {
                     // Simple case
-                    this._ctx.clearRect(clearFrom, 0, clearTo - clearFrom, this._canvas.height);
+                    this._ctx.clearRect(this._offsetX + clearFrom, this._offsetY, clearTo - clearFrom, this._height);
                 }
                 else {
                     // Next clear has wrapped
-                    this._ctx.clearRect(0, 0, clearTo, this._canvas.height);
+                    this._ctx.clearRect(this._offsetX, this._offsetY, clearTo, this._height);
                 }
             }
             else {
                 // Clear-to at the right of the graph
                 // Right side clear
-                const wr = this._canvas.width - clearFrom;
+                const wr = this._width - clearFrom;
                 if (wr > 0) {
-                    this._ctx.clearRect(clearFrom, 0, wr, this._canvas.height);
+                    this._ctx.clearRect(this._offsetX + clearFrom, this._offsetY, wr, this._height);
                 }
-                const wl = clearTo - this._canvas.width;
+                const wl = clearTo - this._width;
                 if (wl > 0) {
-                    this._ctx.clearRect(0, 0, wl, this._canvas.height);
+                    this._ctx.clearRect(this._offsetX, this._offsetY, wl, this._height);
                 }
             }
         }
+        this._ctx.restore();
         return changed;
     }
 
@@ -138,7 +147,7 @@ export class WaveCanvas {
             while (this._x <= x) {
                 this._x += dx;
                 this._y += dy;
-                this._drawDot(this._x, this._y);
+                this._drawDot(this._offsetX + this._x, this._offsetY + this._y);
                 change = true;
             }
         }
