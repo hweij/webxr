@@ -3,6 +3,8 @@ export type WaveOptions = {
     lineWidth?: number;
     gapWidth?: number;
     color?: string;
+    canvasWidth?: number;
+    canvasHeight?: number;
 }
 
 // Maximimum valid time delta
@@ -37,6 +39,12 @@ export class WaveCanvas {
         if (!canvas) {
             // Create a new canvas element if none specified
             canvas = document.createElement("canvas");
+            if (options.canvasWidth) {
+                canvas.width = options.canvasWidth;
+            }
+            if (options.canvasHeight) {
+                canvas.height = options.canvasHeight;
+            }
         }
         this._canvas = canvas;
         const ctx = canvas.getContext("2d");
@@ -52,12 +60,17 @@ export class WaveCanvas {
         this._prepareDot();
     }
 
+    get canvas() {
+        return this._canvas;
+    }
+
     /**
      *
      * @param dt Time delta in seconds
      * @param v Value at given time
      */
     putSample(t: number, v: number) {
+        let changed = false;
         let dt = t - this._t;
         this._t = t;
         if (dt > MAX_DELTA) {
@@ -70,9 +83,10 @@ export class WaveCanvas {
         if (newX < this._xTarget) {
             this.moveTo(newX, v);
             this._drawDot(newX, v);
+            changed = true;
         }
         else {
-            this._lineTo(newX, v);
+            changed = this._lineTo(newX, v);
         }
         this._xTarget = newX;
         const clearTo = Math.floor(this._x + this._gapWidth);
@@ -100,6 +114,7 @@ export class WaveCanvas {
                 }
             }
         }
+        return changed;
     }
 
     moveTo(x: number, y: number) {
