@@ -12,21 +12,17 @@ if (canvasList && canvasList.length) {
         c.style.backgroundColor = "black";
     }
     let tLast = performance.now();
-    let t = 0;
 
     const waveCanvasList: WaveCanvas[] = new Array(canvasList.length);
     for (let i=0; i<canvasList.length; i++) {
         waveCanvasList[i] = new WaveCanvas(canvasList[i], { lineWidth: lineWidth, color: colors[i % colors.length], pixPerSecond: pixPerSecond });
-        waveCanvasList[i].moveTo(0,signalFunction(t, i));
+        waveCanvasList[i].moveTo(0,signalFunction(0, i));
     }
 
     let timer = 0;
 
     const tick = () => {
-        const tNext = performance.now();
-        const dt = (tNext - tLast) * 0.001;
-        tLast = tNext;
-        t += dt;
+        const t = (performance.now() - tLast) * 0.001;
         for (let i=0; i<waveCanvasList.length; i++) {
             const wc = waveCanvasList[i];
             wc.putSample(t, signalFunction(t, i));
