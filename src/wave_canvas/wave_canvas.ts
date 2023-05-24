@@ -5,6 +5,9 @@ export type WaveOptions = {
     color?: string;
 }
 
+// Maximimum valid time delta
+const MAX_DELTA = 1.0;
+
 export class WaveCanvas {
     _canvas: HTMLCanvasElement;
     _ctx: CanvasRenderingContext2D;
@@ -17,14 +20,24 @@ export class WaveCanvas {
     _lineWidth: number;
     /** Color of the graph line */
     _color: string;
+    /** Last sample time */
+    _t = 0
     /** Last plotted x position */
     _x = 0;
     /** Last plotted y position */
     _y = 0;
-    /** Target x to move towards (but not overshoot) */
+    /** Target x to move towards. We interpolate up to this point with _x and _y but never pass it. */
     _xTarget = 0;
 
-    constructor(canvas: HTMLCanvasElement, options: WaveOptions = {}) {
+    /**
+     * @param canvas Optional canvas. If none specified, a new canvas will be created.
+     * @param options Wave options
+     */
+    constructor(canvas: HTMLCanvasElement | null = null, options: WaveOptions = {}) {
+        if (!canvas) {
+            // Create a new canvas element if none specified
+            canvas = document.createElement("canvas");
+        }
         this._canvas = canvas;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -39,16 +52,27 @@ export class WaveCanvas {
         this._prepareDot();
     }
 
-    putSample(dt: number, v: number) {
-        const clearFrom = Math.floor(this._x + this._gapWidth);
+    /**
+     *
+     * @param dt Time delta in seconds
+     * @param v Value at given time
+     */
+    putSample(t: number, v: number) {
+        let dt = t - this._t;
+        this._t = t;
+        if (dt > MAX_DELTA) {
+            dt = 0;
+        }
         const dx = dt * this._pixPerSecond;
         const newX = (this._xTarget + dx) % this._canvas.width;
+
+        const clearFrom = Math.floor(this._x + this._gapWidth);
         if (newX < this._xTarget) {
             this.moveTo(newX, v);
             this._drawDot(newX, v);
         }
         else {
-            this.lineTo(newX, v);
+            this._lineTo(newX, v);
         }
         this._xTarget = newX;
         const clearTo = Math.floor(this._x + this._gapWidth);
@@ -74,11 +98,17 @@ export class WaveCanvas {
                 if (wl > 0) {
                     this._ctx.clearRect(0, 0, wl, this._canvas.height);
                 }
-            }    
+            }
         }
     }
 
-    lineTo(x: number, y: number) {
+    moveTo(x: number, y: number) {
+        this._xTarget = x;
+        this._x = x;
+        this._y = y;
+    }
+
+    _lineTo(x: number, y: number) {
         let dx = x - this._x;
         let dy = y - this._y;
         let change = false;
@@ -98,12 +128,6 @@ export class WaveCanvas {
             }
         }
         return change;
-    }
-
-    moveTo(x: number, y: number) {
-        this._xTarget = x;
-        this._x = x;
-        this._y = y;
     }
 
     _prepareDot() {

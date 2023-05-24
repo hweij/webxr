@@ -29,7 +29,7 @@ if (canvasList && canvasList.length) {
         t += dt;
         for (let i=0; i<waveCanvasList.length; i++) {
             const wc = waveCanvasList[i];
-            wc.putSample(dt, signalFunction(t, i)); 
+            wc.putSample(t, signalFunction(t, i));
         }
         // console.log("Ex speed = " + (performance.now() - tNext).toFixed(2));
     }
