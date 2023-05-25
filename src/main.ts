@@ -309,6 +309,7 @@ function initScene() {
       if (!radio) {
         radio = new Radio(scene, camera);
       }
+      debugPanel?.setMessage('Playing radio');
     };
     document.body.appendChild(play);
   }

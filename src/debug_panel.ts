@@ -23,6 +23,7 @@ export class DebugPanel {
     const lines = (typeof msg === 'string') ? [msg] : msg;
     const ctx = this.canvas.getContext('2d');
     if (ctx) {
+      ctx.font = "10px roboto";
       ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
       ctx.fillStyle = color;
       for (let i=0; i<lines.length; i++) {
