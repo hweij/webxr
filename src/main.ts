@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 import { Balls } from './balls';
@@ -18,7 +18,6 @@ import { createGraphLine } from './graphline/graphline';
 import { loadVitals } from './wfdb/wfdb';
 import { MovementControl } from './movement_control';
 import { RaycastHelper } from './raycast_helper';
-import { GameObject3D } from './game_object_3d';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
@@ -56,7 +55,7 @@ var avatar: THREE.Group;
 
 var teleport: Teleport;
 
-var raycast: RaycastHelper = new RaycastHelper();
+var raycastHelper: RaycastHelper = new RaycastHelper();
 
 init();
 animate();
@@ -362,20 +361,8 @@ function render(time: number, frame: XRFrame) {
 
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
 
-    // TEST: find game object associated with node hit from raycast
-    const intersections = raycast.getIntersections([physicalWorld], controllerR);
-    if (intersections.length) {
-      const intersection = intersections[0];
-      let node: Object3D | null = intersection.object;
-      // Check node and parents to see if associated with a game object
-      while (node) {
-        const obj = node.userData['gameObject3D'] as GameObject3D;
-        if (obj && obj.rayHandler) {
-          obj.rayHandler();
-        }
-        node = node.parent;
-      }
-    }
+    // TEST: trigger handlers with raycast
+    raycastHelper.triggerHandlers([physicalWorld], controllerR);
   }
 
   _lastTime = time;
