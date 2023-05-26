@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Group, Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 import { Balls } from './balls';
@@ -17,6 +17,8 @@ import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { loadVitals } from './wfdb/wfdb';
 import { MovementControl } from './movement_control';
+import { Raycast } from './raycast';
+import { GameObject3D } from './game_object_3d';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
@@ -53,6 +55,8 @@ floorPattern.fill((_x, _y) => [0, Math.random() * 128 + 64, 0, 255]);
 var avatar: THREE.Group;
 
 var teleport: Teleport;
+
+var raycast: Raycast = new Raycast();
 
 init();
 animate();
@@ -357,6 +361,23 @@ function render(time: number, frame: XRFrame) {
     movementControl.update(dt);
 
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
+
+    // TEST: find game object associated with node hit from raycast
+    const intersections = raycast.getIntersections([physicalWorld], controllerR);
+    if (intersections.length) {
+      const intersection = intersections[0];
+      let node: Object3D | null = intersection.object;
+      // Check node and parents to see if associated with a game object
+      while (node) {
+        const obj = node.userData['gameObject3D'] as GameObject3D;
+        if (obj && obj.rayHandler) {
+          obj.rayHandler();
+          // Break after handling
+          break;
+        }
+        node = node.parent;
+      }
+    }
   }
 
   _lastTime = time;

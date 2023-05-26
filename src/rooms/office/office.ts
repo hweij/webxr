@@ -21,8 +21,8 @@ export class Office extends GameObject3D {
     patientMonitor: PatientMonitor;
 
     constructor() {
-        super();
-        this._node = new THREE.Group();
+        super(new THREE.Group());
+
         const desk = new Desk();
         desk.mesh.position.set(1.5, 0, -0.9);
         this._node.add(desk.mesh);

@@ -11,8 +11,8 @@ export class WallClock extends GameObject3D {
     date = new Date();
 
     constructor() {
-        super();
-        this._node = new THREE.Group();
+        super(new THREE.Group());
+
         // Casing (ring)
         const ring = this._createOuterRing();
 

@@ -13,6 +13,14 @@ export class GameObject3D implements GameObject {
     /** Internal 3D object node, MUST be set in subclass */
     _node!: Object3D;
 
+    /** Handler to run when activate by ray */
+    rayHandler?: () => void;
+
+    constructor(node: Object3D) {
+        this._node = node;
+        node.userData.gameObject3D = this;
+    }
+
     get node() {
         return this._node;
     }
@@ -27,7 +35,7 @@ export class GameObject3D implements GameObject {
             this._children.push(c);
             // Update three
             this._node.add(c._node);
-            c._node.userData.gameObject3D = this;
+            // c._node.userData.gameObject3D = this;
         }
     }
     removeChild(c: GameObject3D) {
@@ -36,7 +44,7 @@ export class GameObject3D implements GameObject {
             this._children.splice(idx, 1);
             // update three
             this._node.remove(c._node);
-            delete c._node.userData.gameObject3D;
+            // delete c._node.userData.gameObject3D;
             c._parent = null;
         }
     }

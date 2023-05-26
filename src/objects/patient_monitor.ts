@@ -16,8 +16,7 @@ export class PatientMonitor extends GameObject3D {
     _tex: Texture;
 
     constructor() {
-        super();
-        this._node = new Group();
+        super(new Group());
 
         const canvas = document.createElement("canvas");
         canvas.width = 640;
@@ -36,6 +35,7 @@ export class PatientMonitor extends GameObject3D {
             const mat = new MeshBasicMaterial({map: this._tex});
             this.screen = new Mesh(geo, mat);
             this._node.add(this.screen);
+            // this.screen.userData.gameObject3D = this;   
         }
         {   // Casing
             const bezelGeo = createBezelGeometry(SCREEN_WIDTH + (2 * BEZEL_WIDTH), SCREEN_HEIGHT + (2 * BEZEL_WIDTH), 0.08, BEZEL_WIDTH);
@@ -43,6 +43,8 @@ export class PatientMonitor extends GameObject3D {
             const bezel = new Mesh(bezelGeo, new MeshLambertMaterial({color: '#eeddcc'}));
             this._node.add(bezel);
         }
+
+        this.rayHandler = () => { this.node.position.setX(this.node.position.x + 0.01); };
     }
 
     override tick(dt: number): void {
