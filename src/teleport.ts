@@ -40,7 +40,7 @@ export class Teleport {
       rDir.multiplyScalar(-1);
       this._raycaster.set(rPos, rDir);
       const intersects = this._raycaster.intersectObjects(physicalWorld.children);
-      if (intersects?.length) {
+      if (intersects.length) {
         const intersect = intersects[0];
         if (intersect.face) {
           // This can be optimized later
