@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Object3D, Vector3 } from 'three';
 
-export class Raycast {
+export class RaycastHelper {
     // Raycaster, reused by all instances
     _rc = new THREE.Raycaster(undefined, undefined, 0.1, 10.0);
     _rPos = new Vector3();

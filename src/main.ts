@@ -17,7 +17,7 @@ import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { loadVitals } from './wfdb/wfdb';
 import { MovementControl } from './movement_control';
-import { Raycast } from './raycast';
+import { RaycastHelper } from './raycast_helper';
 import { GameObject3D } from './game_object_3d';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
@@ -56,7 +56,7 @@ var avatar: THREE.Group;
 
 var teleport: Teleport;
 
-var raycast: Raycast = new Raycast();
+var raycast: RaycastHelper = new RaycastHelper();
 
 init();
 animate();
@@ -372,8 +372,6 @@ function render(time: number, frame: XRFrame) {
         const obj = node.userData['gameObject3D'] as GameObject3D;
         if (obj && obj.rayHandler) {
           obj.rayHandler();
-          // Break after handling
-          break;
         }
         node = node.parent;
       }
