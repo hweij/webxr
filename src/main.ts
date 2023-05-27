@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { startSession } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -25,12 +25,6 @@ let scene: Scene;
 
 let movementControl: MovementControl;
 
-/**
- * Physical world contains all objects that are raycast targets. If not in this group, it will be ignored during raycasting.
- * Note: in addition, we can use layers to prevent raytracing hits. This has been disabled for now since it needs to bedeon
- * in a clean way.
- */
-let physicalWorld: Group;
 let renderer: WebGLRenderer;
 
 var controllerR: XRTargetRaySpace;
@@ -56,6 +50,7 @@ var avatar: THREE.Group;
 var teleport: Teleport;
 
 var raycastHelper: RaycastHelper = new RaycastHelper();
+var raycastTargetList: THREE.Object3D[] = [];
 
 init();
 animate();
@@ -124,9 +119,6 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x222222);
 
-  physicalWorld = new THREE.Group();
-  scene.add(physicalWorld);
-
   /** Camera */
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   // Initialize at 1.8m height (only for non-VR)
@@ -153,7 +145,8 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  physicalWorld.add(office.node!);
+  scene.add(office.node);
+  raycastTargetList.push(office.node);
   office.node!.position.set(0, 0.01, 0);
   addGameObject(office);
 
@@ -191,7 +184,8 @@ function initScene() {
 
   /** Floor with a pattern */
   const floor = createFloor(floorPattern.texture);
-  physicalWorld.add(floor);
+  scene.add(floor);
+  raycastTargetList.push(floor);
 
   // let landscape;
   // { // LANDSCAPE TEST
@@ -228,10 +222,6 @@ function initScene() {
   snow.setParent(scene);
   // Set snow targets by using raycasting to the ground
   {
-
-    // Update matrix for ray tracing to work correctly
-    physicalWorld.updateMatrixWorld();
-
     const instancepos = new Float32Array(NUM_FLAKES * 3);
     const rc = new Raycaster();
     rc.near = 0.1;
@@ -240,7 +230,7 @@ function initScene() {
     for (let i=0; i< NUM_FLAKES; i++) {
       const rpos = new Vector3(Math.random() * 10 - 5, 10, Math.random() * 10 - 5);
       rc.set(rpos, rdir);
-      const intersects = rc.intersectObjects(physicalWorld.children);
+      const intersects = rc.intersectObjects(raycastTargetList);
       let y = 0;
       if (intersects.length) {
         y = intersects[0].point.y;
@@ -330,10 +320,10 @@ function render(time: number, frame: XRFrame) {
 
     movementControl.update(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, physicalWorld, controllerR);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, controllerR);
 
     // TEST: trigger handlers with raycast
-    raycastHelper.triggerHandlers([physicalWorld], controllerR);
+    raycastHelper.triggerHandlers(raycastTargetList, controllerR);
   }
 
   _lastTime = time;
