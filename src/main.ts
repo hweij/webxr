@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
 import { startSession } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -110,6 +110,13 @@ function init() {
   window.addEventListener('resize', onWindowResize);
 }
 
+function addToScene(obj: Object3D, raycast: boolean) {
+  scene.add(obj);
+  if (raycast && (raycastTargetList.indexOf(obj) < 0)) {
+    raycastTargetList.push(obj);
+  }
+}
+
 function initScene() {
   const container = document.getElementById("webgl-container");
   if (!container) {
@@ -145,8 +152,7 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  scene.add(office.node);
-  raycastTargetList.push(office.node);
+  addToScene(office.node, true);
   office.node!.position.set(0, 0.01, 0);
   addGameObject(office);
 
@@ -184,8 +190,7 @@ function initScene() {
 
   /** Floor with a pattern */
   const floor = createFloor(floorPattern.texture);
-  scene.add(floor);
-  raycastTargetList.push(floor);
+  addToScene(floor, true);
 
   // let landscape;
   // { // LANDSCAPE TEST
