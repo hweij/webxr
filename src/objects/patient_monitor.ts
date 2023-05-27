@@ -18,14 +18,7 @@ export class PatientMonitor extends GameObject3D {
     constructor() {
         super(new Group());
 
-        const canvas = document.createElement("canvas");
-        canvas.width = 640;
-        canvas.height = 360;
-        this._tex =  new Texture(canvas);
-        this._waveCanvas = new Array(4);
-        for (let i=0; i<4; i++) {
-            this._waveCanvas[i] = new WaveCanvas(canvas, {
-                offsetX: 20, offsetY: i * 80 + 20, width: 600, height: 80,
+        ctx.font = "200 80px roboto";
                 color: colors[i % colors.length],
                 gapWidth: 20, lineWidth: 2, pixPerSecond: 40});
         }

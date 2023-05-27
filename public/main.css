@@ -112,3 +112,9 @@ select {
 	src: url(/fonts/Roboto-Bold.ttf);
 	font-weight: bold;
 }
+
+@font-face {
+	font-family: roboto;
+	src: url(/fonts/Roboto-Light.ttf);
+	font-weight: 200;
+}
