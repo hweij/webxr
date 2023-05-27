@@ -52,6 +52,9 @@ var teleport: Teleport;
 var raycastHelper: RaycastHelper = new RaycastHelper();
 var raycastTargetList: THREE.Object3D[] = [];
 
+var balls: Balls;
+var pivotMaterial: THREE.MeshStandardMaterial;
+
 init();
 animate();
 
@@ -63,7 +66,7 @@ function addGameObject<T extends GameObject>(obj: T) {
 function init() {
   initScene();
 
-  const balls = addGameObject(new Balls());
+  balls = addGameObject(new Balls());
 
   controllerR = renderer.xr.getController(0);
   controllerL = renderer.xr.getController(1);
@@ -78,25 +81,12 @@ function init() {
     geometry.rotateX(- Math.PI / 2);
     const material = new THREE.MeshStandardMaterial({ flatShading: true });
     const mesh = new THREE.Mesh(geometry, material);
-    const pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
+    pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
 
     const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
     pivot.name = 'pivot';
     pivot.position.z = -0.05;
     mesh.add(pivot);
-
-    controllerR.addEventListener('selectstart', () => {
-      const pos = new Vector3();
-      controllerR.getWorldPosition(pos);
-      const direction = new Vector3();
-      controllerR.getWorldDirection(direction);
-      balls.add(scene, pos, direction);
-    });
-    //    controllerR.addEventListener('selectstart', teleport);
-    controllerR.addEventListener('squeeze', () => {
-      const color = balls.nextColor();
-      pivotMaterial.color.set(color);
-    });
 
     avatar.add(controllerR);
     avatar.add(controllerL);
@@ -261,7 +251,30 @@ function initScene() {
   { // Button to enable VR
     const bStartSession = document.getElementById("bStartSession")!;
     bStartSession.onclick = () => {
-      startSession(renderer, () => {}, () => {});
+      startSession(
+        renderer,
+        () => {
+          const session = renderer.xr.getSession();
+          if (session) {
+            session.onselectstart = (evt: XRInputSourceEvent) => {
+              if (evt.inputSource.handedness === "right") {
+                evt.inputSource.targetRaySpace
+                const pos = new Vector3();
+                controllerR.getWorldPosition(pos);
+                const direction = new Vector3();
+                controllerR.getWorldDirection(direction);
+                balls.add(scene, pos, direction);  
+              }
+            };
+            session.onsqueezestart = (evt: XRInputSourceEvent) => {
+              if (evt.inputSource.handedness === "right") {
+                const color = balls.nextColor();
+                pivotMaterial.color.set(color);
+              }
+            }
+          }
+        },
+        () => {});
     }
     const bNoVR = document.getElementById("bNoVR")!;
     bNoVR.onclick = () => {
