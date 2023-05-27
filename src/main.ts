@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { VRButton } from './webxr/vrbutton';
 
 import { Balls } from './balls';
 import { ColorBoard } from './color_board';
@@ -70,42 +70,6 @@ function init() {
 
   const balls = addGameObject(new Balls());
 
-  function createBall() {
-    const pos = new Vector3();
-    controllerR.getWorldPosition(pos);
-    const direction = new Vector3();
-    controllerR.getWorldDirection(direction);
-    balls.add(scene, pos, direction);
-  }
-
-  function onSelectStart(evt: THREE.Event): void {
-    const target = evt.target as XRTargetRaySpace;
-    if (target) {
-      target.userData.isSelecting = true;
-    }
-  }
-
-  function onSelectEnd(evt: THREE.Event) {
-    const target = evt.target as XRTargetRaySpace;
-    if (target) {
-      target.userData.isSelecting = false;
-    }
-  }
-
-  function onSqueezeStart(evt: THREE.Event) {
-    const target = evt.target as XRTargetRaySpace;
-    if (target) {
-      target.userData.isSqueezing = true;
-    }
-  }
-
-  function onSqueezeEnd(evt: THREE.Event) {
-    const target = evt.target as XRTargetRaySpace;
-    if (target) {
-      target.userData.isSqueezing = false;
-    }
-  }
-
   controllerR = renderer.xr.getController(0);
   controllerL = renderer.xr.getController(1);
 
@@ -126,21 +90,18 @@ function init() {
     pivot.position.z = -0.05;
     mesh.add(pivot);
 
-    controllerR.addEventListener('selectstart', onSelectStart);
-    controllerR.addEventListener('selectend', onSelectEnd);
-    controllerR.addEventListener('squeezestart', onSqueezeStart);
-    controllerR.addEventListener('squeezeend', onSqueezeEnd);
-    controllerR.addEventListener('selectstart', createBall);
+    controllerR.addEventListener('selectstart', () => {
+      const pos = new Vector3();
+      controllerR.getWorldPosition(pos);
+      const direction = new Vector3();
+      controllerR.getWorldDirection(direction);
+      balls.add(scene, pos, direction);
+    });
     //    controllerR.addEventListener('selectstart', teleport);
     controllerR.addEventListener('squeeze', () => {
       const color = balls.nextColor();
       pivotMaterial.color.set(color);
     });
-
-    controllerL.addEventListener('selectstart', onSelectStart);
-    controllerL.addEventListener('selectend', onSelectEnd);
-    controllerL.addEventListener('squeezestart', onSqueezeStart);
-    controllerL.addEventListener('squeezeend', onSqueezeEnd);
 
     avatar.add(controllerR);
     avatar.add(controllerL);
