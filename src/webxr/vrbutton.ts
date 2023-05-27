@@ -1,62 +1,35 @@
 import { WebGLRenderer } from "three";
 
+let currentSession: XRSession | null = null;
+
+export async function startSession(renderer: WebGLRenderer, onStart: () => void, onEnd: () => void) {
+    function onSessionEnded() {
+        currentSession?.removeEventListener('end', onSessionEnded);
+        currentSession = null;
+        onEnd();
+    }
+
+    if (currentSession === null) {
+        if (navigator.xr) {
+            const session = await navigator.xr?.requestSession(
+                'immersive-vr',
+                { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }
+            );
+            session.addEventListener('end', onSessionEnded);
+            await renderer.xr.setSession(session);
+            onStart();
+            currentSession = session;
+        }
+    } else {
+        currentSession.end();
+    }
+}
+
 export class VRButton {
     static xrSessionIsGranted = false;
 
     static createButton(renderer: WebGLRenderer) {
-
         const button = document.createElement('button');
-
-        function showEnterVR( /*device*/) {
-            let currentSession: XRSession | null = null;
-
-            async function onSessionStarted(session: XRSession) {
-                session.addEventListener('end', onSessionEnded);
-
-                await renderer.xr.setSession(session);
-                button.textContent = 'EXIT VR';
-
-                currentSession = session;
-            }
-
-            function onSessionEnded( /*event*/) {
-                currentSession?.removeEventListener('end', onSessionEnded);
-                button.textContent = 'ENTER VR';
-                currentSession = null;
-            }
-
-            button.style.display = '';
-
-            button.style.cursor = 'pointer';
-            button.style.left = 'calc(50% - 50px)';
-            button.style.width = '100px';
-
-            button.textContent = 'ENTER VR';
-
-            button.onmouseenter = function () {
-                button.style.opacity = '1.0';
-            };
-
-            button.onmouseleave = function () {
-                button.style.opacity = '0.5';
-            };
-
-            button.onclick = function () {
-                if (currentSession === null) {
-                    // WebXR's requestReferenceSpace only works if the corresponding feature
-                    // was requested at session creation time. For simplicity, just ask for
-                    // the interesting ones as optional features, but be aware that the
-                    // requestReferenceSpace call will fail if it turns out to be unavailable.
-                    // ('local' is always available for immersive sessions and doesn't need to
-                    // be requested separately.)
-
-                    const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] };
-                    navigator.xr?.requestSession('immersive-vr', sessionInit).then(onSessionStarted);
-                } else {
-                    currentSession.end();
-                }
-            };
-        }
 
         function disableButton() {
             button.style.display = '';
@@ -69,11 +42,6 @@ export class VRButton {
             button.onmouseleave = null;
 
             button.onclick = null;
-        }
-
-        function showWebXRNotFound() {
-            disableButton();
-            button.textContent = 'VR NOT SUPPORTED';
         }
 
         function showVRNotAllowed(exception: object) {
@@ -104,8 +72,35 @@ export class VRButton {
             stylizeElement(button);
 
             navigator.xr?.isSessionSupported('immersive-vr').then(function (supported) {
+                if (supported) {
+                    button.style.display = '';
 
-                supported ? showEnterVR() : showWebXRNotFound();
+                    button.style.cursor = 'pointer';
+                    button.style.left = 'calc(50% - 50px)';
+                    button.style.width = '100px';
+
+                    button.textContent = 'ENTER VR';
+
+                    button.onmouseenter = function () {
+                        button.style.opacity = '1.0';
+                    };
+
+                    button.onmouseleave = function () {
+                        button.style.opacity = '0.5';
+                    };
+
+                    button.onclick = async () => {
+                        startSession(
+                            renderer,
+                            () => button.textContent = 'EXIT VR',
+                            () => button.textContent = 'ENTER VR'
+                        );
+                    };
+                }
+                else {
+                    disableButton();
+                    button.textContent = 'VR NOT SUPPORTED';
+                }
 
                 if (supported && VRButton.xrSessionIsGranted) {
 
