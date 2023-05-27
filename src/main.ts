@@ -30,6 +30,8 @@ let renderer: WebGLRenderer;
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
+var testController: Object3D;
+
 var gameObjects: GameObject[] = [];
 
 // Submodules
@@ -93,6 +95,9 @@ function init() {
 
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
+
+    testController = mesh.clone();
+    avatar.add(testController);
 
     teleport = new Teleport(scene);
   });
@@ -158,14 +163,14 @@ function initScene() {
     async function loadData() {
       const vitals = await loadVitals(`/wfdb/bidmc01.hea`);
       if (!vitals) {
-          return;
+        return;
       }
       const { header, signals } = vitals;
 
       console.log(header);
       console.log(`Converted to ${signals.length} values`);
 
-      for (let i=0; i<signals.length; i++) {
+      for (let i = 0; i < signals.length; i++) {
         const data = Array.from(signals[i].map(v => v * 0.1));
         const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
         graphLine.position.set(0, i * 0.3 + 0.5, -1.5)
@@ -222,7 +227,7 @@ function initScene() {
     rc.near = 0.1;
     rc.far = 10.0;
     const rdir = new Vector3(0, -1, 0);
-    for (let i=0; i< NUM_FLAKES; i++) {
+    for (let i = 0; i < NUM_FLAKES; i++) {
       const rpos = new Vector3(Math.random() * 10 - 5, 10, Math.random() * 10 - 5);
       rc.set(rpos, rdir);
       const intersects = rc.intersectObjects(raycastTargetList);
@@ -262,7 +267,7 @@ function initScene() {
                 controllerR.getWorldPosition(pos);
                 const direction = new Vector3();
                 controllerR.getWorldDirection(direction);
-                balls.add(scene, pos, direction);  
+                balls.add(scene, pos, direction);
               }
             };
             session.onsqueezestart = (evt: XRInputSourceEvent) => {
@@ -273,7 +278,7 @@ function initScene() {
             }
           }
         },
-        () => {});
+        () => { });
     }
     const bNoVR = document.getElementById("bNoVR")!;
     bNoVR.onclick = () => {
@@ -344,6 +349,32 @@ function render(time: number, frame: XRFrame) {
   }
 
   _lastTime = time;
+
+  // TEST TEST get input position
+  function updateController(frame: XRFrame, ref: XRReferenceSpace, inp: XRInputSource, contr: Object3D) {
+    const session = renderer.xr.getSession();
+    if (session) {
+      const t = frame.getPose(inp.targetRaySpace, ref);
+      const transform = t?.transform;
+      if (transform) {
+        const pos = transform.position;
+        // contr.matrix.fromArray(t.transform.matrix);
+        contr.position.set(pos.x, pos.y, pos.z);
+        // contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
+        // contr.matrix.decompose(contr.position, contr.quaternion, new Vector3(2,2,2));  
+      }
+    }
+  }
+
+  const session = renderer.xr.getSession();
+  const ref = renderer.xr.getReferenceSpace();
+  if (session && ref) {
+    for (const inputSource of session.inputSources) {
+      if (inputSource.handedness === "right") {
+        updateController(frame, ref, inputSource, testController);
+      }
+    }
+  }
 
   renderer.render(scene, camera);
 }
