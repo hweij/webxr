@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Group, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
-import { VRButton } from './webxr/vrbutton';
+import { startSession } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
 import { ColorBoard } from './color_board';
@@ -116,8 +116,10 @@ function init() {
 }
 
 function initScene() {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const container = document.getElementById("webgl-container");
+  if (!container) {
+    return;
+  }
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x222222);
@@ -261,11 +263,19 @@ function initScene() {
   /** For non-VR control */
   movementControl = new MovementControl(avatar, camera, renderer.domElement);
 
-  { // Button to switch to VR mode
-    const vrButton = VRButton.createButton(renderer);
-    vrButton.addEventListener('click', () => movementControl.enableCameraControl = false);
-    document.body.appendChild(vrButton);
+  { // Button to enable VR
+    const bStartSession = document.getElementById("bStartSession")!;
+    bStartSession.onclick = () => {
+      startSession(renderer, () => {}, () => {});
+    }
+    const bNoVR = document.getElementById("bNoVR")!;
+    bNoVR.onclick = () => {
+      container.removeChild(bNoVR);
+      container.removeChild(bStartSession);
+    }
+  }
 
+  {
     const play = document.createElement("button");
     play.innerText = "Play";
     play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
