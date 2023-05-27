@@ -258,7 +258,6 @@ function initScene() {
           if (session) {
             session.onselectstart = (evt: XRInputSourceEvent) => {
               if (evt.inputSource.handedness === "right") {
-                evt.inputSource.targetRaySpace
                 const pos = new Vector3();
                 controllerR.getWorldPosition(pos);
                 const direction = new Vector3();
