@@ -30,7 +30,8 @@ let renderer: WebGLRenderer;
 var controllerR: XRTargetRaySpace;
 var controllerL: XRTargetRaySpace;
 
-var testController: Object3D;
+var testControllerL: Object3D;
+var testControllerR: Object3D;
 
 var gameObjects: GameObject[] = [];
 
@@ -70,8 +71,26 @@ function init() {
 
   balls = addGameObject(new Balls());
 
+  const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
+  geometry.rotateX(- Math.PI / 2);
+  const material = new THREE.MeshStandardMaterial({ flatShading: true });
+  const mesh = new THREE.Mesh(geometry, material);
+  pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
+
+  const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
+  pivot.name = 'pivot';
+  pivot.position.z = -0.05;
+  mesh.add(pivot);
+
+
   controllerR = renderer.xr.getController(0);
   controllerL = renderer.xr.getController(1);
+
+  testControllerL = mesh.clone();
+  avatar.add(testControllerL);
+
+  testControllerR = mesh.clone();
+  avatar.add(testControllerR);
 
   controllerR.addEventListener('connected', (event) => {
     if (event.data?.handedness !== 'right') {
@@ -79,25 +98,11 @@ function init() {
       [controllerR, controllerL] = [controllerL, controllerR];
     }
 
-    const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
-    geometry.rotateX(- Math.PI / 2);
-    const material = new THREE.MeshStandardMaterial({ flatShading: true });
-    const mesh = new THREE.Mesh(geometry, material);
-    pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
-
-    const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
-    pivot.name = 'pivot';
-    pivot.position.z = -0.05;
-    mesh.add(pivot);
-
     avatar.add(controllerR);
     avatar.add(controllerL);
 
     controllerR.add(mesh.clone());
     controllerL.add(mesh.clone());
-
-    testController = mesh.clone();
-    avatar.add(testController);
 
     teleport = new Teleport(scene);
   });
@@ -264,9 +269,9 @@ function initScene() {
             session.onselectstart = (evt: XRInputSourceEvent) => {
               if (evt.inputSource.handedness === "right") {
                 const pos = new Vector3();
-                controllerR.getWorldPosition(pos);
+                testControllerR.getWorldPosition(pos);
                 const direction = new Vector3();
-                controllerR.getWorldDirection(direction);
+                testControllerR.getWorldDirection(direction);
                 balls.add(scene, pos, direction);
               }
             };
@@ -327,7 +332,8 @@ function render(time: number, frame: XRFrame) {
       inputs.update(frame.session.inputSources);
 
       const right = inputs.right;
-      const dir = controllerR.getWorldDirection(new THREE.Vector3());
+      const dir = new THREE.Vector3();
+      testControllerR.getWorldDirection(dir);
       debugPanel?.setMessage([
         `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
@@ -342,26 +348,23 @@ function render(time: number, frame: XRFrame) {
 
     movementControl.update(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, controllerR);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, testControllerR);
 
     // TEST: trigger handlers with raycast
-    raycastHelper.triggerHandlers(raycastTargetList, controllerR);
+    raycastHelper.triggerHandlers(raycastTargetList, testControllerR);
   }
 
   _lastTime = time;
 
-  // TEST TEST get input position
+  // Get input position
   function updateController(frame: XRFrame, ref: XRReferenceSpace, inp: XRInputSource, contr: Object3D) {
     const session = renderer.xr.getSession();
     if (session) {
       const t = frame.getPose(inp.targetRaySpace, ref);
       const transform = t?.transform;
       if (transform) {
-        const pos = transform.position;
-        // contr.matrix.fromArray(t.transform.matrix);
-        contr.position.set(pos.x, pos.y, pos.z);
-        // contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
-        // contr.matrix.decompose(contr.position, contr.quaternion, new Vector3(2,2,2));  
+        contr.matrix.fromArray(t.transform.matrix);
+        contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
       }
     }
   }
@@ -371,7 +374,10 @@ function render(time: number, frame: XRFrame) {
   if (session && ref) {
     for (const inputSource of session.inputSources) {
       if (inputSource.handedness === "right") {
-        updateController(frame, ref, inputSource, testController);
+        updateController(frame, ref, inputSource, testControllerR);
+      }
+      else if (inputSource.handedness === "left") {
+        updateController(frame, ref, inputSource, testControllerR);
       }
     }
   }

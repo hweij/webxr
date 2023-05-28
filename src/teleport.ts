@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DoubleSide, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3, XRTargetRaySpace } from 'three';
+import { DoubleSide, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three';
 
 export class Teleport {
   _raycaster = new THREE.Raycaster();
@@ -21,7 +21,7 @@ export class Teleport {
   }
 
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
-  teleportOnThumb(thumbY: number, target: Vector3, hitTargets: Object3D[], controller: XRTargetRaySpace) {
+  teleportOnThumb(thumbY: number, target: Vector3, hitTargets: Object3D[], controller: Object3D) {
     let rayLength = 10;
     if (thumbY < -0.5) {
       this._ray.visible = true;
