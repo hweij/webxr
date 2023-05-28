@@ -51,3 +51,23 @@ export function createLandscape(width: number, depth: number, segments: number) 
   geo.computeVertexNormals();
   return geo;
 }
+
+export class ChangeDetect {
+  input = false;
+  state = false;
+
+  trigger() {
+      this.input = true;
+  }
+
+  check() {
+      let change: -1 | 0 | 1 = 0;
+      if (this.state !== this.input) {
+          change = (this.input) ? 1 : -1;
+      }
+      this.state = this.input;
+      this.input = false;
+
+      return change;
+  }
+}

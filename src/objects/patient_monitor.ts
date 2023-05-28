@@ -1,5 +1,5 @@
 import { Group, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Texture } from "three";
-import { createBezelGeometry } from "../util";
+import { ChangeDetect, createBezelGeometry } from "../util";
 import { GameObject3D } from "../game_object_3d";
 import { WaveCanvas } from "../wave_canvas/wave_canvas";
 
@@ -15,8 +15,7 @@ export class PatientMonitor extends GameObject3D {
     _t = 0;
     _texWave: Texture;
     _texNum: Texture;
-    _rayHit = false;
-    _wasHit = false;
+    _change = new ChangeDetect();
     mat: Material;
 
     constructor() {
@@ -69,7 +68,7 @@ export class PatientMonitor extends GameObject3D {
             this._node.add(bezel);
         }
 
-        this.rayHandler = () => { this._rayHit = true; };
+        this.rayHandler = () => { this._change.trigger(); };
     }
 
     override tick(dt: number): void {
@@ -80,18 +79,14 @@ export class PatientMonitor extends GameObject3D {
                 this._texWave.needsUpdate = true;
             }
         }
-        if (this._rayHit) {
-            if (!this._wasHit) {
+        switch (this._change.check()) {
+            case 1:
                 this._node.scale.set(1.1, 1.1, 1.1);
-            }
-        }
-        else {
-            if (this._wasHit) {
+                break;
+            case -1:
                 this._node.scale.set(1, 1, 1);
-            }
+                break;
         }
-        this._wasHit = this._rayHit;
-        this._rayHit = false;
     }
 }
 
