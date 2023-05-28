@@ -14,52 +14,40 @@ export class PatientMonitor extends GameObject3D {
     _waveCanvas: WaveCanvas[];
     _t = 0;
     _texWave: Texture;
-    _texNum: Texture;
     _change = new ChangeDetect();
     mat: Material;
 
     constructor() {
         super(new Group());
 
-        // Numerics canvas
-        const canvasNumerics = document.createElement("canvas");
-        canvasNumerics.width = 1920;
-        canvasNumerics.height = 1080;
-        this._texNum =  new Texture(canvasNumerics);
-        // Test some numerics
-        const ctx = canvasNumerics.getContext("2d")!;
-        ctx.font = "200 80px roboto";
-        ctx.fillStyle = "#ff00ff";
-        ctx.fillText("98", 20, 100, 100);
-        ctx.fillText("70", 20, 180, 100);
-        ctx.fillText("33", 20, 260, 100);
-        this._texNum.needsUpdate = true;
+        const canvas = document.createElement("canvas");
+        canvas.width = 1920;
+        canvas.height = 1080;
+        this._texWave =  new Texture(canvas);
 
-        const canvasWave = document.createElement("canvas");
-        canvasWave.width = 1920;
-        canvasWave.height = 1080;
-        this._texWave =  new Texture(canvasWave);
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            ctx.font = "200 80px roboto";
+            ctx.fillStyle = "#ff00ff";
+            ctx.fillText("98", 1800, 100, 100);
+            ctx.fillText("70", 1800, 180, 100);
+            ctx.fillText("33", 1800, 260, 100);
+        }
+
         this._waveCanvas = new Array(8);
         for (let i=0; i<8; i++) {
-            this._waveCanvas[i] = new WaveCanvas(canvasWave, {
-                offsetX: 20, offsetY: i * 80 + 20, width: 1880, height: 80,
+            this._waveCanvas[i] = new WaveCanvas(canvas, {
+                offsetX: 20, offsetY: i * 80 + 20, width: 1760, height: 80,
                 color: colors[i % colors.length],
-                gapWidth: 20, lineWidth: 3, pixPerSecond: 40});
+                gapWidth: 20, lineWidth: 3, pixPerSecond: 100});
         }
 
         {   // Screen
             const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
 
-            const matNum = new MeshBasicMaterial({map: this._texNum, alphaTest: 0.1});
-            const nums = new Mesh(geo, matNum);
-            nums.translateZ(0.001);
-            this._node.add(nums);
-
-            // Note: alphatest sets the thershold for the transparancy
             this.mat = new MeshBasicMaterial({map: this._texWave});
             this.screen = new Mesh(geo, this.mat);
             this._node.add(this.screen);
-            // this.screen.userData.gameObject3D = this;   
         }
         {   // Casing
             const bezelGeo = createBezelGeometry(SCREEN_WIDTH + (2 * BEZEL_WIDTH), SCREEN_HEIGHT + (2 * BEZEL_WIDTH), 0.08, BEZEL_WIDTH);
@@ -93,6 +81,6 @@ export class PatientMonitor extends GameObject3D {
 function signalFunction(t: number, row: number) {
     const amp = 30;
     const mid = 40;
-    const v = Math.sin(t * 2 + row);
+    const v = Math.sin(t * 6 + row);
     return (v * v * v) * amp + mid;
 }
