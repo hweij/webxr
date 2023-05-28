@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { DoubleSide, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three';
 
 export class Teleport {
-  _raycaster = new THREE.Raycaster();
   _marker: Mesh;
   _ray: Mesh;
 
@@ -14,14 +13,10 @@ export class Teleport {
     // Create the teleport target marker
     this._marker = createMarkerMesh();
     scene.add(this._marker);
-
-    // Ray caster init
-    this._raycaster.near = 0.1;
-    this._raycaster.far = 10.0;
   }
 
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
-  teleportOnThumb(thumbY: number, target: Vector3, hitTargets: Object3D[], controller: Object3D) {
+  teleportOnThumb(thumbY: number, target: Vector3, intersects: THREE.Intersection[], controller: Object3D) {
     let rayLength = 10;
     if (thumbY < -0.5) {
       this._ray.visible = true;
@@ -38,8 +33,7 @@ export class Teleport {
 
       // Reverse direction, apparently it points the opposite way
       rDir.multiplyScalar(-1);
-      this._raycaster.set(rPos, rDir);
-      const intersects = this._raycaster.intersectObjects(hitTargets);
+
       if (intersects.length) {
         const intersect = intersects[0];
         if (intersect.face) {

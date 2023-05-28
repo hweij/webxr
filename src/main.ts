@@ -330,10 +330,10 @@ function render(time: number, frame: XRFrame) {
 
     movementControl.update(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, controllerR);
-
     // TEST: trigger handlers with raycast
-    raycastHelper.triggerHandlers(raycastTargetList, controllerR);
+    const intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
+    raycastHelper.triggerHandlers(intersections);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
   }
 
   _lastTime = time;
