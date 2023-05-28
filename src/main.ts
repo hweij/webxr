@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer, XRTargetRaySpace } from 'three';
+import { Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer } from 'three';
 import { startSession } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -27,11 +27,10 @@ let movementControl: MovementControl;
 
 let renderer: WebGLRenderer;
 
-var controllerR: XRTargetRaySpace;
-var controllerL: XRTargetRaySpace;
-
-var testControllerL: Object3D;
-var testControllerR: Object3D;
+/** Controller associated with the right hand */
+var controllerL: Object3D;
+/** Controller associated with the left hand */
+var controllerR: Object3D;
 
 var gameObjects: GameObject[] = [];
 
@@ -82,31 +81,14 @@ function init() {
   pivot.position.z = -0.05;
   mesh.add(pivot);
 
+  controllerL = mesh.clone();
+  avatar.add(controllerL);
 
-  controllerR = renderer.xr.getController(0);
-  controllerL = renderer.xr.getController(1);
+  controllerR = mesh.clone();
+  avatar.add(controllerR);
 
-  testControllerL = mesh.clone();
-  avatar.add(testControllerL);
-
-  testControllerR = mesh.clone();
-  avatar.add(testControllerR);
-
-  controllerR.addEventListener('connected', (event) => {
-    if (event.data?.handedness !== 'right') {
-      // Controller 0 is not the right-hand controller: swap them
-      [controllerR, controllerL] = [controllerL, controllerR];
-    }
-
-    avatar.add(controllerR);
-    avatar.add(controllerL);
-
-    controllerR.add(mesh.clone());
-    controllerL.add(mesh.clone());
-
-    teleport = new Teleport(scene);
-  });
-
+  teleport = new Teleport(scene);
+  
   window.addEventListener('resize', onWindowResize);
 }
 
@@ -269,9 +251,9 @@ function initScene() {
             session.onselectstart = (evt: XRInputSourceEvent) => {
               if (evt.inputSource.handedness === "right") {
                 const pos = new Vector3();
-                testControllerR.getWorldPosition(pos);
+                controllerR.getWorldPosition(pos);
                 const direction = new Vector3();
-                testControllerR.getWorldDirection(direction);
+                controllerR.getWorldDirection(direction);
                 balls.add(scene, pos, direction);
               }
             };
@@ -333,7 +315,7 @@ function render(time: number, frame: XRFrame) {
 
       const right = inputs.right;
       const dir = new THREE.Vector3();
-      testControllerR.getWorldDirection(dir);
+      controllerR.getWorldDirection(dir);
       debugPanel?.setMessage([
         `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
@@ -348,10 +330,10 @@ function render(time: number, frame: XRFrame) {
 
     movementControl.update(dt);
 
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, testControllerR);
+    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, raycastTargetList, controllerR);
 
     // TEST: trigger handlers with raycast
-    raycastHelper.triggerHandlers(raycastTargetList, testControllerR);
+    raycastHelper.triggerHandlers(raycastTargetList, controllerR);
   }
 
   _lastTime = time;
@@ -373,11 +355,13 @@ function render(time: number, frame: XRFrame) {
   const ref = renderer.xr.getReferenceSpace();
   if (session && ref) {
     for (const inputSource of session.inputSources) {
-      if (inputSource.handedness === "right") {
-        updateController(frame, ref, inputSource, testControllerR);
-      }
-      else if (inputSource.handedness === "left") {
-        updateController(frame, ref, inputSource, testControllerR);
+      switch (inputSource.handedness) {
+        case "right":
+          updateController(frame, ref, inputSource, controllerR);
+          break;
+        case "left":
+          updateController(frame, ref, inputSource, controllerL);
+          break;
       }
     }
   }
