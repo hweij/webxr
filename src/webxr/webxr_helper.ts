@@ -1,4 +1,4 @@
-import { WebGLRenderer } from "three";
+import { Object3D, WebGLRenderer } from "three";
 
 var currentSession: XRSession | null = null;
 
@@ -34,6 +34,36 @@ if ('xr' in navigator) {
     if (!(/WebXRViewer\//i.test(navigator.userAgent))) {
         navigator.xr?.addEventListener('sessiongranted', () => {
             xrSessionIsGranted = true;
-        });    
+        });
+    }
+}
+
+/** Updates position, orientation, and scale of the WebXR controllers. The controllers are passed as 3D objects. */
+export function updateControllers(renderer: WebGLRenderer, frame: XRFrame, controllerL: Object3D, controllerR: Object3D) {
+    const session = renderer.xr.getSession();
+    const ref = renderer.xr.getReferenceSpace();
+
+    function updateController(inp: XRInputSource, contr: Object3D) {
+        if (session && ref) {
+            const t = frame.getPose(inp.targetRaySpace, ref);
+            const transform = t?.transform;
+            if (transform) {
+                contr.matrix.fromArray(t.transform.matrix);
+                contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
+            }
+        }
+    }
+
+    if (session && ref) {
+        for (const inputSource of session.inputSources) {
+            switch (inputSource.handedness) {
+                case "right":
+                    updateController(inputSource, controllerR);
+                    break;
+                case "left":
+                    updateController(inputSource, controllerL);
+                    break;
+            }
+        }
     }
 }

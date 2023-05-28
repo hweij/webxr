@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer } from 'three';
-import { startSession } from './webxr/webxr_helper';
+import { startSession, updateControllers } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
 import { ColorBoard } from './color_board';
@@ -338,33 +338,8 @@ function render(time: number, frame: XRFrame) {
 
   _lastTime = time;
 
-  // Get input position
-  function updateController(frame: XRFrame, ref: XRReferenceSpace, inp: XRInputSource, contr: Object3D) {
-    const session = renderer.xr.getSession();
-    if (session) {
-      const t = frame.getPose(inp.targetRaySpace, ref);
-      const transform = t?.transform;
-      if (transform) {
-        contr.matrix.fromArray(t.transform.matrix);
-        contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
-      }
-    }
-  }
-
-  const session = renderer.xr.getSession();
-  const ref = renderer.xr.getReferenceSpace();
-  if (session && ref) {
-    for (const inputSource of session.inputSources) {
-      switch (inputSource.handedness) {
-        case "right":
-          updateController(frame, ref, inputSource, controllerR);
-          break;
-        case "left":
-          updateController(frame, ref, inputSource, controllerL);
-          break;
-      }
-    }
-  }
+  // Update WebXR controllers for this frame
+  updateControllers(renderer, frame, controllerL, controllerR);
 
   renderer.render(scene, camera);
 }
