@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer } from 'three';
+import { Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
 import { startSession, updateControllers } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -8,7 +8,7 @@ import { DebugPanel } from './debug_panel';
 import { Inputs } from './inputs';
 // import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
-import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
+// import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
 import { GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
@@ -204,31 +204,31 @@ function initScene() {
     scene.add(light);
   }
 
-  /** Snow (GPU-version) */
-  const snow = addGameObject(new SnowGpu());
-  snow.setParent(scene);
-  // Set snow targets by using raycasting to the ground
-  {
-    const instancepos = new Float32Array(NUM_FLAKES * 3);
-    const rc = new Raycaster();
-    rc.near = 0.1;
-    rc.far = 10.0;
-    const rdir = new Vector3(0, -1, 0);
-    for (let i = 0; i < NUM_FLAKES; i++) {
-      const rpos = new Vector3(Math.random() * 10 - 5, 10, Math.random() * 10 - 5);
-      rc.set(rpos, rdir);
-      const intersects = rc.intersectObjects(raycastTargetList);
-      let y = 0;
-      if (intersects.length) {
-        y = intersects[0].point.y;
-      }
-      const offs = i * 3;
-      instancepos[offs] = rpos.x;
-      instancepos[offs + 1] = y + 0.01;
-      instancepos[offs + 2] = rpos.z;
-    }
-    snow.setTargetPositions(instancepos);
-  }
+  // /** Snow (GPU-version) */
+  // const snow = addGameObject(new SnowGpu());
+  // snow.setParent(scene);
+  // // Set snow targets by using raycasting to the ground
+  // {
+  //   const instancepos = new Float32Array(NUM_FLAKES * 3);
+  //   const rc = new Raycaster();
+  //   rc.near = 0.1;
+  //   rc.far = 10.0;
+  //   const rdir = new Vector3(0, -1, 0);
+  //   for (let i = 0; i < NUM_FLAKES; i++) {
+  //     const rpos = new Vector3(Math.random() * 10 - 5, 10, Math.random() * 10 - 5);
+  //     rc.set(rpos, rdir);
+  //     const intersects = rc.intersectObjects(raycastTargetList);
+  //     let y = 0;
+  //     if (intersects.length) {
+  //       y = intersects[0].point.y;
+  //     }
+  //     const offs = i * 3;
+  //     instancepos[offs] = rpos.x;
+  //     instancepos[offs + 1] = y + 0.01;
+  //     instancepos[offs + 2] = rpos.z;
+  //   }
+  //   snow.setTargetPositions(instancepos);
+  // }
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);

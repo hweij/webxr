@@ -52,6 +52,13 @@ export function createLandscape(width: number, depth: number, segments: number) 
   return geo;
 }
 
+/**
+ * Helper class to detect changes in input.
+ * 
+ * Typically, the "trigger" function is called in the render loop, if the value is active.
+ * The trigger function is called before calling the "check" function.
+ * The check function is called to detect the change. This function also resets the input value.
+ */
 export class ChangeDetect {
   input = false;
   state = false;
