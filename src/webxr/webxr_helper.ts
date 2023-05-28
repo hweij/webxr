@@ -43,26 +43,24 @@ export function updateControllers(renderer: WebGLRenderer, frame: XRFrame, contr
     const session = renderer.xr.getSession();
     const ref = renderer.xr.getReferenceSpace();
 
-    function updateController(inp: XRInputSource, contr: Object3D) {
-        if (session && ref) {
-            const t = frame.getPose(inp.targetRaySpace, ref);
-            const transform = t?.transform;
-            if (transform) {
-                contr.matrix.fromArray(t.transform.matrix);
-                contr.matrix.decompose(contr.position, contr.quaternion, contr.scale);
-            }
-        }
-    }
-
     if (session && ref) {
         for (const inputSource of session.inputSources) {
+            let controller;
             switch (inputSource.handedness) {
                 case "right":
-                    updateController(inputSource, controllerR);
+                    controller = controllerR;
                     break;
                 case "left":
-                    updateController(inputSource, controllerL);
+                    controller = controllerL;
                     break;
+            }
+            if (controller) {
+                const t = frame.getPose(inputSource.targetRaySpace, ref);
+                const transform = t?.transform;
+                if (transform) {
+                    controller.matrix.fromArray(t.transform.matrix);
+                    controller.matrix.decompose(controller.position, controller.quaternion, controller.scale);
+                }
             }
         }
     }
