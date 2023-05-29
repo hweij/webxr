@@ -44,7 +44,7 @@ export class PatientMonitor extends GameObject3D {
             this._waveCanvas[i] = new WaveCanvas(canvas, {
                 offsetX: 20, offsetY: i * WAVE_HEIGHT + 20, width: 1760, height: WAVE_HEIGHT,
                 color: colors[i % colors.length],
-                gapWidth: 20, lineWidth: 3, pixPerSecond: 100});
+                gapWidth: 20, lineWidth: 2, pixPerSecond: 100});
         }
 
         {   // Screen
