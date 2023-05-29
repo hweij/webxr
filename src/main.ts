@@ -83,7 +83,7 @@ async function init() {
   {
     const vitals = appContext.wfdbData;
     if (vitals) {
-      const { header, signals } = vitals;
+      const signals = vitals.signals;
       for (let i = 0; i < signals.length; i++) {
         const data = Array.from(signals[i].map(v => v * 0.1));
         const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
