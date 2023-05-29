@@ -131,7 +131,19 @@ function initScene() {
   }
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x222222);
+  scene.background = new THREE.Color(0xc3e9ff);
+  // {
+  //   const loader = new THREE.CubeTextureLoader();
+  //   const texture = loader.load([
+  //     'textures/sf/posx.jpg',
+  //     'textures/sf/negx.jpg',
+  //     'textures/sf/posy.jpg',
+  //     'textures/sf/negy.jpg',
+  //     'textures/sf/posz.jpg',
+  //     'textures/sf/negz.jpg'
+  //   ]);
+  //   scene.background = texture;
+  // }
 
   /** Camera */
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
