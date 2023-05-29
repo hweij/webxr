@@ -3,9 +3,12 @@ import { ChangeDetect, createBezelGeometry } from "../util";
 import { GameObject3D } from "../game_object_3d";
 import { WaveCanvas } from "../wave_canvas/wave_canvas";
 
+import * as appContext from "../app_context";
+
 const SCREEN_WIDTH = 0.49;
 const SCREEN_HEIGHT = 0.274;
 const BEZEL_WIDTH = 0.02;
+const WAVE_HEIGHT = 80;
 
 const colors = ["red", "green", "blue", "yellow", "white", "cyan", "magenta"];
 
@@ -16,6 +19,8 @@ export class PatientMonitor extends GameObject3D {
     _texWave: Texture;
     _change = new ChangeDetect();
     mat: Material;
+
+    _testSampleIndex = 0;
 
     constructor() {
         super(new Group());
@@ -37,7 +42,7 @@ export class PatientMonitor extends GameObject3D {
         this._waveCanvas = new Array(8);
         for (let i=0; i<8; i++) {
             this._waveCanvas[i] = new WaveCanvas(canvas, {
-                offsetX: 20, offsetY: i * 80 + 20, width: 1760, height: 80,
+                offsetX: 20, offsetY: i * WAVE_HEIGHT + 20, width: 1760, height: WAVE_HEIGHT,
                 color: colors[i % colors.length],
                 gapWidth: 20, lineWidth: 3, pixPerSecond: 100});
         }
@@ -61,12 +66,20 @@ export class PatientMonitor extends GameObject3D {
 
     override tick(dt: number): void {
         super.tick(dt);
+
         this._t += dt;
         for (let i=0; i<this._waveCanvas.length; i++) {
-            if (this._waveCanvas[i].putSample(this._t, signalFunction(this._t, i))) {
+            let v: number | null = null;
+            if (appContext.wfdbData) {
+                const signals = appContext.wfdbData.signals;
+                const samples = signals[i % signals.length];
+                v = samples[this._testSampleIndex % samples.length] * 70;
+            }
+            if (this._waveCanvas[i].putSample(this._t, WAVE_HEIGHT - ((v !== null) ? v : dummySignalFunction(this._t, i)))) {
                 this._texWave.needsUpdate = true;
             }
         }
+        this._testSampleIndex++;
         switch (this._change.check()) {
             case 1:
                 this._node.scale.set(1.1, 1.1, 1.1);
@@ -78,9 +91,7 @@ export class PatientMonitor extends GameObject3D {
     }
 }
 
-function signalFunction(t: number, row: number) {
-    const amp = 30;
-    const mid = 40;
-    const v = Math.sin(t * 6 + row);
-    return (v * v * v) * amp + mid;
+function dummySignalFunction(t: number, row: number) {
+    const v = (Math.sin(t * 6 + row) + 1) * 0.5;
+    return (v * v * v)  * 70 + 5;
 }

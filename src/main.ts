@@ -15,9 +15,11 @@ import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
 import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
-import { loadVitals } from './wfdb/wfdb';
 import { MovementControl } from './movement_control';
 import { RaycastHelper } from './raycast_helper';
+
+import * as appContext from "./app_context";
+
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 let camera: PerspectiveCamera;
@@ -57,16 +59,39 @@ var raycastTargetList: THREE.Object3D[] = [];
 var balls: Balls;
 var pivotMaterial: THREE.MeshStandardMaterial;
 
-init();
-animate();
+
+
+init().then(() => animate());
 
 function addGameObject<T extends GameObject>(obj: T) {
   gameObjects.push(obj);
   return obj;
 }
 
-function init() {
+async function init() {
+  await appContext.init();
+
   initScene();
+
+  // TEST LINES
+  // getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
+  // const flatLine = createFlatLine();
+  // flatLine.position.set(0, 1.0, -1.5)
+  // scene.add(flatLine);
+
+  // getGraphLinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
+  {
+    const vitals = appContext.wfdbData;
+    if (vitals) {
+      const { header, signals } = vitals;
+      for (let i = 0; i < signals.length; i++) {
+        const data = Array.from(signals[i].map(v => v * 0.1));
+        const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
+        graphLine.position.set(0, i * 0.3 + 0.5, -1.5)
+        scene.add(graphLine);
+      }
+    }
+  }
 
   balls = addGameObject(new Balls());
 
@@ -88,7 +113,7 @@ function init() {
   avatar.add(controllerR);
 
   teleport = new Teleport(scene);
-  
+
   window.addEventListener('resize', onWindowResize);
 }
 
@@ -137,35 +162,6 @@ function initScene() {
   addToScene(office.node, true);
   office.node!.position.set(0, 0.01, 0);
   addGameObject(office);
-
-  // TEST LINES
-  // getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
-  // const flatLine = createFlatLine();
-  // flatLine.position.set(0, 1.0, -1.5)
-  // scene.add(flatLine);
-
-  // getGraphLinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
-  {
-    // const graphLine = createGraphLine();
-    async function loadData() {
-      const vitals = await loadVitals(`/wfdb/bidmc01.hea`);
-      if (!vitals) {
-        return;
-      }
-      const { header, signals } = vitals;
-
-      console.log(header);
-      console.log(`Converted to ${signals.length} values`);
-
-      for (let i = 0; i < signals.length; i++) {
-        const data = Array.from(signals[i].map(v => v * 0.1));
-        const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
-        graphLine.position.set(0, i * 0.3 + 0.5, -1.5)
-        scene.add(graphLine);
-      }
-    }
-    loadData();
-  }
 
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
