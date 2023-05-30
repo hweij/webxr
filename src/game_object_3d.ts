@@ -13,9 +13,6 @@ export class GameObject3D implements GameObject {
     /** Internal 3D object node, MUST be set in subclass */
     _node!: Object3D;
 
-    /** Handler to run when activate by ray */
-    rayHandler?: () => void;
-
     constructor(node: Object3D) {
         this._node = node;
         node.userData.gameObject3D = this;
@@ -23,6 +20,14 @@ export class GameObject3D implements GameObject {
 
     get node() {
         return this._node;
+    }
+
+    /** Called when the raycaster first hits the object. */
+    onRayEnter() {
+    }
+
+    /** Called when the raycaster no longer hits the object. */
+    onRayExit() {
     }
 
     addChild(c: GameObject3D) {

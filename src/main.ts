@@ -19,6 +19,7 @@ import { MovementControl } from './movement_control';
 import { RaycastHelper } from './raycast_helper';
 
 import * as appContext from "./app_context";
+import { GameObject3D } from './game_object_3d';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
@@ -318,6 +319,8 @@ function tick(dt: number) {
   }
 }
 
+var hitObject: GameObject3D | null = null;
+
 var _lastTime = 0;
 function render(time: number, frame: XRFrame) {
   if (_lastTime) {
@@ -345,7 +348,16 @@ function render(time: number, frame: XRFrame) {
     movementControl.update(dt);
 
     const intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
-    raycastHelper.triggerHandlers(intersections);
+    const obj = raycastHelper.triggerHandlers(intersections);
+    if (obj != hitObject) {
+      if (hitObject) {
+        hitObject.onRayExit();
+      }
+      hitObject = obj;
+      if (hitObject) {
+        hitObject.onRayEnter();
+      }
+    }
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
   }
 

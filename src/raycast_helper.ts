@@ -25,8 +25,7 @@ export class RaycastHelper {
             // Check node and parents to see if associated with a game object
             while (node) {
                 const obj = node.userData['gameObject3D'] as GameObject3D;
-                if (obj && obj.rayHandler) {
-                    obj.rayHandler();
+                if (obj) {
                     return obj;
                 }
                 node = node.parent;
