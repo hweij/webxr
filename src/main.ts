@@ -344,7 +344,6 @@ function render(time: number, frame: XRFrame) {
 
     movementControl.update(dt);
 
-    // TEST: trigger handlers with raycast
     const intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
     raycastHelper.triggerHandlers(intersections);
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);

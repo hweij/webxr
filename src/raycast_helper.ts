@@ -27,9 +27,11 @@ export class RaycastHelper {
                 const obj = node.userData['gameObject3D'] as GameObject3D;
                 if (obj && obj.rayHandler) {
                     obj.rayHandler();
+                    return obj;
                 }
                 node = node.parent;
             }
         }
+        return null;
     }
 }
