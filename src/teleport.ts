@@ -1,19 +1,10 @@
 import * as THREE from 'three';
-import { DoubleSide, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three';
-
-const OPACITY_ACTIVE = 0.5;
-const OPACITY_INACTIVE = 0.2;
+import { Mesh, Object3D, Scene, Vector3 } from 'three';
 
 export class Teleport {
   _marker: Mesh;
-  _ray: Mesh;
-  _rayMaterial!: THREE.Material;
 
   constructor(scene: Scene) {
-    this._ray = this._createRayMesh();
-    this._rayMaterial.opacity = OPACITY_INACTIVE;
-    scene.add(this._ray);
-
     // Create the teleport target marker
     this._marker = createMarkerMesh();
     scene.add(this._marker);
@@ -23,17 +14,16 @@ export class Teleport {
   teleportOnThumb(thumbY: number, target: Vector3, intersects: THREE.Intersection[], controller: Object3D) {
     let rayLength = 10;
 
-    this._rayMaterial.opacity = OPACITY_ACTIVE;
     // Ray intersect from right controller
     const rPos = controller.getWorldPosition(new Vector3());
     const rDir = controller.getWorldDirection(new Vector3());
 
-    // Adjust beam position and direction
-    controller.getWorldPosition(this._ray.position);
-    const mm = new Matrix4();
-    mm.lookAt(new Vector3(), rDir, new Vector3(0,1,0));
-    const q = new Quaternion().setFromRotationMatrix(mm);
-    this._ray.setRotationFromQuaternion(q);
+    // Goody: turn ray such that it's top stays at the top
+    // controller.getWorldPosition(this._ray.position);
+    // const mm = new Matrix4();
+    // mm.lookAt(new Vector3(), rDir, new Vector3(0,1,0));
+    // const q = new Quaternion().setFromRotationMatrix(mm);
+    // this._ray.setRotationFromQuaternion(q);
 
     // Reverse direction, apparently it points the opposite way
     rDir.multiplyScalar(-1);
@@ -69,31 +59,30 @@ export class Teleport {
           this._marker.getWorldPosition(target);
           this._marker.visible = false;
         }
-        this._rayMaterial.opacity = OPACITY_INACTIVE;
+        // this._rayMaterial.opacity = OPACITY_INACTIVE;
       }
     }
-    this._ray.scale.z = rayLength;
+    // this._ray.scale.z = rayLength;
   }
 
-  _createRayMesh() {
-    const S = 1;
-    const W = 0.005;
-    const Z = 0.0;
-    const geometry = new THREE.BufferGeometry();
-    // X marks the spot
-    const vertices = new Float32Array( [
-      -W, Z, S,
-       W, Z, S,
-       W, Z, 0,
-       W, Z, 0,
-      -W, Z, 0,
-      -W, Z, S
-    ] );
+  // _createRayMesh() {
+  //   const S = 1;
+  //   const W = 0.005;
+  //   const Z = 0.0;
+  //   const geometry = new THREE.BufferGeometry();
+  //   const vertices = new Float32Array( [
+  //     -W, Z, S,
+  //      W, Z, S,
+  //      W, Z, 0,
+  //      W, Z, 0,
+  //     -W, Z, 0,
+  //     -W, Z, S
+  //   ] );
   
-    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-    this._rayMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, side: DoubleSide, transparent: true, opacity: 0.5 } );
-    return new THREE.Mesh( geometry, this._rayMaterial );
-  }
+  //   geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+  //   this._rayMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, side: DoubleSide, transparent: true, opacity: 0.5 } );
+  //   return new THREE.Mesh( geometry, this._rayMaterial );
+  // }
 }
 
 function createMarkerMesh() {

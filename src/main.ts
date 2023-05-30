@@ -59,8 +59,6 @@ var raycastTargetList: THREE.Object3D[] = [];
 var balls: Balls;
 var pivotMaterial: THREE.MeshStandardMaterial;
 
-
-
 init().then(() => animate());
 
 function addGameObject<T extends GameObject>(obj: T) {
@@ -113,6 +111,14 @@ async function init() {
   avatar.add(controllerR);
 
   teleport = new Teleport(scene);
+
+  // TEST TEST add ray to controller
+  const rayMaterial = new THREE.MeshBasicMaterial( { color: 0xccccff, transparent: true, opacity: 0.5 } );
+  const rayGeo = new THREE.CylinderGeometry(0.005, 0.005, 10.0, 8, 1, true);
+  rayGeo.translate(0, 5.0, 0);
+  rayGeo.rotateX(-Math.PI * 0.5);
+  const rayMesh = new THREE.Mesh(rayGeo, rayMaterial);
+  controllerR.add(rayMesh);
 
   window.addEventListener('resize', onWindowResize);
 }

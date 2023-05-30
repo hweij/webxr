@@ -58,7 +58,7 @@ export function updateControllers(renderer: WebGLRenderer, frame: XRFrame, contr
                 const t = frame.getPose(inputSource.targetRaySpace, ref);
                 const transform = t?.transform;
                 if (transform) {
-                    controller.matrix.fromArray(t.transform.matrix);
+                    controller.matrix.fromArray(transform.matrix);
                     controller.matrix.decompose(controller.position, controller.quaternion, controller.scale);
                 }
             }
