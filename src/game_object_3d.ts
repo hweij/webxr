@@ -24,10 +24,12 @@ export class GameObject3D implements GameObject {
 
     /** Called when the raycaster first hits the object. */
     onRayEnter() {
+        // Override in subclass
     }
 
     /** Called when the raycaster no longer hits the object. */
     onRayExit() {
+        // Override in subclass
     }
 
     addChild(c: GameObject3D) {
