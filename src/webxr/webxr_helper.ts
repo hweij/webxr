@@ -2,7 +2,7 @@ import { Object3D, WebGLRenderer } from "three";
 
 var currentSession: XRSession | null = null;
 
-var xrSessionIsGranted = false;
+export var xrSessionIsGranted = false;
 
 /** Start XR session */
 export async function startSession(renderer: WebGLRenderer, onStart: () => void, onEnd: () => void) {
