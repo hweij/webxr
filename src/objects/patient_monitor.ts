@@ -1,9 +1,9 @@
-import { Group, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Texture } from "three";
-import { createBezelGeometry } from "../util";
+import { BufferAttribute, BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Texture } from "three";
 import { GameObject3D } from "../game_object_3d";
 import { WaveCanvas } from "../wave_canvas/wave_canvas";
 
 import * as appContext from "../app_context";
+import { createFrame } from "../create_frame";
 
 const SCREEN_WIDTH = 0.49;
 const SCREEN_HEIGHT = 0.274;
@@ -54,8 +54,21 @@ export class PatientMonitor extends GameObject3D {
             this._node.add(this.screen);
         }
         {   // Casing
-            const bezelGeo = createBezelGeometry(SCREEN_WIDTH + (2 * BEZEL_WIDTH), SCREEN_HEIGHT + (2 * BEZEL_WIDTH), 0.08, BEZEL_WIDTH);
-            bezelGeo.translate(0, 0, -0.035);
+            const wOut = SCREEN_WIDTH + (2 * BEZEL_WIDTH);
+            const hOut = SCREEN_HEIGHT + (2 * BEZEL_WIDTH);
+
+            const vertices = createFrame([
+                [ 0.005, wOut - 0.01, hOut - 0.01],
+                [ 0.0, wOut, hOut],
+                [-0.035, wOut, hOut],
+                [-0.04, wOut - 0.01, hOut - 0.01],
+                [-0.04, SCREEN_WIDTH, SCREEN_HEIGHT],
+                [0.005, SCREEN_WIDTH, SCREEN_HEIGHT],
+            ]);
+            const bezelGeo = new BufferGeometry();
+            bezelGeo.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
+            bezelGeo.computeVertexNormals();
+
             const bezel = new Mesh(bezelGeo, new MeshLambertMaterial({color: '#eeddcc'}));
             this._node.add(bezel);
         }
