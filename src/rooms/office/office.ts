@@ -28,11 +28,11 @@ export class Office extends GameObject3D {
         this._node.add(desk.mesh);
 
         this.clock = new WallClock();
-        this.clock.node!.position.set(1, 2, -1.99);
+        this.clock.node.position.set(1, 2, -1.99);
         this.addChild(this.clock);
 
         this.patientMonitor = new PatientMonitor();
-        this.patientMonitor.node?.position.set(1.6, 1.0, -0.9);
+        this.patientMonitor.node.position.set(1.6, 1.0, -0.9);
         this.addChild(this.patientMonitor);
 
         this._createWalls();
