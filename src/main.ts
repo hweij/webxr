@@ -142,12 +142,12 @@ function initScene() {
   // {
   //   const loader = new THREE.CubeTextureLoader();
   //   const texture = loader.load([
-  //     'textures/sf/posx.jpg',
-  //     'textures/sf/negx.jpg',
-  //     'textures/sf/posy.jpg',
-  //     'textures/sf/negy.jpg',
-  //     'textures/sf/posz.jpg',
-  //     'textures/sf/negz.jpg'
+  //     'textures/sb_sun/px.jpg',
+  //     'textures/sb_sun/nx.jpg',
+  //     'textures/sb_sun/py.jpg',
+  //     'textures/sb_sun/ny.jpg',
+  //     'textures/sb_sun/pz.jpg',
+  //     'textures/sb_sun/nz.jpg'
   //   ]);
   //   scene.background = texture;
   // }
@@ -156,8 +156,6 @@ function initScene() {
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
   // Initialize at 1.8m height (only for non-VR)
   camera.position.set(0, 1.8, 1);
-  // Layer 3 is used for objects that should be visible, but not raycasted
-  // camera.layers.enable(3);
 
   /** Avatar, for VR use */
   avatar = new THREE.Group();
