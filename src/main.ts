@@ -319,10 +319,7 @@ function tick(dt: number) {
 
 var hitObject: GameObject3D | null = null;
 var grabObject: GameObject3D | null = null;
-var grabObjectPosition: Vector3;
-var controllerPosition: Vector3;
-var grabObjectRotation: THREE.Quaternion;
-var controllerRotation: THREE.Quaternion;
+var grabObjectParent: Object3D | null = null;
 var grabbed = false;
 
 var _lastTime = 0;
@@ -369,29 +366,20 @@ function render(time: number, frame: XRFrame) {
       if (inputs.right.grab.pressed) {
         grabObject = hitObject;
         if (grabObject) {
-          grabObjectPosition = grabObject._node.position.clone();
-          controllerPosition = controllerR.position.clone();
-          grabObjectRotation = grabObject._node.quaternion.clone();
-          controllerRotation = controllerR.quaternion.clone();
+          grabObjectParent = grabObject._node.parent;
+          controllerR.attach(grabObject._node);
         }
       }
       else {
         // Release grabbed object
+        if (grabObjectParent && grabObject) {
+          grabObjectParent.attach(grabObject._node);
+        }
         grabObject = null;
+        grabObjectParent = null;
       }
       grabbed = inputs.right.grab.pressed;
     }
-
-    if (grabObject) {
-      // Adapt position
-      const p = (controllerR.position.clone()).sub(controllerPosition);
-      p.add(grabObjectPosition);
-      grabObject._node.position.set(p.x, p.y, p.z);
-      // Adapt rotation (not correct yet, acts weird)
-      const qi = (controllerRotation.clone()).invert();
-      const delta = (controllerR.quaternion.clone()).multiply(qi);
-      delta.multiply(grabObjectRotation);
-      grabObject._node.quaternion.set(delta.x, delta.y, delta.z, delta.w);    }
 
     // TODO: lift teleport function to higher level and detect thumb-forward motion here
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
