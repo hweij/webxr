@@ -318,6 +318,9 @@ function tick(dt: number) {
 }
 
 var hitObject: GameObject3D | null = null;
+
+// GRABBING
+const grabDistance = 0.2;
 var grabObject: GameObject3D | null = null;
 var grabObjectParent: Object3D | null = null;
 var grabbed = false;
@@ -368,6 +371,10 @@ function render(time: number, frame: XRFrame) {
         if (grabObject) {
           grabObjectParent = grabObject._node.parent;
           controllerR.attach(grabObject._node);
+          // Reduce distance to controller. This should be animated.
+          if (grabObject._node.position.length() > grabDistance) {
+            grabObject._node.position.normalize().multiplyScalar(grabDistance);
+          }
         }
       }
       else {
