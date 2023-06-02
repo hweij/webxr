@@ -12,12 +12,15 @@ const WAVE_HEIGHT = 80;
 
 const colors = ["red", "green", "blue", "yellow", "white", "cyan", "magenta"];
 
+const bezelColor = '#eeddcc';
+
 export class PatientMonitor extends GameObject3D {
     screen: Mesh;
     _waveCanvas: WaveCanvas[];
     _t = 0;
     _texWave: Texture;
     mat: Material;
+    bezelMat: MeshLambertMaterial;
 
     _testSampleIndex = 0;
 
@@ -68,8 +71,8 @@ export class PatientMonitor extends GameObject3D {
             const bezelGeo = new BufferGeometry();
             bezelGeo.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
             bezelGeo.computeVertexNormals();
-
-            const bezel = new Mesh(bezelGeo, new MeshLambertMaterial({color: '#eeddcc'}));
+            this.bezelMat = new MeshLambertMaterial({color: bezelColor});
+            const bezel = new Mesh(bezelGeo, this.bezelMat);
             this._node.add(bezel);
         }
     }
@@ -93,11 +96,11 @@ export class PatientMonitor extends GameObject3D {
     }
 
     override onRayEnter(): void {
-        this._node.scale.set(1.1, 1.1, 1.1);
+        this.bezelMat.color.set('#ff00ff');
     }
 
     override onRayExit(): void {
-        this._node.scale.set(1, 1, 1);
+        this.bezelMat.color.set(bezelColor);
     }
 }
 
