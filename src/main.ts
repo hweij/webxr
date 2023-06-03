@@ -382,15 +382,6 @@ function render(time: number, frame: XRFrame) {
             const positionKF = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.5 ], [ from.x, from.y, from.z, target.x, target.y, target.z ],  THREE.InterpolateSmooth);
             const clip = new THREE.AnimationClip( 'Action', 0.5, [ positionKF ] );
             mixer = new THREE.AnimationMixer(grabObject._node);
-            mixer.addEventListener("finished", () => {
-              if (clipAction.timeScale < 0) {
-                if (grabObjectParent && grabObject) {
-                  grabObjectParent.attach(grabObject._node);
-                }
-                grabObject = null;
-                grabObjectParent = null;  
-              }
-            });
             clipAction = mixer.clipAction( clip );
             clipAction.setLoop(THREE.LoopOnce, 1);
             clipAction.clampWhenFinished = true;
@@ -414,7 +405,14 @@ function render(time: number, frame: XRFrame) {
       grabbed = inputs.right.grab.pressed;
     }
 
-    mixer?.update(dt)
+    mixer?.update(dt);
+
+    // Restore original position if grab canceled
+    if (clipAction && (clipAction.timeScale < 0) && clipAction.paused && grabObjectParent && grabObject) {
+      grabObjectParent.attach(grabObject._node);
+      grabObject = null;
+      grabObjectParent = null;
+    }
 
     // TODO: lift teleport function to higher level and detect thumb-forward motion here
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
