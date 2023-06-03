@@ -325,6 +325,7 @@ var grabObject: GameObject3D | null = null;
 var grabObjectParent: Object3D | null = null;
 var grabbed = false;
 var mixer: THREE.AnimationMixer;
+var clipAction: THREE.AnimationAction;
 
 var _lastTime = 0;
 function render(time: number, frame: XRFrame) {
@@ -381,7 +382,16 @@ function render(time: number, frame: XRFrame) {
             const positionKF = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.5 ], [ from.x, from.y, from.z, target.x, target.y, target.z ],  THREE.InterpolateSmooth);
             const clip = new THREE.AnimationClip( 'Action', 0.5, [ positionKF ] );
             mixer = new THREE.AnimationMixer(grabObject._node);
-            const clipAction = mixer.clipAction( clip );
+            mixer.addEventListener("finished", () => {
+              if (clipAction.timeScale < 0) {
+                if (grabObjectParent && grabObject) {
+                  grabObjectParent.attach(grabObject._node);
+                }
+                grabObject = null;
+                grabObjectParent = null;  
+              }
+            });
+            clipAction = mixer.clipAction( clip );
             clipAction.setLoop(THREE.LoopOnce, 1);
             clipAction.clampWhenFinished = true;
 				    clipAction.play();
@@ -390,11 +400,16 @@ function render(time: number, frame: XRFrame) {
       }
       else {
         // Release grabbed object
-        if (grabObjectParent && grabObject) {
-          grabObjectParent.attach(grabObject._node);
+        if (!clipAction.paused && (clipAction.timeScale > 0)) {
+          clipAction.timeScale = -1;
         }
-        grabObject = null;
-        grabObjectParent = null;
+        else {
+          if (grabObjectParent && grabObject) {
+            grabObjectParent.attach(grabObject._node);
+          }
+          grabObject = null;
+          grabObjectParent = null;  
+        }
       }
       grabbed = inputs.right.grab.pressed;
     }
