@@ -391,7 +391,7 @@ function render(time: number, frame: XRFrame) {
       else {
         // Release grabbed object
         if (grabObjectParent && grabObject) {
-          grabObjectParent.attach(grabObject._node);\
+          grabObjectParent.attach(grabObject._node);
         }
         grabObject = null;
         grabObjectParent = null;
