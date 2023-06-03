@@ -324,11 +324,13 @@ const grabDistance = 0.2;
 var grabObject: GameObject3D | null = null;
 var grabObjectParent: Object3D | null = null;
 var grabbed = false;
+var mixer: THREE.AnimationMixer;
 
 var _lastTime = 0;
 function render(time: number, frame: XRFrame) {
   if (_lastTime) {
-    const dt = (time - _lastTime) * 0.001;
+    const dtms = (time - _lastTime);
+    const dt = dtms * 0.001;
 
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
@@ -372,21 +374,32 @@ function render(time: number, frame: XRFrame) {
           grabObjectParent = grabObject._node.parent;
           controllerR.attach(grabObject._node);
           // Reduce distance to controller. This should be animated.
-          if (grabObject._node.position.length() > grabDistance) {
-            grabObject._node.position.normalize().multiplyScalar(grabDistance);
+          const from = grabObject._node.position;
+          if (from.length() > grabDistance) {
+            // Pull it near
+            const target = (grabObject._node.position.clone()).normalize().multiplyScalar(grabDistance);
+            const positionKF = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.5 ], [ from.x, from.y, from.z, target.x, target.y, target.z ],  THREE.InterpolateSmooth);
+            const clip = new THREE.AnimationClip( 'Action', 1, [ positionKF ] );
+            mixer = new THREE.AnimationMixer( grabObject._node );
+            const clipAction = mixer.clipAction( clip );
+            clipAction.setLoop(THREE.LoopOnce, 1);
+            clipAction.clampWhenFinished = true;
+				    clipAction.play();
           }
         }
       }
       else {
         // Release grabbed object
         if (grabObjectParent && grabObject) {
-          grabObjectParent.attach(grabObject._node);
+          grabObjectParent.attach(grabObject._node);\
         }
         grabObject = null;
         grabObjectParent = null;
       }
       grabbed = inputs.right.grab.pressed;
     }
+
+    mixer?.update(dt)
 
     // TODO: lift teleport function to higher level and detect thumb-forward motion here
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
