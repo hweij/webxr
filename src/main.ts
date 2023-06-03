@@ -379,8 +379,8 @@ function render(time: number, frame: XRFrame) {
             // Pull it near
             const target = (grabObject._node.position.clone()).normalize().multiplyScalar(grabDistance);
             const positionKF = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.5 ], [ from.x, from.y, from.z, target.x, target.y, target.z ],  THREE.InterpolateSmooth);
-            const clip = new THREE.AnimationClip( 'Action', 1, [ positionKF ] );
-            mixer = new THREE.AnimationMixer( grabObject._node );
+            const clip = new THREE.AnimationClip( 'Action', 0.5, [ positionKF ] );
+            mixer = new THREE.AnimationMixer(grabObject._node);
             const clipAction = mixer.clipAction( clip );
             clipAction.setLoop(THREE.LoopOnce, 1);
             clipAction.clampWhenFinished = true;
