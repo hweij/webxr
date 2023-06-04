@@ -8,6 +8,8 @@ const soundUrl = 'https://stream.live.vc.bbcmedia.co.uk/bbc_1xtra';
 // const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
 
 export class Radio {
+    _node: THREE.Mesh;
+
     constructor(scene: Scene, camera: Camera) {
         // create an AudioListener and add it to the camera
         const listener = new THREE.AudioListener();
@@ -22,12 +24,12 @@ export class Radio {
         // create an object for the sound to play from
         const sphere = new THREE.SphereGeometry(0.2, 32, 16);
         const material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
-        const mesh = new THREE.Mesh(sphere, material);
-        mesh.position.set(1, 1, -1);
-        scene.add(mesh);
+        this._node = new THREE.Mesh(sphere, material);
+        this._node.position.set(1, 1, -1);
+        scene.add(this._node);
 
         // finally add the sound to the mesh
-        mesh.add(sound);
+        this._node.add(sound);
     }
 
     connectViaLoader(sound: THREE.PositionalAudio) {
