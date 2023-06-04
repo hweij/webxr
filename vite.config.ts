@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import mkcert from 'vite-plugin-mkcert'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,5 +10,5 @@ export default defineConfig({
     // (or use `npm run dev -- -- host=0.0.0.0`)
     host: '0.0.0.0',
   },
-  plugins: [ mkcert() ]
+  plugins: [ basicSsl() ]
 })
