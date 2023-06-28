@@ -52,6 +52,8 @@ floorPattern.texture.wrapT = THREE.RepeatWrapping;
 floorPattern.texture.repeat.set(8, 8);
 floorPattern.fill((_x, _y) => [0, Math.random() * 128 + 64, 0, 255]);
 
+var vrMode = false;
+
 var avatar: THREE.Group;
 
 var teleport: Teleport;
@@ -128,6 +130,22 @@ async function init() {
   avatar.add(controllerInertia);
 
   window.addEventListener('resize', onWindowResize);
+
+  window.onmousemove = (evt: MouseEvent) => {
+    if (!vrMode) {
+      const intersections = raycastHelper.getMouseIntersections(raycastTargetList, camera, (evt.clientX / window.innerWidth) * 2 - 1, -(evt.clientY / window.innerHeight) * 2 + 1);
+      const obj = raycastHelper.triggerHandlers(intersections);
+      if (obj != hitObject) {
+        if (hitObject) {
+          hitObject.onRayExit();
+        }
+        hitObject = obj;
+        if (hitObject) {
+          hitObject.onRayEnter();
+        }
+      }  
+    }
+  }
 }
 
 function addToScene(obj: Object3D, raycast: boolean) {
@@ -262,6 +280,7 @@ function initScene() {
   { // Button to enable VR
     const bStartSession = document.getElementById("bStartSession")!;
     bStartSession.onclick = () => {
+      vrMode = true;
       startSession(
         renderer,
         () => {
@@ -285,11 +304,6 @@ function initScene() {
           }
         },
         () => { });
-    }
-    const bNoVR = document.getElementById("bNoVR")!;
-    bNoVR.onclick = () => {
-      container.removeChild(bNoVR);
-      container.removeChild(bStartSession);
     }
   }
 
@@ -360,16 +374,19 @@ function render(time: number, frame: XRFrame) {
     movementControl.update(dt);
 
     // Raycast, object selection
-    const intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
-    const obj = raycastHelper.triggerHandlers(intersections);
-    if (obj != hitObject) {
-      if (hitObject) {
-        hitObject.onRayExit();
-      }
-      hitObject = obj;
-      if (hitObject) {
-        hitObject.onRayEnter();
-      }
+    let intersections: THREE.Intersection<THREE.Object3D<THREE.Event>>[] = [];
+    if (vrMode) {
+      intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
+      const obj = raycastHelper.triggerHandlers(intersections);
+      if (obj != hitObject) {
+        if (hitObject) {
+          hitObject.onRayExit();
+        }
+        hitObject = obj;
+        if (hitObject) {
+          hitObject.onRayEnter();
+        }
+      }  
     }
 
     // Grabbing

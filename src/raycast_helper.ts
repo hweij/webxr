@@ -18,6 +18,12 @@ export class RaycastHelper {
         return intersects;
     }
 
+    getMouseIntersections(objects: Object3D[], camera: THREE.Camera, x: number, y: number) {
+        this._rc.setFromCamera( {x, y}, camera );
+        const intersects = this._rc.intersectObjects( objects );
+        return intersects;
+    }
+
     triggerHandlers(intersections: THREE.Intersection[]) {
         if (intersections.length) {
             const intersection = intersections[0];
