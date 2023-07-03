@@ -2,6 +2,10 @@ import { Object3D } from "three";
 
 import { GameObject } from "./game_object";
 
+type InteractionsType = {
+    grab?: boolean;
+}
+
 /**
  * Wraps a (three) 3D object.
  * 
@@ -12,6 +16,8 @@ export class GameObject3D implements GameObject {
     _children: GameObject3D[] = [];
     /** Internal 3D object node, MUST be set in subclass */
     _node!: Object3D;
+
+    interactions: InteractionsType = {};
 
     constructor(node: Object3D) {
         this._node = node;

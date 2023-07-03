@@ -117,9 +117,9 @@ async function init() {
 
   teleport = new Teleport(scene);
 
-  // TEST TEST add ray to controller
+  // Add ray to controller
   const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
-  const rayGeo = new THREE.CylinderGeometry(0.005, 0.005, 10.0, 8, 1, true);
+  const rayGeo = new THREE.CylinderGeometry(0.003, 0.003, 10.0, 8, 1, true);
   rayGeo.translate(0, 5.0, 0);
   rayGeo.rotateX(-Math.PI * 0.5);
   const rayMesh = new THREE.Mesh(rayGeo, rayMaterial);
@@ -392,7 +392,10 @@ function render(time: number, frame: XRFrame) {
     // Grabbing
     if (inputs.right.grab.pressed !== grabbed) {
       if (inputs.right.grab.pressed) {
-        grabObject = hitObject;
+        // Only handle grabbable objects
+        if (!hitObject || hitObject.interactions.grab) {
+          grabObject = hitObject;
+        }
         if (grabObject) {
           grabObjectParent = grabObject._node.parent;
           controllerInertia.attach(grabObject._node);

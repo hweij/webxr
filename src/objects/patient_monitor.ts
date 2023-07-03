@@ -27,6 +27,8 @@ export class PatientMonitor extends GameObject3D {
     constructor() {
         super(new Group());
 
+        this.interactions.grab = true;
+
         const canvas = document.createElement("canvas");
         canvas.width = 1920;
         canvas.height = 1080;
