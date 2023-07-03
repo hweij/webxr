@@ -38,6 +38,8 @@ export class Balls implements GameObject {
       }
       else {
         ball.mesh.position.addScaledVector(ball.direction, -dt * 10);
+        // Gravity
+        ball.direction.y += dt * 1;
         i++;
       }
     }
