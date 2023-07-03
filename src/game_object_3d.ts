@@ -3,6 +3,7 @@ import { Object3D } from "three";
 import { GameObject } from "./game_object";
 
 type InteractionsType = {
+    /** True if the object can be grabbed */
     grab?: boolean;
 }
 

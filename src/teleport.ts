@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { Mesh, Object3D, Scene, Vector3 } from 'three';
+import { GameObject } from './game_object';
 
-export class Teleport {
+export class Teleport implements GameObject {
   _marker: Mesh;
 
   constructor(scene: Scene) {
@@ -18,7 +19,7 @@ export class Teleport {
     const rPos = controller.getWorldPosition(new Vector3());
     const rDir = controller.getWorldDirection(new Vector3());
 
-    // Goody: turn ray such that it's top stays at the top
+    // Goody: turn ray such that its top stays at the top
     // controller.getWorldPosition(this._ray.position);
     // const mm = new Matrix4();
     // mm.lookAt(new Vector3(), rDir, new Vector3(0,1,0));
@@ -36,8 +37,8 @@ export class Teleport {
           const nv = intersect.face.normal;
           var normalMatrix = new THREE.Matrix3(); // create once and reuse
           var worldNormal = new THREE.Vector3(); // create once and reuse
-          normalMatrix.getNormalMatrix( intersect.object.matrixWorld );
-          worldNormal.copy( nv ).applyMatrix3( normalMatrix );
+          normalMatrix.getNormalMatrix(intersect.object.matrixWorld);
+          worldNormal.copy(nv).applyMatrix3(normalMatrix);
           if (worldNormal.angleTo(new Vector3(0, 1, 0)) < 0.4) {
             const p = intersect.point;
             this._marker.position.set(p.x, p.y, p.z);
@@ -65,6 +66,10 @@ export class Teleport {
     // this._ray.scale.z = rayLength;
   }
 
+  tick(dt: number) {
+    this._marker.rotateY(dt);
+  }
+
   // _createRayMesh() {
   //   const S = 1;
   //   const W = 0.005;
@@ -78,38 +83,39 @@ export class Teleport {
   //     -W, Z, 0,
   //     -W, Z, S
   //   ] );
-  
+
   //   geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
   //   this._rayMaterial = new THREE.MeshBasicMaterial( { color: 0xcccccc, side: DoubleSide, transparent: true, opacity: 0.5 } );
   //   return new THREE.Mesh( geometry, this._rayMaterial );
   // }
 }
 
+/** Marks the teleport target */
 function createMarkerMesh() {
-  /** Length of the cross "legs" */
-  const S = 0.1;
-  const W = 0.02;
-  const Z = 0.01;
-  const geometry = new THREE.BufferGeometry();
-  // X marks the spot
-  const vertices = new Float32Array( [
-    // Horizontal
-    -S, Z,  W,
-     S, Z,  W,
-     S, Z, -W,
-     S, Z, -W,
-    -S, Z, -W,
-    -S, Z,  W,
-    // Vertical
-    -W, Z,  S,
-     W, Z,  S,
-     W, Z, -S,
-     W, Z, -S,
-    -W, Z, -S,
-    -W, Z,  S
-  ] );
+  // Cone radius
+  const R = 0.1;
+  // Cone height
+  const H = 0.20;
+  const geometry = new THREE.ConeGeometry(R, H, 16, 2, true);
+  geometry.rotateX(Math.PI);
+  geometry.translate(0, H / 2, 0);
 
-  geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-  const material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
-  return new THREE.Mesh( geometry, material );
+  // Texture
+  const segments = 8;
+  const data = new Uint8Array(4 * segments);
+  for (let i = 0; i < segments; i++) {
+    const c = (i % 2) * 255;
+    const stride = i * 4;
+    data[stride] = c;
+    data[stride + 1] = c;
+    data[stride + 2] = c;
+    data[stride + 3] = 128;
+  }
+
+  // used the buffer to create a DataTexture
+  const texture = new THREE.DataTexture(data, segments, 1);
+  texture.needsUpdate = true;
+
+  const material = new THREE.MeshBasicMaterial({ color: 0xcccccc, map: texture, transparent: true, side: THREE.DoubleSide });
+  return new THREE.Mesh(geometry, material);
 }

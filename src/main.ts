@@ -115,7 +115,7 @@ async function init() {
   controllerR = mesh.clone();
   avatar.add(controllerR);
 
-  teleport = new Teleport(scene);
+  teleport = addGameObject(new Teleport(scene));
 
   // Add ray to controller
   const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
