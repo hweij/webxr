@@ -134,7 +134,7 @@ async function init() {
   window.onmousemove = (evt: MouseEvent) => {
     if (!vrMode) {
       const intersections = raycastHelper.getMouseIntersections(raycastTargetList, camera, (evt.clientX / window.innerWidth) * 2 - 1, -(evt.clientY / window.innerHeight) * 2 + 1);
-      const obj = raycastHelper.triggerHandlers(intersections);
+      const obj = raycastHelper.findGameObject(intersections);
       if (obj != hitObject) {
         if (hitObject) {
           hitObject.onRayExit();
@@ -377,7 +377,7 @@ function render(time: number, frame: XRFrame) {
     let intersections: THREE.Intersection<THREE.Object3D<THREE.Event>>[] = [];
     if (vrMode) {
       intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
-      const obj = raycastHelper.triggerHandlers(intersections);
+      const obj = raycastHelper.findGameObject(intersections);
       if (obj != hitObject) {
         if (hitObject) {
           hitObject.onRayExit();
@@ -465,5 +465,6 @@ function createFloor(tex: THREE.Texture) {
   const floor = new THREE.Mesh(geo, mat);
   floor.rotation.x = - Math.PI / 2;
   floor.position.y = 0;
+  floor.userData.teleport = true;
   return floor;
 }

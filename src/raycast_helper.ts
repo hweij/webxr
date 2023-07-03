@@ -24,7 +24,7 @@ export class RaycastHelper {
         return intersects;
     }
 
-    triggerHandlers(intersections: THREE.Intersection[]) {
+    findGameObject(intersections: THREE.Intersection[]) {
         if (intersections.length) {
             const intersection = intersections[0];
             let node: Object3D | null = intersection.object;

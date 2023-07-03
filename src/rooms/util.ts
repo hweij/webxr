@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Vector3 } from "three";
 
-export function createWall(points: number[], holes: number[][], matFront: THREE.Material, matBack: THREE.Material, pos: Vector3, rot?: Vector3) {
+export function createWall(points: number[], holes: number[][], matFront: THREE.Material, matBack: THREE.Material, pos: Vector3, rot?: Vector3, teleport?: boolean) {
     const group = new THREE.Group();
     const n = points.length / 2;
     const shape = new THREE.Shape();
@@ -34,6 +34,11 @@ export function createWall(points: number[], holes: number[][], matFront: THREE.
     // Mirror, so it shows on the other side (and normals match as well)
     inside.scale.z = -1;
     group.add(inside);
+
+    if (teleport) {
+        inside.userData.teleport = true;
+        outside.userData.teleport = true;
+    }
 
     if (euler) {
         group.setRotationFromEuler(euler);

@@ -82,7 +82,8 @@ export class Office extends GameObject3D {
             [],
             matOutside, matInside,
             new Vector3(-WIDTH / 2, 0.00, -DEPTH / 2),
-            new Vector3(90, 0, 0));
+            new Vector3(90, 0, 0),
+            true);
         obj.add(floor);
     }
 
