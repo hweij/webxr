@@ -416,7 +416,7 @@ function render(time: number, frame: XRFrame) {
       }
       else {
         // Release grabbed object
-        if (!clipAction.paused && (clipAction.timeScale > 0)) {
+        if (clipAction && !clipAction.paused && (clipAction.timeScale > 0)) {
           clipAction.timeScale = -1;
         }
         else {
