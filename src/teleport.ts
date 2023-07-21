@@ -12,7 +12,7 @@ export class Teleport implements GameObject {
   }
 
   /** Call this to detect and teleport based on the thumb stick position (push forward) */
-  teleportOnThumb(thumbY: number, target: Vector3, intersects: THREE.Intersection[], controller: Object3D) {
+  teleport(button: boolean, target: Vector3, intersects: THREE.Intersection[], controller: Object3D) {
     let rayLength = 10;
 
     // Ray intersect from right controller
@@ -29,7 +29,7 @@ export class Teleport implements GameObject {
     // Reverse direction, apparently it points the opposite way
     rDir.multiplyScalar(-1);
 
-    if (thumbY < -0.5) {
+    if (button) {
       if (intersects.length) {
         const intersect = intersects[0];
         // Only teleport to surfaces that have the "teleport" userData property
@@ -45,13 +45,11 @@ export class Teleport implements GameObject {
       }
     }
     else {
-      if (thumbY > -0.1) {
-        if (this._marker.visible) {
-          this._marker.getWorldPosition(target);
-          this._marker.visible = false;
-        }
-        // this._rayMaterial.opacity = OPACITY_INACTIVE;
+      if (this._marker.visible) {
+        this._marker.getWorldPosition(target);
+        this._marker.visible = false;
       }
+      // this._rayMaterial.opacity = OPACITY_INACTIVE;
     }
     // this._ray.scale.z = rayLength;
   }

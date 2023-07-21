@@ -483,7 +483,7 @@ function render(millis: number, frame: XRFrame) {
     controllerInertia.quaternion.slerp(controllerR.quaternion, tLerp);
 
     // TODO: lift teleport function to higher level and detect thumb-forward motion here
-    teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
+    teleport?.teleport(inputs.right.thumb.forward, avatar.position, intersections, controllerR);
   }
 
   _lastTime = millis;
