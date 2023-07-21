@@ -7,6 +7,13 @@ type InteractionsType = {
     grab?: boolean;
 }
 
+export interface GameContext {
+    /** Absolute time, seconds since epoch */
+    t: number;
+    /** Delta time since last tick */
+    dt: number;
+}
+
 /**
  * Wraps a (three) 3D object.
  * 

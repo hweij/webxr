@@ -33,14 +33,14 @@ export class WallClock extends GameObject3D {
 
         this._node.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
 
-        this.updateTime(true);
+        this._updateTime(true);
     }
 
     override tick(_dt: number) {
-        this.updateTime();
+        this._updateTime();
     }
 
-    updateTime(force = false) {
+    _updateTime(force = false) {
         const now = this.date;
         const lastSeconds = now.getSeconds();
         now.setTime(Date.now());
