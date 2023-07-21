@@ -3,11 +3,12 @@ import { Object3D, Texture } from "three";
 
 /** Panel for showing in-scene debug messages */
 export class DebugPanel {
-  object3D = new THREE.Object3D();
-  canvas = document.createElement('canvas');
+  object3D: THREE.Object3D;
+  canvas: HTMLCanvasElement;
   tex: Texture;
 
   constructor(parent: Object3D, width: number, height: number) {
+    this.canvas = document.createElement('canvas');
     this.canvas.width = width;
     this.canvas.height = height;
     this.tex =  new Texture(this.canvas);
