@@ -13,7 +13,7 @@ import { GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
-import { Graph } from './objects/graph';
+// import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { MovementControl } from './movement_control';
 import { RaycastHelper } from './raycast_helper';
@@ -223,16 +223,6 @@ function initScene() {
   //   scene.add(landscape);
   //   // landscape.updateMatrixWorld();
   // }
-
-  { // Graph test
-    const graph = new Graph(0.01, 0xff0000);
-    graph.mesh.position.set(0, 1, -1.5);
-    scene.add(graph.mesh);
-
-    const graph2 = new Graph(0.01, 0x00ff00);
-    graph2.mesh.position.set(0, 1.6, -1.5);
-    scene.add(graph2.mesh);
-  }
 
   { // Lighting
     scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
