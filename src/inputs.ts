@@ -14,6 +14,10 @@ type ThumbState = {
   left: boolean;
   /** Thumb-right "button" (with hysteresis) */
   right: boolean;
+  /** Thumb-forward "button" (with hysteresis) */
+  forward: boolean;
+  /** Thumb-back "button" (with hysteresis) */
+  back: boolean;
 }
 
 type InputDevice = {
@@ -28,7 +32,7 @@ function defaultInputValue() {
   return {
     trigger : { pressed: false, value: 0 },
     grab: { pressed: false, value: 0 },
-    thumb: { pressed: false, x: 0, y: 0, left: false, right: false },
+    thumb: { pressed: false, x: 0, y: 0, left: false, right: false, forward: false, back: false },
     ax: false,
     by: false
   };
@@ -60,8 +64,10 @@ export class Inputs {
           dev.thumb.pressed = gamepad.buttons[3].pressed;
           dev.thumb.x = gamepad.axes[2];
           dev.thumb.y = gamepad.axes[3];
-          dev.thumb.left = analogToBin(dev.thumb.left, dev.thumb.x, -0.5);
-          dev.thumb.right = analogToBin(dev.thumb.right, dev.thumb.x, 0.5);
+          dev.thumb.left = hyst(dev.thumb.left, dev.thumb.x, -0.5);
+          dev.thumb.right = hyst(dev.thumb.right, dev.thumb.x, 0.5);
+          dev.thumb.forward = hyst(dev.thumb.forward, dev.thumb.y, -0.5);
+          dev.thumb.back = hyst(dev.thumb.back, dev.thumb.y, 0.5);
           dev.ax = gamepad.buttons[4].pressed;
           dev.by = gamepad.buttons[5].pressed;
         }
@@ -70,7 +76,7 @@ export class Inputs {
   }
 }
 
-function analogToBin(state: boolean, v: number, triggerValue: number) {
+function hyst(state: boolean, v: number, triggerValue: number) {
   const low = (v <= (triggerValue - HYST));
   const high = (v >= (triggerValue + HYST));
   if (triggerValue < 0.5) {
