@@ -77,6 +77,13 @@ export class PatientMonitor extends GameObject3D {
             this.bezelMat = new MeshLambertMaterial({color: bezelColor});
             const bezel = new Mesh(bezelGeo, this.bezelMat);
             this._node.add(bezel);
+        
+            // Backside
+            const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
+            geo.rotateX(Math.PI);
+            geo.translate(0.0, 0.0, -0.035);
+            const back = new Mesh(geo, this.bezelMat);
+            this._node.add(back);
         }
     }
 

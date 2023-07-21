@@ -23,7 +23,9 @@ import { GameObject3D } from './game_object_3d';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
+/** Button to start the VR session */
 var bStartSession: HTMLElement;
+/** Text to explain use of the program before starting VR */
 var vrText: HTMLElement;
 
 let camera: PerspectiveCamera;
@@ -82,12 +84,6 @@ async function init() {
   initScene();
 
   // TEST LINES
-  // getOutlinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
-  // const flatLine = createFlatLine();
-  // flatLine.position.set(0, 1.0, -1.5)
-  // scene.add(flatLine);
-
-  // getGraphLinePoints(new Vector2(0, 0), new Vector2(1, -3), new Vector2(2, 0), 1);
   {
     const vitals = appContext.wfdbData;
     if (vitals) {
