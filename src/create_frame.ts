@@ -1,3 +1,5 @@
+export type ZWH = [ z: number, w: number, h: number];
+
 /**
  * Creates a frame vertex array that connects specified rectangles (z-coordinate, width, and height).
  * 
@@ -5,7 +7,7 @@
  * 
  * Example: const vertices = createFrame([-0.1, 2, 1], [0, 2, 1], [0.1, 1.8, 0.8]);
  */
-export function createFrame(p: number[][]) {
+export function createFrame(p: ZWH[]) {
     let vertices: number[] = [];
     // Vertices: 24 per stage, 6 for back/front
     for (let i=0; i<p.length; i++) {
@@ -15,7 +17,7 @@ export function createFrame(p: number[][]) {
 }
 
 /** Connects two rectangles of the frame */
-function connectRectangles(r1: number[], r2: number[], vertices: number[]) {
+function connectRectangles(r1: ZWH, r2: ZWH, vertices: number[]) {
     const v1 = getVertices(r1);
     const v2 = getVertices(r2);
     for (let i=0; i<4; i++) {
@@ -25,7 +27,7 @@ function connectRectangles(r1: number[], r2: number[], vertices: number[]) {
 }
 
 /** Returns the vertices of a given rectangle */
-function getVertices(r: number[]) {
+function getVertices(r: ZWH) {
     const z = r[0];
     const w2 = r[1] * 0.5;
     const h2 = r[2] * 0.5;
