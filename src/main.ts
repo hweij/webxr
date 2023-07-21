@@ -46,6 +46,10 @@ var gameObjects: GameObject[] = [];
 
 // Submodules
 const inputs = new Inputs();
+/** Registers if joystick is positioned at the left */
+var joyLeft = false;
+/** Registers if joystick is positioned at the right */
+var joyRight = false;
 let debugPanel: DebugPanel;
 
 const floorPattern = new ColorBoard(256, 256);
@@ -380,7 +384,7 @@ function render(millis: number, frame: XRFrame) {
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
         `A/X: ${right.ax}`,
         `B/Y: ${right.by}`,
-        `joystick: (${right.thumb.x.toFixed(2)}, ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
+        `joystick: (${right.thumb.x.toFixed(2)} (${right.thumb.left} - ${right.thumb.right}), ${right.thumb.y.toFixed(2)}) ${right.thumb.pressed ? 'pressed' : ''}`,
         `direction: ${dir.x.toFixed(1)}, ${dir.y.toFixed(1)}, ${dir.z.toFixed(1)}`
       ]);
     }
@@ -403,6 +407,24 @@ function render(millis: number, frame: XRFrame) {
           hitObject.onRayEnter();
         }
       }  
+    }
+
+    { // Turning
+      const STEP = Math.PI * 0.25;
+      if (joyLeft !== inputs.right.thumb.left) {
+        if (joyLeft) {
+          // Rotate left
+          avatar.rotateY(STEP);
+        }
+        joyLeft = inputs.right.thumb.left;
+      }
+      if (joyRight !== inputs.right.thumb.right) {
+        if (joyRight) {
+          // Rotate right
+          avatar.rotateY(-STEP);
+        }
+        joyRight = inputs.right.thumb.right;
+      }
     }
 
     // Grabbing

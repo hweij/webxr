@@ -1,3 +1,6 @@
+/** Hysteresis for converting analog to binary */
+const HYST = 0.2;
+
 type StateValue = {
   pressed: boolean;
   value: number;
@@ -7,6 +10,10 @@ type ThumbState = {
   pressed: boolean;
   x: number;
   y: number;
+  /** Thumb-left "button" (with hysteresis) */
+  left: boolean;
+  /** Thumb-right "button" (with hysteresis) */
+  right: boolean;
 }
 
 type InputDevice = {
@@ -21,7 +28,7 @@ function defaultInputValue() {
   return {
     trigger : { pressed: false, value: 0 },
     grab: { pressed: false, value: 0 },
-    thumb: { pressed: false, x: 0, y: 0 },
+    thumb: { pressed: false, x: 0, y: 0, left: false, right: false },
     ax: false,
     by: false
   };
@@ -53,10 +60,25 @@ export class Inputs {
           dev.thumb.pressed = gamepad.buttons[3].pressed;
           dev.thumb.x = gamepad.axes[2];
           dev.thumb.y = gamepad.axes[3];
+          dev.thumb.left = analogToBin(dev.thumb.left, dev.thumb.x, -0.5);
+          dev.thumb.right = analogToBin(dev.thumb.right, dev.thumb.x, 0.5);
           dev.ax = gamepad.buttons[4].pressed;
           dev.by = gamepad.buttons[5].pressed;
         }
       }
     }
+  }
+}
+
+function analogToBin(state: boolean, v: number, triggerValue: number) {
+  const low = (v <= (triggerValue - HYST));
+  const high = (v >= (triggerValue + HYST));
+  if (triggerValue < 0.5) {
+    // Active low (true)
+    return (low || state) && !high;
+  }
+  else {
+    // Active high (true)
+    return (high || state) && !low;
   }
 }
