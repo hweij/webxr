@@ -1,4 +1,5 @@
-export type ZWH = [ z: number, w: number, h: number];
+type ZWH = [ z: number, w: number, h: number];
+type XYZ = [ x: number, y: number, z: number];
 
 /**
  * Creates a frame vertex array that connects specified rectangles (z-coordinate, width, and height).
@@ -27,7 +28,7 @@ function connectRectangles(r1: ZWH, r2: ZWH, vertices: number[]) {
 }
 
 /** Returns the vertices of a given rectangle */
-function getVertices(r: ZWH) {
+function getVertices(r: ZWH): XYZ[] {
     const z = r[0];
     const w2 = r[1] * 0.5;
     const h2 = r[2] * 0.5;
@@ -35,6 +36,6 @@ function getVertices(r: ZWH) {
 }
 
 /** Creates vertices for a quad */
-function createQuad(p1: number[], p2: number[], p3: number[], p4: number[], vertices: number[]) {
+function createQuad(p1: XYZ, p2: XYZ, p3: XYZ, p4: XYZ, vertices: number[]) {
     vertices.push(...p1, ...p2, ...p3, ...p1, ...p3, ...p4);
 }
