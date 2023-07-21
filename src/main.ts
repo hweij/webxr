@@ -33,9 +33,9 @@ let movementControl: MovementControl;
 let renderer: WebGLRenderer;
 
 /** Controller associated with the right hand */
-var controllerL: Object3D;
+var controllerL: THREE.Group;
 /** Controller associated with the left hand */
-var controllerR: Object3D;
+var controllerR: THREE.Group;
 /** Innertia group */
 var controllerInertia: THREE.Group;
 
@@ -102,10 +102,12 @@ async function init() {
 
   const mesh = createControllerMesh();
 
-  controllerL = mesh.clone();
+  controllerL = new THREE.Group();
+  controllerL.add(mesh.clone());
   avatar.add(controllerL);
 
-  controllerR = mesh.clone();
+  controllerR = new THREE.Group();
+  controllerR.add(mesh.clone());
   avatar.add(controllerR);
 
   teleport = addGameObject(new Teleport(scene));
