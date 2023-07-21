@@ -100,14 +100,14 @@ async function init() {
 
   balls = addGameObject(new Balls());
 
-  const mesh = createControllerMesh();
+  const defaultControllerTool = createControllerMesh();
 
   controllerL = new THREE.Group();
-  controllerL.add(mesh.clone());
+  controllerL.add(defaultControllerTool.clone());
   avatar.add(controllerL);
 
   controllerR = new THREE.Group();
-  controllerR.add(mesh.clone());
+  controllerR.add(defaultControllerTool.clone());
   avatar.add(controllerR);
 
   teleport = addGameObject(new Teleport(scene));
@@ -409,16 +409,16 @@ function render(millis: number, frame: XRFrame) {
           grabObject = hitObject;
         }
         if (grabObject) {
-          grabObjectParent = grabObject._node.parent;
-          controllerInertia.attach(grabObject._node);
+          grabObjectParent = grabObject.node.parent;
+          controllerInertia.attach(grabObject.node);
           // Reduce distance to controller. This should be animated.
-          const from = grabObject._node.position;
+          const from = grabObject.node.position;
           if (from.length() > grabDistance) {
             // Pull it near
-            const target = (grabObject._node.position.clone()).normalize().multiplyScalar(grabDistance);
+            const target = (grabObject.node.position.clone()).normalize().multiplyScalar(grabDistance);
             const positionKF = new THREE.VectorKeyframeTrack('.position', [0, 0.5], [from.x, from.y, from.z, target.x, target.y, target.z], THREE.InterpolateSmooth);
             const clip = new THREE.AnimationClip('Action', 0.5, [positionKF]);
-            mixer = new THREE.AnimationMixer(grabObject._node);
+            mixer = new THREE.AnimationMixer(grabObject.node);
             clipAction = mixer.clipAction(clip);
             clipAction.setLoop(THREE.LoopOnce, 1);
             clipAction.clampWhenFinished = true;
@@ -433,7 +433,7 @@ function render(millis: number, frame: XRFrame) {
         }
         else {
           if (grabObjectParent && grabObject) {
-            grabObjectParent.attach(grabObject._node);
+            grabObjectParent.attach(grabObject.node);
           }
           grabObject = null;
           grabObjectParent = null;
@@ -446,7 +446,7 @@ function render(millis: number, frame: XRFrame) {
 
     // Restore original position if grab canceled
     if (clipAction && (clipAction.timeScale < 0) && clipAction.paused && grabObjectParent && grabObject) {
-      grabObjectParent.attach(grabObject._node);
+      grabObjectParent.attach(grabObject.node);
       grabObject = null;
       grabObjectParent = null;
     }
