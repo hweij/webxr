@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { GameObject } from "../../game_object";
+import { GameContext, GameObject } from "../../game_object";
 
 const WIDTH = 1.6;
 const DEPTH = 0.8;
@@ -33,7 +33,7 @@ export class Desk implements GameObject {
         this._addLeg(x, -y);
     }
 
-    tick(_dt: number) {
+    tick(_context: GameContext) {
 
     }
 

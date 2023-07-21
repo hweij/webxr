@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { Texture } from "three";
-import { GameObject } from "./game_object";
+import { GameContext, GameObject } from "./game_object";
 
 import { Wave } from "./wave";
 
@@ -28,8 +28,8 @@ export class WaveTexture implements GameObject {
     this.wave.drop(53, 45, 10);
   }
 
-  tick(dt: number) {
-    this.wave.tick(dt);
+  tick(context: GameContext) {
+    this.wave.tick(context);
     // Copy wave data to texture
     const values = this.wave.values;
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Object3D } from "three";
-import { GameObject } from '../game_object';
+import { GameContext, GameObject } from '../game_object';
 
 import vert from './snow_gpu.vert?raw';
 import frag from './snow_gpu.frag?raw';
@@ -78,8 +78,8 @@ export class SnowGpu implements GameObject {
     parent.add(mesh);
   }
 
-  tick(dt: number) {
-    this.time += dt;
+  tick(context: GameContext) {
+    this.time = context.t;
 
     snowMaterial.uniforms.time.value = this.time;
   }

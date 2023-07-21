@@ -1,17 +1,10 @@
 import { Object3D } from "three";
 
-import { GameObject } from "./game_object";
+import { GameContext, GameObject } from "./game_object";
 
 type InteractionsType = {
     /** True if the object can be grabbed */
     grab?: boolean;
-}
-
-export interface GameContext {
-    /** Absolute time, seconds since epoch */
-    t: number;
-    /** Delta time since last tick */
-    dt: number;
 }
 
 /**
@@ -71,9 +64,9 @@ export class GameObject3D implements GameObject {
     }
 
     // Interface GameObject
-    tick(dt: number) {
+    tick(context: GameContext) {
         for (const c of this._children) {
-            c.tick(dt);
+            c.tick(context);
         }
     }
 

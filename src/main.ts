@@ -9,7 +9,7 @@ import { Inputs } from './inputs';
 // import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 // import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
-import { GameObject } from './game_object';
+import { GameContext, GameObject } from './game_object';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
@@ -321,9 +321,9 @@ function animate() {
   renderer.setAnimationLoop(render);
 }
 
-function tick(dt: number) {
+function tick(context: GameContext) {
   for (const obj of gameObjects) {
-    obj.tick(dt);
+    obj.tick(context);
   }
 }
 
@@ -338,9 +338,11 @@ var mixer: THREE.AnimationMixer;
 var clipAction: THREE.AnimationAction;
 
 var _lastTime = 0;
-function render(time: number, frame: XRFrame) {
+/** Start time of the game */
+var tStart = Date.now();
+function render(millis: number, frame: XRFrame) {
   if (_lastTime) {
-    const dt = (time - _lastTime) * 0.001;
+    const dt = (millis - _lastTime) * 0.001;
 
     // Update inputs and show the state
     if (frame?.session?.inputSources) {
@@ -359,7 +361,7 @@ function render(time: number, frame: XRFrame) {
       ]);
     }
 
-    tick(dt);
+    tick({ millis: millis + tStart, t: millis * 0.001, dt: dt });
 
     movementControl.update(dt);
 
@@ -438,7 +440,7 @@ function render(time: number, frame: XRFrame) {
     teleport?.teleportOnThumb(inputs.right.thumb.y, avatar.position, intersections, controllerR);
   }
 
-  _lastTime = time;
+  _lastTime = millis;
 
   // Update WebXR controllers for this frame
   updateControllers(renderer, frame, controllerL, controllerR);

@@ -4,6 +4,7 @@ import { WaveCanvas } from "../wave_canvas/wave_canvas";
 
 import * as appContext from "../app_context";
 import { createFrame } from "../create_frame";
+import { GameContext } from "../game_object";
 
 const SCREEN_WIDTH = 0.49;
 const SCREEN_HEIGHT = 0.274;
@@ -79,10 +80,10 @@ export class PatientMonitor extends GameObject3D {
         }
     }
 
-    override tick(dt: number): void {
-        super.tick(dt);
+    override tick(context: GameContext): void {
+        super.tick(context);
 
-        this._t += dt;
+        this._t = context.t;
         for (let i=0; i<this._waveCanvas.length; i++) {
             let v: number | null = null;
             if (appContext.wfdbData) {

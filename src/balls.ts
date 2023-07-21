@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Scene, Vector3 } from "three";
-import { GameObject } from './game_object';
+import { GameContext, GameObject } from './game_object';
 
 // Max age in seconds after which the ball is removed
 const MAX_BALL_AGE = 3;
@@ -25,11 +25,11 @@ export class Balls implements GameObject {
     numBalls++;
   }
 
-  tick(dt: number) {
+  tick(context: GameContext) {
     let i = 0;
     while (i<numBalls) {
       const ball = balls[i]!;
-      ball.age += dt;
+      ball.age += context.dt;
       if (ball.age > MAX_BALL_AGE) {
         ball.mesh.parent?.remove(ball.mesh);
         balls[i] = balls[numBalls - 1];
@@ -37,9 +37,9 @@ export class Balls implements GameObject {
         numBalls--;
       }
       else {
-        ball.mesh.position.addScaledVector(ball.direction, -dt * 10);
+        ball.mesh.position.addScaledVector(ball.direction, -context.dt * 10);
         // Gravity
-        ball.direction.y += dt * 1;
+        ball.direction.y += context.dt * 1;
         i++;
       }
     }

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { Texture } from "three";
-import { GameObject } from "./game_object";
+import { GameContext, GameObject } from "./game_object";
 
 export class ColorBoard implements GameObject {
   texture: Texture;
@@ -53,7 +53,7 @@ export class ColorBoard implements GameObject {
     this.texture.needsUpdate = true;
   }
 
-  tick(_dt: number) {
+  tick(_context: GameContext) {
     this.testFill();
   }
 }

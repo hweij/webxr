@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { ExtrudeGeometry, MeshBasicMaterial, MeshLambertMaterial, ShapeGeometry } from 'three';
 
 import { GameObject3D } from '../game_object_3d';
+import { GameContext } from '../game_object';
 
 export class WallClock extends GameObject3D {
     dialSeconds: THREE.Mesh;
@@ -36,7 +37,7 @@ export class WallClock extends GameObject3D {
         this._updateTime(true);
     }
 
-    override tick(_dt: number) {
+    override tick(_context: GameContext) {
         this._updateTime();
     }
 

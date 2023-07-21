@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Mesh, Object3D, Scene, Vector3 } from 'three';
-import { GameObject } from './game_object';
+import { GameContext, GameObject } from './game_object';
 
 export class Teleport implements GameObject {
   _marker: Mesh;
@@ -56,8 +56,8 @@ export class Teleport implements GameObject {
     // this._ray.scale.z = rayLength;
   }
 
-  tick(dt: number) {
-    this._marker.rotateY(dt);
+  tick(context: GameContext) {
+    this._marker.rotateY(context.dt);
   }
 
   // _createRayMesh() {
