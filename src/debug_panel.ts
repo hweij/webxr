@@ -29,7 +29,7 @@ export class DebugPanel {
     this.setMessage('debug');
   }
 
-  setMessage(msg: string | string[], color = '#ffffff') {
+  setMessage(msg: string | string[]) {
     const lines = (typeof msg === 'string') ? [msg] : msg;
     const ctx = this.canvas.getContext('2d');
     if (ctx) {
@@ -43,7 +43,7 @@ export class DebugPanel {
       else {
         ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
       }
-      ctx.fillStyle = color;
+      ctx.fillStyle = this.textColor;
       for (let i=0; i<lines.length; i++) {
         ctx.fillText(lines[i], 4, 10 * i + 10);
       }

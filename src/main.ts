@@ -204,6 +204,7 @@ function initScene() {
   office.node!.position.set(0, 0.01, 0);
   addGameObject(office);
 
+  // debugPanel = new DebugPanel(camera, 256, 256, { textColor: "#7777ff", backgroundColor: "#00000011"});
   debugPanel = new DebugPanel(camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
 
