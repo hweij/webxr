@@ -24,6 +24,7 @@ import { GameObject3D } from './game_object_3d';
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
 var bStartSession: HTMLElement;
+var vrText: HTMLElement;
 
 let camera: PerspectiveCamera;
 let scene: Scene;
@@ -54,6 +55,7 @@ floorPattern.texture.wrapT = THREE.RepeatWrapping;
 floorPattern.texture.repeat.set(8, 8);
 floorPattern.fill((_x, _y) => [0, Math.random() * 128 + 64, 0, 255]);
 
+var vrSupported = false;
 var vrMode = false;
 
 var avatar: THREE.Group;
@@ -74,6 +76,7 @@ function addGameObject<T extends GameObject>(obj: T) {
 }
 
 async function init() {
+  vrSupported = await navigator.xr?.isSessionSupported("immersive-vr") || false;
   await appContext.init();
 
   initScene();
@@ -138,8 +141,41 @@ async function init() {
     }
   }
 
-  // All set, invite to VR session
-  bStartSession.innerText = "Click here to start VR session";
+  if (vrSupported) {
+    vrText.innerText = "VR-capable browser and hardware detected.";
+    bStartSession.innerText = "Click here to start VR session";
+  }
+  else {
+    vrText.innerText = "No VR-capable browser and hardware detected.";
+    bStartSession.innerText = "Click here to run anyway";
+  }
+  bStartSession.onclick = () => {
+    vrMode = true;
+    startSession(
+      renderer,
+      () => {
+        const session = renderer.xr.getSession();
+        if (session) {
+          document.getElementById("ui-overlay")!.style.display = "none";
+          session.onselectstart = (evt: XRInputSourceEvent) => {
+            if (evt.inputSource.handedness === "right") {
+              const pos = new Vector3();
+              controllerR.getWorldPosition(pos);
+              const direction = new Vector3();
+              controllerR.getWorldDirection(direction);
+              balls.add(scene, pos, direction);
+            }
+          };
+          session.onsqueezestart = (evt: XRInputSourceEvent) => {
+            if (evt.inputSource.handedness === "right") {
+              const color = balls.nextColor();
+              pivotMaterial.color.set(color);
+            }
+          }
+        }
+      },
+      () => { });
+  }
 }
 
 function createControllerMesh() {
@@ -287,36 +323,8 @@ function initScene() {
   /** For non-VR control */
   movementControl = new MovementControl(avatar, camera, renderer.domElement);
 
-  { // Button to enable VR
-    bStartSession = document.getElementById("bStartSession")!;
-    bStartSession.onclick = () => {
-      vrMode = true;
-      startSession(
-        renderer,
-        () => {
-          const session = renderer.xr.getSession();
-          if (session) {
-            document.getElementById("ui-overlay")!.style.display = "none";
-            session.onselectstart = (evt: XRInputSourceEvent) => {
-              if (evt.inputSource.handedness === "right") {
-                const pos = new Vector3();
-                controllerR.getWorldPosition(pos);
-                const direction = new Vector3();
-                controllerR.getWorldDirection(direction);
-                balls.add(scene, pos, direction);
-              }
-            };
-            session.onsqueezestart = (evt: XRInputSourceEvent) => {
-              if (evt.inputSource.handedness === "right") {
-                const color = balls.nextColor();
-                pivotMaterial.color.set(color);
-              }
-            }
-          }
-        },
-        () => { });
-    }
-  }
+  vrText = document.getElementById("vrText")!;
+  bStartSession = document.getElementById("bStartSession")!;
 
   {
     const play = document.createElement("button");
