@@ -57,7 +57,7 @@ export class PatientMonitor extends GameObject3D {
 
             this.mat = new MeshBasicMaterial({map: this._texWave});
             this.screen = new Mesh(geo, this.mat);
-            this._node.add(this.screen);
+            this.node.add(this.screen);
         }
         {   // Casing
             const wOut = SCREEN_WIDTH + (2 * BEZEL_WIDTH);
@@ -76,14 +76,14 @@ export class PatientMonitor extends GameObject3D {
             bezelGeo.computeVertexNormals();
             this.bezelMat = new MeshLambertMaterial({color: bezelColor});
             const bezel = new Mesh(bezelGeo, this.bezelMat);
-            this._node.add(bezel);
+            this.node.add(bezel);
         
             // Backside
             const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
             geo.rotateX(Math.PI);
             geo.translate(0.0, 0.0, -0.035);
             const back = new Mesh(geo, this.bezelMat);
-            this._node.add(back);
+            this.node.add(back);
         }
     }
 

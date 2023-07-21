@@ -13,10 +13,12 @@ type InteractionsType = {
  * This class is used to wrap (larger) objects and present a clean and uniform interface.
  */
 export class GameObject3D implements GameObject {
-    _parent: GameObject3D | null = null;
-    _children: GameObject3D[] = [];
     /** Internal 3D object node, MUST be set in subclass */
-    _node!: Object3D;
+    private _node!: Object3D;
+    /** Parent game object */
+    private _parent: GameObject3D | null = null;
+    /** Game object children */
+    protected _children: GameObject3D[] = [];
 
     interactions: InteractionsType = {};
 
