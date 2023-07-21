@@ -1,6 +1,4 @@
 export interface GameContext {
-  /** Actual time, milliseconds since epoch */
-  millis: number;
   /** Time since start of game */
   t: number;
   /** Delta time since last tick */

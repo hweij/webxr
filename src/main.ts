@@ -338,8 +338,7 @@ var mixer: THREE.AnimationMixer;
 var clipAction: THREE.AnimationAction;
 
 var _lastTime = 0;
-/** Start time of the game */
-var tStart = Date.now();
+
 function render(millis: number, frame: XRFrame) {
   if (_lastTime) {
     const dt = (millis - _lastTime) * 0.001;
@@ -361,7 +360,7 @@ function render(millis: number, frame: XRFrame) {
       ]);
     }
 
-    tick({ millis: millis + tStart, t: millis * 0.001, dt: dt });
+    tick({ t: millis * 0.001, dt: dt });
 
     movementControl.update(dt);
 
