@@ -92,12 +92,11 @@ function createMarkerMesh() {
   const segments = 8;
   const data = new Uint8Array(4 * segments);
   for (let i = 0; i < segments; i++) {
-    const c = (i % 2) * 255;
     const stride = i * 4;
-    data[stride] = c;
-    data[stride + 1] = c;
-    data[stride + 2] = c;
-    data[stride + 3] = 128;
+    data[stride] = 0;
+    data[stride + 1] = 255;
+    data[stride + 2] = 255;
+    data[stride + 3] = (i % 2) * 128 + 64;
   }
 
   // used the buffer to create a DataTexture
