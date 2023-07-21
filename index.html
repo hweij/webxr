@@ -6,10 +6,50 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<script type="module" src="/src/main.ts"></script>
+		<style>
+			.vr-position {
+				position: absolute;
+				top: 0%;
+				left: 0%;
+				right: 0%;
+				bottom: 0%;
+				display: grid;
+				align-items: end;
+				justify-items: center;
+			}
+			.vr-grid {
+				position: relative;
+				display: grid;
+				justify-items: center;
+				background-color: #00000033;
+				user-select: none;
+			}
+			.vr-button {
+				font-size: 36px;
+				padding: 1em;
+				white-space: nowrap;
+				cursor: pointer;
+			}
+			.vr-text {
+				font-size: 14px;
+				width: max-content;
+				padding: 1em;
+				white-space: nowrap;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="webgl-container">
-			<button id="bStartSession" style="position: absolute; top: 20px; left: 20px;">Start VR session</button>
 		</div>
+		<div id="ui-overlay" class="vr-position">
+			<div class="vr-grid">
+				<div class="vr-text">
+					You will need a VR-capable browser and hardware to view this content.
+				</div>
+				<div id="bStartSession" class="vr-button">
+					Loading...
+				</div>
+			</div>
+		<div>
 	</body>
 </html>

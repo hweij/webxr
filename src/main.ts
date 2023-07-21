@@ -23,6 +23,8 @@ import { GameObject3D } from './game_object_3d';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
+var bStartSession: HTMLElement;
+
 let camera: PerspectiveCamera;
 let scene: Scene;
 
@@ -98,16 +100,7 @@ async function init() {
 
   balls = addGameObject(new Balls());
 
-  const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
-  geometry.rotateX(- Math.PI / 2);
-  const material = new THREE.MeshStandardMaterial({ flatShading: true });
-  const mesh = new THREE.Mesh(geometry, material);
-  pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
-
-  const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
-  pivot.name = 'pivot';
-  pivot.position.z = -0.05;
-  mesh.add(pivot);
+  const mesh = createControllerMesh();
 
   controllerL = mesh.clone();
   avatar.add(controllerL);
@@ -118,11 +111,7 @@ async function init() {
   teleport = addGameObject(new Teleport(scene));
 
   // Add ray to controller
-  const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
-  const rayGeo = new THREE.CylinderGeometry(0.003, 0.003, 10.0, 8, 1, true);
-  rayGeo.translate(0, 5.0, 0);
-  rayGeo.rotateX(-Math.PI * 0.5);
-  const rayMesh = new THREE.Mesh(rayGeo, rayMaterial);
+  const rayMesh = createRayMesh();
   controllerR.add(rayMesh);
 
   // Add inertia group to controller
@@ -146,6 +135,34 @@ async function init() {
       }  
     }
   }
+
+  // All set, invite to VR session
+  bStartSession.innerText = "Click here to start VR session";
+}
+
+function createControllerMesh() {
+  const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
+  geometry.rotateX(- Math.PI / 2);
+  const material = new THREE.MeshStandardMaterial({ flatShading: true });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
+
+  const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
+  pivot.name = 'pivot';
+  pivot.position.z = -0.05;
+  mesh.add(pivot);
+
+  return mesh;
+}
+
+function createRayMesh() {
+  const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
+  const rayGeo = new THREE.CylinderGeometry(0.003, 0.003, 10.0, 8, 1, true);
+  rayGeo.translate(0, 5.0, 0);
+  rayGeo.rotateX(-Math.PI * 0.5);
+
+  return new THREE.Mesh(rayGeo, rayMaterial);
 }
 
 function addToScene(obj: Object3D, raycast: boolean) {
@@ -269,7 +286,7 @@ function initScene() {
   movementControl = new MovementControl(avatar, camera, renderer.domElement);
 
   { // Button to enable VR
-    const bStartSession = document.getElementById("bStartSession")!;
+    bStartSession = document.getElementById("bStartSession")!;
     bStartSession.onclick = () => {
       vrMode = true;
       startSession(
@@ -277,6 +294,7 @@ function initScene() {
         () => {
           const session = renderer.xr.getSession();
           if (session) {
+            document.getElementById("ui-overlay")!.style.display = "none";
             session.onselectstart = (evt: XRInputSourceEvent) => {
               if (evt.inputSource.handedness === "right") {
                 const pos = new Vector3();
