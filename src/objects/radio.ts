@@ -1,5 +1,7 @@
 import * as THREE from "three";
-import { Camera, Scene } from "three";
+import { Camera } from "three";
+
+import { GameObject3D } from "../game_frame";
 
 // Some radio URLs
 // https://garfnet.org.uk/cms/tables/radio-frequencies/internet-radio-player/
@@ -8,10 +10,12 @@ const soundUrl = 'http://media-ice.musicradio.com/CapitalMP3';
 
 // const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
 
-export class Radio {
-    _node: THREE.Mesh;
+export class Radio extends GameObject3D {
+    constructor(camera: Camera) {
+        super(createMesh());
 
-    constructor(scene: Scene, camera: Camera) {
+        this.interactions.grab = true;
+
         // create an AudioListener and add it to the camera
         const listener = new THREE.AudioListener();
         camera.add(listener);
@@ -21,16 +25,12 @@ export class Radio {
 
         this.connectViaElement(sound, soundUrl);
 
-
-        // create an object for the sound to play from
-        const sphere = new THREE.SphereGeometry(0.2, 32, 16);
-        const material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
-        this._node = new THREE.Mesh(sphere, material);
-        this._node.position.set(1, 1, -1);
-        scene.add(this._node);
-
         // finally add the sound to the mesh
-        this._node.add(sound);
+        this.node.add(sound);
+    }
+
+    get mesh() {
+        return this.node as THREE.Mesh;
     }
 
     connectViaLoader(sound: THREE.PositionalAudio) {
@@ -55,4 +55,14 @@ export class Radio {
 
         audio.setMediaElementSource(mediaElement);
     }
+}
+
+function createMesh() {
+    // create an object for the sound to play from
+    const sphere = new THREE.SphereGeometry(0.2, 32, 16);
+    const material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
+
+    const mesh = new THREE.Mesh(sphere, material);
+
+    return mesh;
 }

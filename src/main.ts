@@ -259,7 +259,9 @@ function initScene() {
     play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
     play.onclick = () => {
       if (!radio) {
-        radio = new Radio(mainScene.scene, avatar.camera);
+        radio = new Radio(avatar.camera);
+        radio.node.position.set(1, 1, -1);
+        addToScene(radio.node, true);
       }
       debugPanel?.setMessage('Playing radio');
     };
