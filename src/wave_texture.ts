@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { Texture } from "three";
 import { GameContext, GameObject } from "./game_frame";
 
-import { Wave } from "./wave";
+import { Wave } from "./logic/wave";
 
 export class WaveTexture implements GameObject {
   texture: Texture;
@@ -29,7 +29,7 @@ export class WaveTexture implements GameObject {
   }
 
   tick(context: GameContext) {
-    this.wave.tick(context);
+    this.wave.tick(context.dt);
     // Copy wave data to texture
     const values = this.wave.values;
 

@@ -1,6 +1,4 @@
-import { GameContext, GameObject } from "./game_frame";
-
-export class Wave implements GameObject {
+export class Wave {
   /** Propagation speed of the wave */
   speed = 1.0;
   /** Wave sustain: 1.0 = forever, 0.0 = extinguish immediately */
@@ -51,16 +49,16 @@ export class Wave implements GameObject {
     }
   }
 
-  tick(context: GameContext) {
+  tick(dt: number) {
     let i, j;
     for (i = 1; i <= this.width; i++) {
       for (j = 1; j <= this.height; j++) {
-        this.v[i][j] = this.v[i][j] + ((this.z[i + 1][j] + this.z[i - 1][j] + this.z[i][j + 1] + this.z[i][j - 1]) * 0.25 - this.z[i][j]) * context.dt;
+        this.v[i][j] = this.v[i][j] + ((this.z[i + 1][j] + this.z[i - 1][j] + this.z[i][j + 1] + this.z[i][j - 1]) * 0.25 - this.z[i][j]) * dt;
       }
     }
     for (i = 1; i <= this.width; i++) {
       for (j = 1; j <= this.height; j++) {
-        this.z[i][j] = (this.z[i][j] + this.v[i][j] * this.speed * context.dt) * this.sustain;
+        this.z[i][j] = (this.z[i][j] + this.v[i][j] * this.speed * dt) * this.sustain;
       }
     }
   }
