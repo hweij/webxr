@@ -30,8 +30,12 @@ export class Teleport implements GameObject {
     rDir.multiplyScalar(-1);
 
     if (button) {
-      if (intersects.length) {
-        const intersect = intersects[0];
+      let i = 0;
+      while ((i < intersects.length) && (intersects[i].object.userData.nohit)) {
+        i++;
+      }
+      if (i < intersects.length) {
+        const intersect = intersects[i];
         // Only teleport to surfaces that have the "teleport" userData property
         if (intersect.face && intersect.object.userData.teleport) {
           const p = intersect.point;

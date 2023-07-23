@@ -196,7 +196,7 @@ function initScene() {
   mainScene.addChild(office);
 
   // debugPanel = new DebugPanel(camera, 256, 256, { textColor: "#7777ff", backgroundColor: "#00000011"});
-  debugPanel = new DebugPanel(avatar.camera, 256, 256);
+  debugPanel = new DebugPanel(avatar.camera, 256, 256, { nohit: true });
   debugPanel.object3D.position.set(0, 0, -2);
 
   /** Floor with a pattern */

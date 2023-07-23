@@ -4,6 +4,8 @@ import { Object3D, Texture } from "three";
 export interface PanelOptions {
   textColor?: string;
   backgroundColor?: string;
+  /** Prevent ray cast hit */
+  nohit?: boolean;
 }
 
 /** Panel for showing in-scene debug messages */
@@ -23,6 +25,10 @@ export class DebugPanel {
     this.tex =  new Texture(this.canvas);
     const material = new THREE.SpriteMaterial({ map: this.tex, depthTest: false });
     const sprite = new THREE.Sprite( material );
+    // Prevent ray cast hit if requested
+    if (options?.nohit) {
+      sprite.userData.nohit = options.nohit;
+    }
     this.object3D = new THREE.Object3D();
     this.object3D.add(sprite);
     parent.add(this.object3D);
