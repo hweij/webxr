@@ -63,7 +63,6 @@ var raycastHelper: RaycastHelper = new RaycastHelper();
 var raycastTargetList: THREE.Object3D[] = [];
 
 var balls: Balls;
-var pivotMaterial: THREE.MeshStandardMaterial;
 
 init().then(() => animate());
 
@@ -136,8 +135,7 @@ async function init() {
           };
           session.onsqueezestart = (evt: XRInputSourceEvent) => {
             if (evt.inputSource.handedness === "right") {
-              const color = balls.nextColor();
-              pivotMaterial.color.set(color);
+              balls.nextColor();
             }
           }
         }
