@@ -3,7 +3,8 @@ import { Camera, Scene } from "three";
 
 // Some radio URLs
 // https://garfnet.org.uk/cms/tables/radio-frequencies/internet-radio-player/
-const soundUrl = 'https://stream.live.vc.bbcmedia.co.uk/bbc_1xtra';
+// const soundUrl = 'https://stream.live.vc.bbcmedia.co.uk/bbc_1xtra';
+const soundUrl = 'http://media-ice.musicradio.com/CapitalMP3';
 
 // const soundUrl = '/music/Laurent Garnier - Man with the Red Face.mp3';
 
