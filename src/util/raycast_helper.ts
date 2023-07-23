@@ -8,6 +8,15 @@ export class RaycastHelper {
     _rPos = new Vector3();
     _rDir = new Vector3();
 
+    constructor(layers?: number[]) {
+        if (layers && layers.length) {
+            this._rc.layers.disableAll();
+            for (const layer of layers) {
+                this._rc.layers.enable(layer);
+            }
+        }
+    }
+
     getIntersections(objects: Object3D[], obj: Object3D) {
         obj.getWorldPosition(this._rPos);
         obj.getWorldDirection(this._rDir);
