@@ -182,9 +182,6 @@ function initScene() {
   avatar = new Avatar();
   mainScene.addChild(avatar);
 
-  // TEST TEST: audio
-  let radio: Radio;
-
   /** Animated lava texture */
   // const waveTexture = addGameObject(new WaveTexture(64, 64));
 
@@ -264,6 +261,9 @@ function initScene() {
     const play = document.createElement("button");
     play.innerText = "Play";
     play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
+
+    // TEST TEST: audio
+    let radio: Radio;
     play.onclick = () => {
       if (!radio) {
         radio = new Radio(avatar.camera);
