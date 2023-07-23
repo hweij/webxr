@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Object3D, Scene, Vector3, WebGLRenderer } from 'three';
+import { Object3D, Vector3, WebGLRenderer } from 'three';
 import { startSession, updateControllers } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -9,7 +9,7 @@ import { Inputs } from './inputs';
 // import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 // import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
-import { GameContext, GameObject, GameObject3D } from './game_frame';
+import { GameContext, GameObject3D } from './game_frame';
 import { Teleport } from './util/teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
@@ -20,6 +20,7 @@ import { RaycastHelper } from './util/raycast_helper';
 
 import * as appContext from "./app_context";
 import { Avatar } from './avatar';
+import { MainScene } from './main_scene';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
@@ -28,13 +29,11 @@ var bStartSession: HTMLElement;
 /** Text to explain use of the program before starting VR */
 var vrText: HTMLElement;
 
-let scene: Scene;
+let mainScene: MainScene;
 
 let movementControl: MovementControl;
 
 let renderer: WebGLRenderer;
-
-var gameObjects: GameObject[] = [];
 
 // Submodules
 const inputs = new Inputs();
@@ -68,11 +67,6 @@ var pivotMaterial: THREE.MeshStandardMaterial;
 
 init().then(() => animate());
 
-function addGameObject<T extends GameObject>(obj: T) {
-  gameObjects.push(obj);
-  return obj;
-}
-
 async function init() {
   vrSupported = await navigator.xr?.isSessionSupported("immersive-vr") || false;
   await appContext.init();
@@ -88,14 +82,14 @@ async function init() {
         const data = Array.from(signals[i].map(v => v * 0.1));
         const graphLine = createGraphLine(data, 0.005, 0.005, 1000);
         graphLine.position.set(0, i * 0.3 + 0.5, -1.5)
-        scene.add(graphLine);
+        mainScene.scene.add(graphLine);
       }
     }
   }
 
-  balls = addGameObject(new Balls());
+  balls = new Balls();
 
-  teleport = addGameObject(new Teleport(scene));
+  teleport = new Teleport(mainScene.scene);
 
   window.addEventListener('resize', onWindowResize);
 
@@ -137,7 +131,7 @@ async function init() {
               avatar.rightHand.getWorldPosition(pos);
               const direction = new Vector3();
               avatar.rightHand.getWorldDirection(direction);
-              balls.add(scene, pos, direction);
+              balls.add(mainScene.scene, pos, direction);
             }
           };
           session.onsqueezestart = (evt: XRInputSourceEvent) => {
@@ -153,7 +147,7 @@ async function init() {
 }
 
 function addToScene(obj: Object3D, raycast: boolean) {
-  scene.add(obj);
+  mainScene.scene.add(obj);
   if (raycast && (raycastTargetList.indexOf(obj) < 0)) {
     raycastTargetList.push(obj);
   }
@@ -165,8 +159,7 @@ function initScene() {
     return;
   }
 
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xc3e9ff);
+  mainScene = new MainScene();
   // {
   //   const loader = new THREE.CubeTextureLoader();
   //   const texture = loader.load([
@@ -181,8 +174,8 @@ function initScene() {
   // }
 
   /** Avatar, for VR use */
-  avatar = addGameObject(new Avatar());
-  scene.add(avatar.node);
+  avatar = new Avatar();
+  mainScene.addChild(avatar);
 
   // TEST TEST: audio
   let radio: Radio;
@@ -200,7 +193,7 @@ function initScene() {
   const office = new Office();
   addToScene(office.node, true);
   office.node!.position.set(0, 0.01, 0);
-  addGameObject(office);
+  mainScene.addChild(office);
 
   // debugPanel = new DebugPanel(camera, 256, 256, { textColor: "#7777ff", backgroundColor: "#00000011"});
   debugPanel = new DebugPanel(avatar.camera, 256, 256);
@@ -222,13 +215,6 @@ function initScene() {
   //   scene.add(landscape);
   //   // landscape.updateMatrixWorld();
   // }
-
-  { // Lighting
-    scene.add(new THREE.HemisphereLight(0x888877, 0x777788));
-    const light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.set(0.5, 1, 0.3);
-    scene.add(light);
-  }
 
   // /** Snow (GPU-version) */
   // const snow = addGameObject(new SnowGpu());
@@ -275,7 +261,7 @@ function initScene() {
     play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
     play.onclick = () => {
       if (!radio) {
-        radio = new Radio(scene, avatar.camera);
+        radio = new Radio(mainScene.scene, avatar.camera);
       }
       debugPanel?.setMessage('Playing radio');
     };
@@ -294,9 +280,9 @@ function animate() {
 }
 
 function tick(context: GameContext) {
-  for (const obj of gameObjects) {
-    obj.tick(context);
-  }
+  balls.tick(context);
+  teleport.tick(context);
+  mainScene.tick(context);
 }
 
 var hitObject: GameObject3D | null = null;
@@ -429,7 +415,7 @@ function render(millis: number, frame: XRFrame) {
   // Update WebXR controllers for this frame
   updateControllers(renderer, frame, avatar.leftHand, avatar.rightHand);
 
-  renderer.render(scene, avatar.camera);
+  renderer.render(mainScene.scene, avatar.camera);
 }
 
 function createFloor(tex: THREE.Texture) {
