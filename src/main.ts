@@ -144,7 +144,14 @@ async function init() {
   }
 }
 
-function addToScene(obj: Object3D, raycast: boolean) {
+// TODO: find a way to store raycast objects also if created inside other objects. Now it is done only at the top level
+function addToScene(obj: GameObject3D, raycast: boolean) {
+  mainScene.addChild(obj);
+  if (raycast && (raycastTargetList.indexOf(obj.node) < 0)) {
+    raycastTargetList.push(obj.node);
+  }
+}
+function addNodeToScene(obj: Object3D, raycast: boolean) {
   mainScene.scene.add(obj);
   if (raycast && (raycastTargetList.indexOf(obj) < 0)) {
     raycastTargetList.push(obj);
@@ -189,7 +196,7 @@ function initScene() {
 
   /** Office room */
   const office = new Office();
-  addToScene(office.node, true);
+  addToScene(office, true);
   office.node!.position.set(0, 0.01, 0);
   mainScene.addChild(office);
 
@@ -199,7 +206,7 @@ function initScene() {
 
   /** Floor with a pattern */
   const floor = createFloor(floorPattern.texture);
-  addToScene(floor, true);
+  addNodeToScene(floor, true);
 
   // let landscape;
   // { // LANDSCAPE TEST
@@ -261,7 +268,7 @@ function initScene() {
       if (!radio) {
         radio = new Radio(avatar.camera);
         radio.node.position.set(1, 1, -1);
-        addToScene(radio.node, true);
+        addToScene(radio, true);
       }
       debugPanel?.setMessage('Playing radio');
     };
