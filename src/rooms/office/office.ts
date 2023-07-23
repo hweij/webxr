@@ -3,7 +3,7 @@ import { Vector3 } from 'three';
 
 import { PatientMonitor } from '../../objects/patient_monitor/patient_monitor';
 import { WallClock } from '../../objects/wall_clock';
-import { createWall } from '../util';
+import { createWall } from '../../util/util';
 import { Desk } from './desk';
 import { GameObject3D } from '../../game_frame';
 
