@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Mesh, Object3D, Scene, Vector3 } from 'three';
-import { GameContext, GameObject } from './game_frame';
+import { GameContext, GameObject } from '../game_frame';
 
 export class Teleport implements GameObject {
   _marker: Mesh;

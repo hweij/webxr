@@ -10,7 +10,7 @@ import { Inputs } from './inputs';
 // import { Snow } from './snow';
 // import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
 import { GameContext, GameObject, GameObject3D } from './game_frame';
-import { Teleport } from './teleport';
+import { Teleport } from './util/teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
 // import { Graph } from './objects/graph';
