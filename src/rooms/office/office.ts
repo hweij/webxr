@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 
-import { PatientMonitor } from '../../objects/patient_monitor';
+import { PatientMonitor } from '../../patient_monitor/patient_monitor';
 import { WallClock } from '../../objects/wall_clock';
 import { createWall } from '../util';
 import { Desk } from './desk';
-import { GameObject3D } from '../../game_object_3d';
+import { GameObject3D } from '../../game_frame';
 
 const WIDTH = 6;
 const DEPTH = 4;
@@ -25,7 +25,7 @@ export class Office extends GameObject3D {
 
         const desk = new Desk();
         desk.mesh.position.set(1.5, 0, -0.9);
-        this._node.add(desk.mesh);
+        this.node.add(desk.mesh);
 
         this.clock = new WallClock();
         this.clock.node.position.set(1, 2, -1.99);
@@ -39,7 +39,7 @@ export class Office extends GameObject3D {
     }
 
     _createWalls() {
-        const obj = this._node!;
+        const obj = this.node!;
         // Front
         obj.add(createWall([
             0, 0, 0, HEIGHT, WIDTH, HEIGHT, WIDTH, 0,

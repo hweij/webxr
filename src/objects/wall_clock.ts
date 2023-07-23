@@ -2,8 +2,7 @@ import * as THREE from 'three';
 
 import { ExtrudeGeometry, MeshBasicMaterial, MeshLambertMaterial, ShapeGeometry } from 'three';
 
-import { GameObject3D } from '../game_object_3d';
-import { GameContext } from '../game_object';
+import { GameContext, GameObject3D } from '../game_frame';
 
 export class WallClock extends GameObject3D {
     dialSeconds: THREE.Mesh;
@@ -32,7 +31,7 @@ export class WallClock extends GameObject3D {
         this.dialMinutes = this._createDial(-0.02, 0.12, 0.004);
         this.dialHours = this._createDial(-0.02, 0.08, 0.004);
 
-        this._node.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
+        this.node.add(plate, ring, markers, this.dialSeconds, this.dialMinutes, this.dialHours);
 
         this._updateTime(true);
     }

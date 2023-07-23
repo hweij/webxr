@@ -9,7 +9,7 @@ import { Inputs } from './inputs';
 // import { WaveTexture } from './wave_texture';
 // import { Snow } from './snow';
 // import { NUM_FLAKES, SnowGpu } from './snow/snow_gpu';
-import { GameContext, GameObject } from './game_object';
+import { GameContext, GameObject, GameObject3D } from './game_frame';
 import { Teleport } from './teleport';
 import { Office } from './rooms/office/office';
 import { Radio } from './objects/radio';
@@ -19,7 +19,6 @@ import { MovementControl } from './movement_control';
 import { RaycastHelper } from './raycast_helper';
 
 import * as appContext from "./app_context";
-import { GameObject3D } from './game_object_3d';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
@@ -406,7 +405,7 @@ function render(millis: number, frame: XRFrame) {
         if (hitObject) {
           hitObject.onRayEnter();
         }
-      }  
+      }
     }
 
     { // Turning

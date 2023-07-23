@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Scene, Vector3 } from "three";
-import { GameContext, GameObject } from './game_object';
+import { GameContext, GameObject } from './game_frame';
 
 // Max age in seconds after which the ball is removed
 const MAX_BALL_AGE = 3;

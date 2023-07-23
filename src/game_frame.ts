@@ -1,6 +1,16 @@
 import { Object3D } from "three";
 
-import { GameContext, GameObject } from "./game_object";
+export interface GameContext {
+    /** Time since start of game */
+    t: number;
+    /** Delta time since last tick */
+    dt: number;
+}
+
+export interface GameObject {
+    /** Called every "tick", to update state. A time delta in seconds is passed. */
+    tick: (context: GameContext) => void;
+}
 
 type InteractionsType = {
     /** True if the object can be grabbed */

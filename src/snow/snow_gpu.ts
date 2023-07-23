@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Object3D } from "three";
-import { GameContext, GameObject } from '../game_object';
+import { GameContext, GameObject } from '../game_frame';
 
 import vert from './snow_gpu.vert?raw';
 import frag from './snow_gpu.frag?raw';

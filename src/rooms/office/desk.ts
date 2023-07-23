@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { GameContext, GameObject } from "../../game_object";
+import { GameContext, GameObject } from "../../game_frame";
 
 const WIDTH = 1.6;
 const DEPTH = 0.8;

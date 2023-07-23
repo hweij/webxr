@@ -1,4 +1,4 @@
-import { GameContext, GameObject } from "./game_object";
+import { GameContext, GameObject } from "./game_frame";
 
 export class Wave implements GameObject {
   /** Propagation speed of the wave */

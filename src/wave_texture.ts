@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { Texture } from "three";
-import { GameContext, GameObject } from "./game_object";
+import { GameContext, GameObject } from "./game_frame";
 
 import { Wave } from "./wave";
 

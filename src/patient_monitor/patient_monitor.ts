@@ -1,10 +1,13 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Texture } from "three";
-import { GameObject3D } from "../game_object_3d";
+
+import { GameObject3D } from "../game_frame";
 import { WaveCanvas } from "../wave_canvas/wave_canvas";
 
 import * as appContext from "../app_context";
-import { createFrame } from "../create_frame";
-import { GameContext } from "../game_object";
+import { GameContext } from "../game_frame";
+
+// Helper
+import { createFrame } from "./create_frame";
 
 const SCREEN_WIDTH = 0.49;
 const SCREEN_HEIGHT = 0.274;
@@ -16,12 +19,12 @@ const colors = ["red", "green", "blue", "yellow", "white", "cyan", "magenta"];
 const bezelColor = '#eeddcc';
 
 export class PatientMonitor extends GameObject3D {
-    screen: Mesh;
+    _screen: Mesh;
     _waveCanvas: WaveCanvas[];
     _t = 0;
     _texWave: Texture;
-    mat: Material;
-    bezelMat: MeshLambertMaterial;
+    _mat: Material;
+    _bezelMat: MeshLambertMaterial;
 
     _testSampleIndex = 0;
 
@@ -55,9 +58,9 @@ export class PatientMonitor extends GameObject3D {
         {   // Screen
             const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
 
-            this.mat = new MeshBasicMaterial({map: this._texWave});
-            this.screen = new Mesh(geo, this.mat);
-            this.node.add(this.screen);
+            this._mat = new MeshBasicMaterial({map: this._texWave});
+            this._screen = new Mesh(geo, this._mat);
+            this.node.add(this._screen);
         }
         {   // Casing
             const wOut = SCREEN_WIDTH + (2 * BEZEL_WIDTH);
@@ -74,15 +77,15 @@ export class PatientMonitor extends GameObject3D {
             const bezelGeo = new BufferGeometry();
             bezelGeo.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
             bezelGeo.computeVertexNormals();
-            this.bezelMat = new MeshLambertMaterial({color: bezelColor});
-            const bezel = new Mesh(bezelGeo, this.bezelMat);
+            this._bezelMat = new MeshLambertMaterial({color: bezelColor});
+            const bezel = new Mesh(bezelGeo, this._bezelMat);
             this.node.add(bezel);
         
             // Backside
             const geo = new PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
             geo.rotateX(Math.PI);
             geo.translate(0.0, 0.0, -0.035);
-            const back = new Mesh(geo, this.bezelMat);
+            const back = new Mesh(geo, this._bezelMat);
             this.node.add(back);
         }
     }
@@ -106,11 +109,11 @@ export class PatientMonitor extends GameObject3D {
     }
 
     override onRayEnter(): void {
-        this.bezelMat.color.set('#ff00ff');
+        this._bezelMat.color.set('#ff00ff');
     }
 
     override onRayExit(): void {
-        this.bezelMat.color.set(bezelColor);
+        this._bezelMat.color.set(bezelColor);
     }
 }
 
