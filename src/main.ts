@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
+import { Object3D, Scene, Vector3, WebGLRenderer } from 'three';
 import { startSession, updateControllers } from './webxr/webxr_helper';
 
 import { Balls } from './balls';
@@ -19,6 +19,7 @@ import { MovementControl } from './movement_control';
 import { RaycastHelper } from './util/raycast_helper';
 
 import * as appContext from "./app_context";
+import { Avatar } from './avatar';
 
 // import { createGraphLine, getGraphLinePoints } from './graphline/graphline';
 
@@ -27,19 +28,11 @@ var bStartSession: HTMLElement;
 /** Text to explain use of the program before starting VR */
 var vrText: HTMLElement;
 
-let camera: PerspectiveCamera;
 let scene: Scene;
 
 let movementControl: MovementControl;
 
 let renderer: WebGLRenderer;
-
-/** Controller associated with the right hand */
-var controllerL: THREE.Group;
-/** Controller associated with the left hand */
-var controllerR: THREE.Group;
-/** Innertia group */
-var controllerInertia: THREE.Group;
 
 var gameObjects: GameObject[] = [];
 
@@ -63,7 +56,7 @@ floorPattern.fill((_x, _y) => [0, Math.random() * 128 + 64, 0, 255]);
 var vrSupported = false;
 var vrMode = false;
 
-var avatar: THREE.Group;
+var avatar: Avatar;
 
 var teleport: Teleport;
 
@@ -102,31 +95,13 @@ async function init() {
 
   balls = addGameObject(new Balls());
 
-  const defaultControllerTool = createControllerMesh();
-
-  controllerL = new THREE.Group();
-  controllerL.add(defaultControllerTool.clone());
-  avatar.add(controllerL);
-
-  controllerR = new THREE.Group();
-  controllerR.add(defaultControllerTool.clone());
-  avatar.add(controllerR);
-
   teleport = addGameObject(new Teleport(scene));
-
-  // Add ray to controller
-  const rayMesh = createRayMesh();
-  controllerR.add(rayMesh);
-
-  // Add inertia group to controller
-  controllerInertia = new THREE.Group();
-  avatar.add(controllerInertia);
 
   window.addEventListener('resize', onWindowResize);
 
   window.onmousemove = (evt: MouseEvent) => {
     if (!vrMode) {
-      const intersections = raycastHelper.getMouseIntersections(raycastTargetList, camera, (evt.clientX / window.innerWidth) * 2 - 1, -(evt.clientY / window.innerHeight) * 2 + 1);
+      const intersections = raycastHelper.getMouseIntersections(raycastTargetList, avatar.camera, (evt.clientX / window.innerWidth) * 2 - 1, -(evt.clientY / window.innerHeight) * 2 + 1);
       const obj = raycastHelper.findGameObject(intersections);
       if (obj != hitObject) {
         if (hitObject) {
@@ -159,9 +134,9 @@ async function init() {
           session.onselectstart = (evt: XRInputSourceEvent) => {
             if (evt.inputSource.handedness === "right") {
               const pos = new Vector3();
-              controllerR.getWorldPosition(pos);
+              avatar.rightHand.getWorldPosition(pos);
               const direction = new Vector3();
-              controllerR.getWorldDirection(direction);
+              avatar.rightHand.getWorldDirection(direction);
               balls.add(scene, pos, direction);
             }
           };
@@ -175,31 +150,6 @@ async function init() {
       },
       () => { });
   }
-}
-
-function createControllerMesh() {
-  const geometry = new THREE.CylinderGeometry(0.01, 0.02, 0.08, 5);
-  geometry.rotateX(- Math.PI / 2);
-  const material = new THREE.MeshStandardMaterial({ flatShading: true });
-
-  const mesh = new THREE.Mesh(geometry, material);
-  pivotMaterial = new THREE.MeshStandardMaterial({ flatShading: true });
-
-  const pivot = new THREE.Mesh(new THREE.IcosahedronGeometry(0.01, 3), pivotMaterial);
-  pivot.name = 'pivot';
-  pivot.position.z = -0.05;
-  mesh.add(pivot);
-
-  return mesh;
-}
-
-function createRayMesh() {
-  const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
-  const rayGeo = new THREE.CylinderGeometry(0.003, 0.003, 10.0, 8, 1, true);
-  rayGeo.translate(0, 5.0, 0);
-  rayGeo.rotateX(-Math.PI * 0.5);
-
-  return new THREE.Mesh(rayGeo, rayMaterial);
 }
 
 function addToScene(obj: Object3D, raycast: boolean) {
@@ -230,15 +180,9 @@ function initScene() {
   //   scene.background = texture;
   // }
 
-  /** Camera */
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
-  // Initialize at 1.8m height (only for non-VR)
-  camera.position.set(0, 1.8, 1);
-
   /** Avatar, for VR use */
-  avatar = new THREE.Group();
-  avatar.add(camera);
-  scene.add(avatar);
+  avatar = addGameObject(new Avatar());
+  scene.add(avatar.node);
 
   // TEST TEST: audio
   let radio: Radio;
@@ -259,7 +203,7 @@ function initScene() {
   addGameObject(office);
 
   // debugPanel = new DebugPanel(camera, 256, 256, { textColor: "#7777ff", backgroundColor: "#00000011"});
-  debugPanel = new DebugPanel(camera, 256, 256);
+  debugPanel = new DebugPanel(avatar.camera, 256, 256);
   debugPanel.object3D.position.set(0, 0, -2);
 
   /** Floor with a pattern */
@@ -320,7 +264,7 @@ function initScene() {
   container.appendChild(renderer.domElement);
 
   /** For non-VR control */
-  movementControl = new MovementControl(avatar, camera, renderer.domElement);
+  movementControl = new MovementControl(avatar.node, avatar.camera, renderer.domElement);
 
   vrText = document.getElementById("vrText")!;
   bStartSession = document.getElementById("bStartSession")!;
@@ -331,7 +275,7 @@ function initScene() {
     play.style.cssText = "position: absolute; bottom: 20px; left: 200px;";
     play.onclick = () => {
       if (!radio) {
-        radio = new Radio(scene, camera);
+        radio = new Radio(scene, avatar.camera);
       }
       debugPanel?.setMessage('Playing radio');
     };
@@ -340,8 +284,8 @@ function initScene() {
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  avatar.camera.aspect = window.innerWidth / window.innerHeight;
+  avatar.camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -377,7 +321,7 @@ function render(millis: number, frame: XRFrame) {
 
       const right = inputs.right;
       const dir = new THREE.Vector3();
-      controllerR.getWorldDirection(dir);
+      avatar.rightHand.getWorldDirection(dir);
       debugPanel?.setMessage([
         `trigger: ${right.trigger.pressed} (${right.trigger.value.toFixed(2)})`,
         `grab: ${right.grab.pressed} (${right.grab.value.toFixed(2)})`,
@@ -395,7 +339,7 @@ function render(millis: number, frame: XRFrame) {
     // Raycast, object selection
     let intersections: THREE.Intersection<THREE.Object3D<THREE.Event>>[] = [];
     if (vrMode) {
-      intersections = raycastHelper.getIntersections(raycastTargetList, controllerR);
+      intersections = raycastHelper.getIntersections(raycastTargetList, avatar.rightHand);
       const obj = raycastHelper.findGameObject(intersections);
       if (obj != hitObject) {
         if (hitObject) {
@@ -413,14 +357,14 @@ function render(millis: number, frame: XRFrame) {
       if (joyLeft !== inputs.right.thumb.left) {
         if (joyLeft) {
           // Rotate left
-          avatar.rotateY(STEP);
+          avatar.node.rotateY(STEP);
         }
         joyLeft = inputs.right.thumb.left;
       }
       if (joyRight !== inputs.right.thumb.right) {
         if (joyRight) {
           // Rotate right
-          avatar.rotateY(-STEP);
+          avatar.node.rotateY(-STEP);
         }
         joyRight = inputs.right.thumb.right;
       }
@@ -435,7 +379,7 @@ function render(millis: number, frame: XRFrame) {
         }
         if (grabObject) {
           grabObjectParent = grabObject.node.parent;
-          controllerInertia.attach(grabObject.node);
+          avatar.grab(grabObject);
           // Reduce distance to controller. This should be animated.
           const from = grabObject.node.position;
           if (from.length() > grabDistance) {
@@ -476,21 +420,16 @@ function render(millis: number, frame: XRFrame) {
       grabObjectParent = null;
     }
 
-    // Controller inertia
-    const tLerp = dt * 10;
-    controllerInertia.position.lerp(controllerR.position, tLerp);
-    controllerInertia.quaternion.slerp(controllerR.quaternion, tLerp);
-
     // TODO: lift teleport function to higher level and detect thumb-forward motion here
-    teleport?.teleport(inputs.right.thumb.forward, avatar.position, intersections, controllerR);
+    teleport?.teleport(inputs.right.thumb.forward, avatar.node.position, intersections, avatar.rightHand);
   }
 
   _lastTime = millis;
 
   // Update WebXR controllers for this frame
-  updateControllers(renderer, frame, controllerL, controllerR);
+  updateControllers(renderer, frame, avatar.leftHand, avatar.rightHand);
 
-  renderer.render(scene, camera);
+  renderer.render(scene, avatar.camera);
 }
 
 function createFloor(tex: THREE.Texture) {

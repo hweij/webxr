@@ -3,12 +3,14 @@ import * as THREE from "three";
 import { GameContext, GameObject3D } from "./game_frame";
 
 export class Avatar extends GameObject3D {
-    /** Controller associated with the right hand */
-    controllerL: THREE.Group;
     /** Controller associated with the left hand */
-    controllerR: THREE.Group;
+    leftHand: THREE.Group;
+    /** Controller associated with the right hand */
+    rightHand: THREE.Group;
     /** Innertia group */
     controllerInertia: THREE.Group;
+    /** Avatar camera */
+    camera: THREE.PerspectiveCamera;
 
     pivotMaterial!: THREE.MeshStandardMaterial;
 
@@ -17,16 +19,26 @@ export class Avatar extends GameObject3D {
 
         const defaultControllerTool = this.createControllerMesh();
 
-        this.controllerL = new THREE.Group();
-        this.controllerL.add(defaultControllerTool.clone());
-        this.node.add(this.controllerL);
+        this.leftHand = new THREE.Group();
+        this.leftHand.add(defaultControllerTool.clone());
+        this.node.add(this.leftHand);
 
-        this.controllerR = new THREE.Group();
-        this.controllerR.add(defaultControllerTool.clone());
-        this.node.add(this.controllerR);
+        this.rightHand = new THREE.Group();
+        this.rightHand.add(defaultControllerTool.clone());
+        this.node.add(this.rightHand);
 
+        // Add ray to controller
+        const rayMesh = this.createRayMesh();
+        this.rightHand.add(rayMesh);
+        
         this.controllerInertia = new THREE.Group();
         this.node.add(this.controllerInertia);
+
+        /** Camera */
+        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 50);
+        // Initialize at 1.8m height (only for non-VR)
+        this.camera.position.set(0, 1.8, 1);
+        this.node.add(this.camera);
     }
 
     grab (obj: GameObject3D) {
@@ -36,8 +48,8 @@ export class Avatar extends GameObject3D {
     override tick(context: GameContext) {
         // Controller inertia
         const tLerp = context.dt * 10;
-        this.controllerInertia.position.lerp(this.controllerR.position, tLerp);
-        this.controllerInertia.quaternion.slerp(this.controllerR.quaternion, tLerp);
+        this.controllerInertia.position.lerp(this.rightHand.position, tLerp);
+        this.controllerInertia.quaternion.slerp(this.rightHand.quaternion, tLerp);
     }
 
     createControllerMesh() {
@@ -54,5 +66,14 @@ export class Avatar extends GameObject3D {
         mesh.add(pivot);
       
         return mesh;
+      }
+
+      createRayMesh() {
+        const rayMaterial = new THREE.MeshBasicMaterial({ color: 0xccccff, transparent: true, opacity: 0.5 });
+        const rayGeo = new THREE.CylinderGeometry(0.003, 0.003, 10.0, 8, 1, true);
+        rayGeo.translate(0, 5.0, 0);
+        rayGeo.rotateX(-Math.PI * 0.5);
+      
+        return new THREE.Mesh(rayGeo, rayMaterial);
       }
 }
