@@ -24,8 +24,8 @@ export class Office extends GameObject3D {
         super(new THREE.Group());
 
         const desk = new Desk();
-        desk.mesh.position.set(1.5, 0, -0.9);
-        this.node.add(desk.mesh);
+        desk.node.position.set(1.5, 0, -0.9);
+        this.addChild(desk);
 
         this.clock = new WallClock();
         this.clock.node.position.set(1, 2, -1.99);

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { GameContext, GameObject } from "../../game_frame";
+import { GameContext, GameObject3D } from "../../game_frame";
 
 const WIDTH = 1.6;
 const DEPTH = 0.8;
@@ -18,12 +18,11 @@ const legMaterial = new THREE.MeshLambertMaterial({
     color: 0x444444
 });
 
-export class Desk implements GameObject {
-    group = new THREE.Group;
-
+export class Desk extends GameObject3D {
     constructor() {
+        super(new THREE.Group());
         const deskMesh = new THREE.Mesh(deskGeo, deskMaterial);
-        this.group.add(deskMesh)
+        this.node.add(deskMesh)
         // Legs
         const x = (WIDTH - LEGTHICK) / 2 - 0.02;
         const y = (DEPTH - LEGTHICK) / 2 - 0.02;
@@ -37,15 +36,11 @@ export class Desk implements GameObject {
 
     }
 
-    get mesh() {
-        return this.group;
-    }
-    
     _addLeg(x: number, y: number) {
         const mesh = new THREE.Mesh(legGeo, legMaterial);
         mesh.position.x = x;
         mesh.position.y = HEIGHT/2;
         mesh.position.z = y;
-        this.group.add(mesh)
+        this.node.add(mesh)
     }
 }
