@@ -1,10 +1,10 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Texture } from "three";
 
-import { GameObject3D } from "../game_frame";
-import { WaveCanvas } from "../wave_canvas/wave_canvas";
+import { GameObject3D } from "../../game_frame";
+import { WaveCanvas } from "../../wave_canvas/wave_canvas";
 
-import * as appContext from "../app_context";
-import { GameContext } from "../game_frame";
+import * as appContext from "../../app_context";
+import { GameContext } from "../../game_frame";
 
 // Helper
 import { createFrame } from "./create_frame";

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 
-import { PatientMonitor } from '../../patient_monitor/patient_monitor';
+import { PatientMonitor } from '../../objects/patient_monitor/patient_monitor';
 import { WallClock } from '../../objects/wall_clock';
 import { createWall } from '../util';
 import { Desk } from './desk';

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Object3D, Vector3 } from 'three';
-import { GameObject3D } from './game_frame';
+import { GameObject3D } from '../game_frame';
 
 export class RaycastHelper {
     // Raycaster, reused by all instances

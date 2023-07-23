@@ -16,7 +16,7 @@ import { Radio } from './objects/radio';
 // import { Graph } from './objects/graph';
 import { createGraphLine } from './graphline/graphline';
 import { MovementControl } from './movement_control';
-import { RaycastHelper } from './raycast_helper';
+import { RaycastHelper } from './util/raycast_helper';
 
 import * as appContext from "./app_context";
 
